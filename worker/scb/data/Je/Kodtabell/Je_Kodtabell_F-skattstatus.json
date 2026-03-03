@@ -1,0 +1,21 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Uppgift från Skatteverket",
+    "Id_Kategori_JE": "F-skattstatus",
+    "Langd": "",
+    "TillaggsGrupp": "TG15Stat_Fskatt",
+    "VardeLista": [
+        {
+            "Text": "Har aldrig varit registrerad för F-skatt",
+            "Varde": "0"
+        },
+        {
+            "Text": "Är registrerad för F-skatt",
+            "Varde": "1"
+        },
+        {
+            "Text": "Är avregistrerad för F-skatt",
+            "Varde": "9"
+        }
+    ]
+}

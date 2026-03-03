@@ -1,0 +1,25 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Om adressen är aktuell",
+    "Id_Kategori_JE": "Adresstatus",
+    "Langd": "",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Postadress är OK",
+            "Varde": "1"
+        },
+        {
+            "Text": "Postretur",
+            "Varde": "2"
+        },
+        {
+            "Text": "Postadress saknas",
+            "Varde": "3"
+        },
+        {
+            "Text": "Utländsk postadress",
+            "Varde": "4"
+        }
+    ]
+}

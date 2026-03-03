@@ -1,0 +1,25 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "",
+    "Id_Kategori_AE": "Typ av ort",
+    "Langd": "1",
+    "TillaggsGrupp": "TG04GeoKoord_TatSmaTyp",
+    "VardeLista": [
+        {
+            "Text": "Okänd",
+            "Varde": " "
+        },
+        {
+            "Text": "Glesbygd",
+            "Varde": "G"
+        },
+        {
+            "Text": "Småort",
+            "Varde": "S"
+        },
+        {
+            "Text": "Tätort",
+            "Varde": "T"
+        }
+    ]
+}

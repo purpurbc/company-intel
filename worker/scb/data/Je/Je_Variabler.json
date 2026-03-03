@@ -1,0 +1,289 @@
+[
+    {
+        "Datatyp": "char",
+        "ExtraInformation": "Person-/organisationsnummer (12 siffror)",
+        "FelMeddelande": "PeOrgNr skall för valet '=' vara 12 siffror utan bindestreck och för valet börjar på 1 till 12 siffror utan bindestreck",
+        "Id_Variabel_JE": "OrgNr (12 siffror)",
+        "KontrolTyp": "1",
+        "Langd": "12",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa"
+        ],
+        "RegularExpSCB": "^\\d{1,12}$",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "char",
+        "ExtraInformation": "Person-/organisationsnummer (10 siffror)",
+        "FelMeddelande": "OrgNr skall för valet '=' vara 10 siffror utan bindestreck och för valet börjar på 1 till 10 siffror utan bindestreck",
+        "Id_Variabel_JE": "OrgNr (10 siffror)",
+        "KontrolTyp": "1",
+        "Langd": "10",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa"
+        ],
+        "RegularExpSCB": "^\\d{1,10}$",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "",
+        "FelMeddelande": "Namn får vara max 256 tecken långt och inte vara blankt eller innehålla '",
+        "Id_Variabel_JE": "Namn",
+        "KontrolTyp": "1",
+        "Langd": "0",
+        "Operatorer": [
+            "BorjarPa",
+            "Innehaller"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "",
+        "FelMeddelande": "Firmanamn får vara max 256 tecken långt och inte vara blankt eller innehålla '",
+        "Id_Variabel_JE": "Firma",
+        "KontrolTyp": "1",
+        "Langd": "0",
+        "Operatorer": [
+            "BorjarPa",
+            "Innehaller"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": "TG17Firma"
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "",
+        "FelMeddelande": "Postadress får vara max 300 tecken långt och inte innehålla '",
+        "Id_Variabel_JE": "Postadress",
+        "KontrolTyp": "1",
+        "Langd": "0",
+        "Operatorer": [
+            "BorjarPa"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "",
+        "FelMeddelande": "Postort får vara max 30 tecken långt och inte vara blankt eller innehålla '",
+        "Id_Variabel_JE": "Postort",
+        "KontrolTyp": "1",
+        "Langd": "30",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "char",
+        "ExtraInformation": "",
+        "FelMeddelande": "Postnr skall för valen '=' och 'mellan' vara 5 siffror och för valet 'börjar på' mellan 1 till 5 siffror",
+        "Id_Variabel_JE": "Postnr",
+        "KontrolTyp": "3",
+        "Langd": "5",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa",
+            "Mellan"
+        ],
+        "RegularExpSCB": "^\\d{1,5}$",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "Huvudarbetsställets postadress",
+        "FelMeddelande": "Postadress för huvudarbetsstället får vara max 300 tecken långt och inte innehålla '",
+        "Id_Variabel_JE": "Postadress (Huvarb)",
+        "KontrolTyp": "1",
+        "Langd": "0",
+        "Operatorer": [
+            "BorjarPa"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": "HemTagValJEAE"
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "Huvudarbetsställets postort",
+        "FelMeddelande": "Postort för huvudarbetsstället får vara max 30 tecken långt och inte vara blankt eller innehålla '",
+        "Id_Variabel_JE": "Postort (Huvarb)",
+        "KontrolTyp": "1",
+        "Langd": "30",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": "HemTagValJEAE"
+    },
+    {
+        "Datatyp": "char",
+        "ExtraInformation": "Huvudarbetsställets postnummer",
+        "FelMeddelande": "Postnr för huvudarbetsstället skall för valen '=' och 'mellan' vara 5 siffror och för valet 'börjar på' mellan 1 till 5 siffror",
+        "Id_Variabel_JE": "Postnr (Huvarb)",
+        "KontrolTyp": "3",
+        "Langd": "5",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa",
+            "Mellan"
+        ],
+        "RegularExpSCB": "^\\d{1,5}$",
+        "TillaggsGrupp": "HemTagValJEAE"
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "Belägenhetsadress till huvudarbetsstället",
+        "FelMeddelande": "Besöksadress för huvudarbetsstället får vara max 300 tecken långt och inte innehålla '",
+        "Id_Variabel_JE": "Besöksadress (Huvarb)",
+        "KontrolTyp": "1",
+        "Langd": "0",
+        "Operatorer": [
+            "BorjarPa"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": "HemTagValJEAE"
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "Belägenhetsort till huvudarbetsstället",
+        "FelMeddelande": "Besökspostort för huvudarbetsstället får vara max 30 tecken långt och inte vara blankt eller innehålla '",
+        "Id_Variabel_JE": "Besökspostort (Huvarb)",
+        "KontrolTyp": "1",
+        "Langd": "30",
+        "Operatorer": [
+            "BorjarPa",
+            "ArLikaMed"
+        ],
+        "RegularExpSCB": "^[^']+$",
+        "TillaggsGrupp": "HemTagValJEAE"
+    },
+    {
+        "Datatyp": "char",
+        "ExtraInformation": "Postnr till belägenhetsadressen till huvudarbetsstället",
+        "FelMeddelande": "Besökspostnr för huvudarbetsstället skall för valen '=' och 'mellan' vara 5 siffror och för valet 'börjar på' mellan 1 till 5 siffror",
+        "Id_Variabel_JE": "Besökspostnr (Huvarb)",
+        "KontrolTyp": "3",
+        "Langd": "5",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa",
+            "Mellan"
+        ],
+        "RegularExpSCB": "^\\d{1,5}$",
+        "TillaggsGrupp": "TG02BPostNr"
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "",
+        "FelMeddelande": "Telefon får vara max 15 tecken långt och kan endast bestå av siffor",
+        "Id_Variabel_JE": "Telefon",
+        "KontrolTyp": "1",
+        "Langd": "15",
+        "Operatorer": [
+            "ArLikaMed",
+            "BorjarPa",
+            "Finns",
+            "FinnsInte"
+        ],
+        "RegularExpSCB": "^[0-9]+$",
+        "TillaggsGrupp": "TG22Tel_JE"
+    },
+    {
+        "Datatyp": "varchar",
+        "ExtraInformation": "Endast 5% har epost i registret",
+        "FelMeddelande": "E-post",
+        "Id_Variabel_JE": "E-post",
+        "KontrolTyp": "0",
+        "Langd": "0",
+        "Operatorer": [
+            "Finns",
+            "FinnsInte"
+        ],
+        "RegularExpSCB": "",
+        "TillaggsGrupp": "TG09Epost_JE"
+    },
+    {
+        "Datatyp": "smallint",
+        "ExtraInformation": "",
+        "FelMeddelande": "Antal arbetsställen skall vara mellan 1 till 4 siffror",
+        "Id_Variabel_JE": "Antal arbetsställen",
+        "KontrolTyp": "1",
+        "Langd": "4",
+        "Operatorer": [
+            "ArLikaMed",
+            "FranOchMed",
+            "TillOchMed",
+            "Mellan"
+        ],
+        "RegularExpSCB": "^\\d{1,4}$",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "smalldatetime",
+        "ExtraInformation": "När företaget registrerades",
+        "FelMeddelande": "Registreringsdatum skall anges enligt ååååmmdd",
+        "Id_Variabel_JE": "Registreringsdatum",
+        "KontrolTyp": "2",
+        "Langd": "8",
+        "Operatorer": [
+            "FranOchMed",
+            "TillOchMed",
+            "Mellan"
+        ],
+        "RegularExpSCB": "",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "smalldatetime",
+        "ExtraInformation": "Datum när företaget blev verksamt enligt SCB:s regler",
+        "FelMeddelande": "Startdatum skall anges enligt ååååmmdd",
+        "Id_Variabel_JE": "Startdatum",
+        "KontrolTyp": "2",
+        "Langd": "8",
+        "Operatorer": [
+            "FranOchMed",
+            "TillOchMed",
+            "Mellan"
+        ],
+        "RegularExpSCB": "",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "smalldatetime",
+        "ExtraInformation": "Datum när företaget inte längre är verksamt enligt SCB:s regler",
+        "FelMeddelande": "Slutdatum skall anges enligt ååååmmdd",
+        "Id_Variabel_JE": "Slutdatum",
+        "KontrolTyp": "2",
+        "Langd": "8",
+        "Operatorer": [
+            "FranOchMed",
+            "TillOchMed",
+            "Mellan"
+        ],
+        "RegularExpSCB": "",
+        "TillaggsGrupp": ""
+    },
+    {
+        "Datatyp": "tinyint",
+        "ExtraInformation": "Andel kvinnor av anställd personal",
+        "FelMeddelande": "Könskvot, kvinna kan bestå av siffror mellan 0 till 100",
+        "Id_Variabel_JE": "Könskvot, kvinna",
+        "KontrolTyp": "1",
+        "Langd": "3",
+        "Operatorer": [
+            "FranOchMed",
+            "TillOchMed"
+        ],
+        "RegularExpSCB": "^[0-9]{1}$|^[0-9]{1}[0-9]{1}$|^100$",
+        "TillaggsGrupp": "TG16Andel"
+    }
+]

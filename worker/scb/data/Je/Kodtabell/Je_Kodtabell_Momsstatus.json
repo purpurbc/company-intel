@@ -1,0 +1,25 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Uppgift från Skatteverket",
+    "Id_Kategori_JE": "Momsstatus",
+    "Langd": "",
+    "TillaggsGrupp": "TG15Stat_Moms",
+    "VardeLista": [
+        {
+            "Text": "Har aldrig varit registrerad för moms",
+            "Varde": "0"
+        },
+        {
+            "Text": "Är registrerad för moms",
+            "Varde": "1"
+        },
+        {
+            "Text": "Är registrerad för moms via representant",
+            "Varde": "3"
+        },
+        {
+            "Text": "Är avregistrerad för moms",
+            "Varde": "9"
+        }
+    ]
+}

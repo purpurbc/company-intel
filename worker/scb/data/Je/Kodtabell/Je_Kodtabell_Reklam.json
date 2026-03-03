@@ -1,0 +1,33 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Företaget har begärt reklamspärr och/eller telefonspärr",
+    "Id_Kategori_JE": "Reklam",
+    "Langd": "",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Tar emot reklam, ej telefonnummerspärrat",
+            "Varde": "11"
+        },
+        {
+            "Text": "Tar emot reklam, telefonnummerspärr telemarketing",
+            "Varde": "12"
+        },
+        {
+            "Text": "Tar emot reklam, nix-telefon",
+            "Varde": "13"
+        },
+        {
+            "Text": "Har frånsagt sig reklam, ej telefonnummerspärrat",
+            "Varde": "21"
+        },
+        {
+            "Text": "Har frånsagt sig reklam, telefonnummerspärr telemarketing",
+            "Varde": "22"
+        },
+        {
+            "Text": "Har frånsagt sig reklam, nix-telefon",
+            "Varde": "23"
+        }
+    ]
+}

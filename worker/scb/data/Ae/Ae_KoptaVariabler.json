@@ -1,0 +1,62 @@
+{
+    "HemTyp": "HemTagValAE",
+    "VariabelGrupp": "VariablerAE",
+    "Variabler": [
+        {
+            "Id_Variabel_AE": "CFARnr",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "OrgNr (10 siffror)",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "OrgNr (12 siffror)",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Postadress",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Postort",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Postnr",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Besöksadress",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Besökspostort",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Startdatum",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Slutdatum",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_AE": "Besökspostnr",
+            "TillaggsGrupp": "TG02BPostNr"
+        },
+        {
+            "Id_Variabel_AE": "Telefon",
+            "TillaggsGrupp": "TG22Tel_AE"
+        },
+        {
+            "Id_Variabel_AE": "E-post",
+            "TillaggsGrupp": "TG09Epost_AE"
+        },
+        {
+            "Id_Variabel_AE": "Adresskoordinat",
+            "TillaggsGrupp": "TG04GeoKoord_Adress"
+        }
+    ]
+}

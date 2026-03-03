@@ -1,0 +1,77 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "",
+    "Id_Kategori_AE": "Anställda",
+    "Langd": "",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Uppgift saknas",
+            "Varde": "0"
+        },
+        {
+            "Text": "0 anställda",
+            "Varde": "1"
+        },
+        {
+            "Text": "1-4 anställda",
+            "Varde": "2"
+        },
+        {
+            "Text": "5-9 anställda",
+            "Varde": "3"
+        },
+        {
+            "Text": "10-19 anställda",
+            "Varde": "4"
+        },
+        {
+            "Text": "20-49 anställda",
+            "Varde": "5"
+        },
+        {
+            "Text": "50-99 anställda",
+            "Varde": "6"
+        },
+        {
+            "Text": "100-199 anställda",
+            "Varde": "7"
+        },
+        {
+            "Text": "200-499 anställda",
+            "Varde": "8"
+        },
+        {
+            "Text": "500-999 anställda",
+            "Varde": "9"
+        },
+        {
+            "Text": "1000-1499 anställda",
+            "Varde": "10"
+        },
+        {
+            "Text": "1500-1999 anställda",
+            "Varde": "11"
+        },
+        {
+            "Text": "2000-2999 anställda",
+            "Varde": "12"
+        },
+        {
+            "Text": "3000-3999 anställda",
+            "Varde": "13"
+        },
+        {
+            "Text": "4000-4999 anställda",
+            "Varde": "14"
+        },
+        {
+            "Text": "5000-9999 anställda",
+            "Varde": "15"
+        },
+        {
+            "Text": "10000- anställda",
+            "Varde": "16"
+        }
+    ]
+}

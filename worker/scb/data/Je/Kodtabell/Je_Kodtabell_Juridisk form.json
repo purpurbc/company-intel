@@ -1,0 +1,149 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "",
+    "Id_Kategori_JE": "Juridisk form",
+    "Langd": "2",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Fysiska personer",
+            "Varde": "10"
+        },
+        {
+            "Text": "Enkla bolag",
+            "Varde": "21"
+        },
+        {
+            "Text": "Partrederier",
+            "Varde": "22"
+        },
+        {
+            "Text": "Värdepappersfonder",
+            "Varde": "23"
+        },
+        {
+            "Text": "Handelsbolag, kommanditbolag",
+            "Varde": "31"
+        },
+        {
+            "Text": "Gruvbolag",
+            "Varde": "32"
+        },
+        {
+            "Text": "Bankaktiebolag",
+            "Varde": "41"
+        },
+        {
+            "Text": "Försäkringsaktiebolag",
+            "Varde": "42"
+        },
+        {
+            "Text": "Europabolag",
+            "Varde": "43"
+        },
+        {
+            "Text": "Övriga aktiebolag",
+            "Varde": "49"
+        },
+        {
+            "Text": "Ekonomiska föreningar",
+            "Varde": "51"
+        },
+        {
+            "Text": "Bostadsrättsföreningar",
+            "Varde": "53"
+        },
+        {
+            "Text": "Kooperativ hyresrättsförening",
+            "Varde": "54"
+        },
+        {
+            "Text": "Europakooperativ, grupperingar",
+            "Varde": "55"
+        },
+        {
+            "Text": "Ideella föreningar",
+            "Varde": "61"
+        },
+        {
+            "Text": "Samfälligheter",
+            "Varde": "62"
+        },
+        {
+            "Text": "Registrerade trossamfund",
+            "Varde": "63"
+        },
+        {
+            "Text": "Familjestiftelser",
+            "Varde": "71"
+        },
+        {
+            "Text": "Övriga stiftelser och fonder",
+            "Varde": "72"
+        },
+        {
+            "Text": "Statliga enheter",
+            "Varde": "81"
+        },
+        {
+            "Text": "Kommuner",
+            "Varde": "82"
+        },
+        {
+            "Text": "Kommunalförbund",
+            "Varde": "83"
+        },
+        {
+            "Text": "Regioner",
+            "Varde": "84"
+        },
+        {
+            "Text": "Allmänna försäkringskassor",
+            "Varde": "85"
+        },
+        {
+            "Text": "Off. korporationer o anstalter",
+            "Varde": "87"
+        },
+        {
+            "Text": "Hypoteksföreningar",
+            "Varde": "88"
+        },
+        {
+            "Text": "Regionala statliga myndigheter",
+            "Varde": "89"
+        },
+        {
+            "Text": "Oskiftade dödsbon",
+            "Varde": "91"
+        },
+        {
+            "Text": "Ömsesidiga försäkringsbolag",
+            "Varde": "92"
+        },
+        {
+            "Text": "Sparbanker",
+            "Varde": "93"
+        },
+        {
+            "Text": "Understöds-, Försäkringsfören.",
+            "Varde": "94"
+        },
+        {
+            "Text": "Arbetslöshetskassor",
+            "Varde": "95"
+        },
+        {
+            "Text": "Utländska juridiska personer",
+            "Varde": "96"
+        },
+        {
+            "Text": "Övr sv jur pers, enl särsk lag",
+            "Varde": "98"
+        },
+        {
+            "Text": "Juridisk form ej utredd",
+            "Varde": "99"
+        }
+    ]
+}

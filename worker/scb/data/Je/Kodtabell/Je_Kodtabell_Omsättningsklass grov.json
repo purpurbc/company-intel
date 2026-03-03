@@ -1,0 +1,61 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "",
+    "Id_Kategori_JE": "Omsättningsklass grov",
+    "Langd": "",
+    "TillaggsGrupp": "TG07Oms",
+    "VardeLista": [
+        {
+            "Text": "< 1 tkr",
+            "Varde": "0"
+        },
+        {
+            "Text": "1 - 499 tkr",
+            "Varde": "1"
+        },
+        {
+            "Text": "500 - 999 tkr",
+            "Varde": "2"
+        },
+        {
+            "Text": "1 000 - 4 999 tkr",
+            "Varde": "3"
+        },
+        {
+            "Text": "5 000 - 9 999 tkr",
+            "Varde": "4"
+        },
+        {
+            "Text": "10 000 - 19 999 tkr",
+            "Varde": "5"
+        },
+        {
+            "Text": "20 000 - 49 999 tkr",
+            "Varde": "6"
+        },
+        {
+            "Text": "50 000 - 99 999 tkr",
+            "Varde": "7"
+        },
+        {
+            "Text": "100 000 - 499 999 tkr",
+            "Varde": "8"
+        },
+        {
+            "Text": "500 000 - 999 999 tkr",
+            "Varde": "9"
+        },
+        {
+            "Text": "1 000 000 - 4 999 999 tkr",
+            "Varde": "10"
+        },
+        {
+            "Text": "5 000 000 - 9 999 999 tkr",
+            "Varde": "11"
+        },
+        {
+            "Text": "> 9 999 999 tkr",
+            "Varde": "12"
+        }
+    ]
+}

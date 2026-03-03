@@ -1,0 +1,62 @@
+{
+    "HemTyp": "HemTagValJE",
+    "VariabelGrupp": "VariablerJE",
+    "Variabler": [
+        {
+            "Id_Variabel_JE": "OrgNr (12 siffror)",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "OrgNr (10 siffror)",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Namn",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Postadress",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Postort",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Postnr",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Antal arbetsställen",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Registreringsdatum",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Startdatum",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Slutdatum",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Variabel_JE": "Firma",
+            "TillaggsGrupp": "TG17Firma"
+        },
+        {
+            "Id_Variabel_JE": "Besökspostnr (Huvarb)",
+            "TillaggsGrupp": "TG02BPostNr"
+        },
+        {
+            "Id_Variabel_JE": "Telefon",
+            "TillaggsGrupp": "TG22Tel_JE"
+        },
+        {
+            "Id_Variabel_JE": "E-post",
+            "TillaggsGrupp": "TG09Epost_JE"
+        }
+    ]
+}

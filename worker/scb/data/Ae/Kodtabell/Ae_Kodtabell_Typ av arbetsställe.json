@@ -1,0 +1,21 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Huvudarbetsställe eller ej",
+    "Id_Kategori_AE": "Typ av arbetsställe",
+    "Langd": "",
+    "TillaggsGrupp": "TG19AETyp",
+    "VardeLista": [
+        {
+            "Text": "Huvudkontor",
+            "Varde": "1"
+        },
+        {
+            "Text": "Sekundärt arbetsställe",
+            "Varde": "2"
+        },
+        {
+            "Text": "Rörlig personal",
+            "Varde": "3"
+        }
+    ]
+}

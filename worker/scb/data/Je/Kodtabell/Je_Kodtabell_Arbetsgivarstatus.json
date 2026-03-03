@@ -1,0 +1,33 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Uppgift från Skatteverket",
+    "Id_Kategori_JE": "Arbetsgivarstatus",
+    "Langd": "",
+    "TillaggsGrupp": "TG15Stat_ArbGiv",
+    "VardeLista": [
+        {
+            "Text": "Har aldrig varit registrerad som arbetsgivare",
+            "Varde": "0"
+        },
+        {
+            "Text": "Är registrerad som vanlig arbetsgivare",
+            "Varde": "1"
+        },
+        {
+            "Text": "Är registrerad som privatarbetsgivare",
+            "Varde": "2"
+        },
+        {
+            "Text": "Är registrerad som arbetsgivare via representant",
+            "Varde": "3"
+        },
+        {
+            "Text": "Är registrerad som ambassad eller konsulat",
+            "Varde": "4"
+        },
+        {
+            "Text": "Är avregistrerad som arbetsgivare",
+            "Varde": "9"
+        }
+    ]
+}

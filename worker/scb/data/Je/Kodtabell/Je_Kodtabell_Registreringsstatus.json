@@ -1,0 +1,17 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Om företaget är registrerad eller avregistrerad",
+    "Id_Kategori_JE": "Registreringsstatus",
+    "Langd": "",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Registrerad",
+            "Varde": "1"
+        },
+        {
+            "Text": "Avregistrerad",
+            "Varde": "9"
+        }
+    ]
+}

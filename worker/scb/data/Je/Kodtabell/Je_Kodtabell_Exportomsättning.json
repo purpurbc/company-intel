@@ -1,0 +1,45 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Exportomsättning i storleksklass",
+    "Id_Kategori_JE": "Exportomsättning",
+    "Langd": "",
+    "TillaggsGrupp": "TG06EI",
+    "VardeLista": [
+        {
+            "Text": "0 kr",
+            "Varde": "0"
+        },
+        {
+            "Text": "1-249 tkr",
+            "Varde": "1"
+        },
+        {
+            "Text": "250-999 tkr",
+            "Varde": "2"
+        },
+        {
+            "Text": "1 000-1 999 tkr",
+            "Varde": "3"
+        },
+        {
+            "Text": "2 000-4 999 tkr",
+            "Varde": "4"
+        },
+        {
+            "Text": "5 000-9 999 tkr",
+            "Varde": "5"
+        },
+        {
+            "Text": "10 000-49 999 tkr",
+            "Varde": "6"
+        },
+        {
+            "Text": "50 000-99 999 tkr",
+            "Varde": "7"
+        },
+        {
+            "Text": "100 000 tkr eller mer",
+            "Varde": "8"
+        }
+    ]
+}

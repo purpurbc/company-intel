@@ -1,0 +1,33 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "Privat eller offentligt ägd",
+    "Id_Kategori_AE": "Ägarkontroll",
+    "Langd": "2",
+    "TillaggsGrupp": "TG08AgKat",
+    "VardeLista": [
+        {
+            "Text": "Statligt",
+            "Varde": "10"
+        },
+        {
+            "Text": "Kommunalt",
+            "Varde": "20"
+        },
+        {
+            "Text": "Regioner",
+            "Varde": "30"
+        },
+        {
+            "Text": "Privat svenskt utan koncern",
+            "Varde": "41"
+        },
+        {
+            "Text": "Privat svenskt med koncern",
+            "Varde": "42"
+        },
+        {
+            "Text": "Utländska",
+            "Varde": "50"
+        }
+    ]
+}

@@ -1,0 +1,70 @@
+{
+    "HemTyp": "HemTagValAE",
+    "KategoriGrupp": "KategoriAE",
+    "Kategorier": [
+        {
+            "Id_Kategori_AE": "2-siffrig bransch 1",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Bransch",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Arbetsställestatus",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Kommun",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Län",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "ARegion",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Anställda",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Hjälparbetsställe",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Reklam",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Adresstatus",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_AE": "Anställda SME",
+            "TillaggsGrupp": "TG20AnstSmeAE"
+        },
+        {
+            "Id_Kategori_AE": "Ägarkontroll",
+            "TillaggsGrupp": "TG08AgKat"
+        },
+        {
+            "Id_Kategori_AE": "Privat/publikt",
+            "TillaggsGrupp": "TG11PrivPubl"
+        },
+        {
+            "Id_Kategori_AE": "Sektor",
+            "TillaggsGrupp": "TG18Sektor"
+        },
+        {
+            "Id_Kategori_AE": "Typ av arbetsställe",
+            "TillaggsGrupp": "TG19AETyp"
+        },
+        {
+            "Id_Kategori_AE": "Typ av ort",
+            "TillaggsGrupp": "TG04GeoKoord_TatSmaTyp"
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Verksamhet som till minst hälften tjänar andra arbetsställen inom företaget",
+    "Id_Kategori_AE": "Hjälparbetsställe",
+    "Langd": "",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Ej hjälpenhet",
+            "Varde": "1"
+        },
+        {
+            "Text": "Hjälpenhet",
+            "Varde": "2"
+        }
+    ]
+}

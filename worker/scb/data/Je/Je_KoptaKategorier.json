@@ -1,0 +1,98 @@
+{
+    "HemTyp": "HemTagValJE",
+    "KategoriGrupp": "KategoriJE",
+    "Kategorier": [
+        {
+            "Id_Kategori_JE": "2-siffrig bransch 1",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Bransch",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Företagsstatus",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Registreringsstatus",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "SätesKommun",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "SätesLän",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "ARegion (Säteskommun)",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Anställda",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Juridisk form",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Reklam",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Adresstatus",
+            "TillaggsGrupp": "BasUtbud"
+        },
+        {
+            "Id_Kategori_JE": "Anställda SME",
+            "TillaggsGrupp": "TG21AnstSmeJE"
+        },
+        {
+            "Id_Kategori_JE": "Omsättningsklass fin",
+            "TillaggsGrupp": "TG07Oms"
+        },
+        {
+            "Id_Kategori_JE": "Omsättningsklass grov",
+            "TillaggsGrupp": "TG07Oms"
+        },
+        {
+            "Id_Kategori_JE": "Ägarkontroll",
+            "TillaggsGrupp": "TG08AgKat"
+        },
+        {
+            "Id_Kategori_JE": "Privat/publikt",
+            "TillaggsGrupp": "TG11PrivPubl"
+        },
+        {
+            "Id_Kategori_JE": "Sektor",
+            "TillaggsGrupp": "TG18Sektor"
+        },
+        {
+            "Id_Kategori_JE": "Arbetsgivarstatus",
+            "TillaggsGrupp": "TG15Stat_ArbGiv"
+        },
+        {
+            "Id_Kategori_JE": "Momsstatus",
+            "TillaggsGrupp": "TG15Stat_Moms"
+        },
+        {
+            "Id_Kategori_JE": "F-skattstatus",
+            "TillaggsGrupp": "TG15Stat_Fskatt"
+        },
+        {
+            "Id_Kategori_JE": "Bolagsstatus",
+            "TillaggsGrupp": "TG15Stat_Bol"
+        },
+        {
+            "Id_Kategori_JE": "Exportomsättning",
+            "TillaggsGrupp": "TG06EI"
+        },
+        {
+            "Id_Kategori_JE": "Importomsättning",
+            "TillaggsGrupp": "TG06EI"
+        }
+    ]
+}

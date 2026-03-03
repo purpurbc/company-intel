@@ -1,0 +1,221 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "Institutionell sektorindelning",
+    "Id_Kategori_JE": "Sektor",
+    "Langd": "6",
+    "TillaggsGrupp": "TG18Sektor",
+    "VardeLista": [
+        {
+            "Text": "Icke-finansiella bolag, utom statliga affärsverk, filialer i Sverige till icke-finansiella bolag i utlandet och icke-vinstdrivande organisationer som betjänar icke-finansiella bolag",
+            "Varde": "111000"
+        },
+        {
+            "Text": "Statliga affärsverk",
+            "Varde": "112000"
+        },
+        {
+            "Text": "Filialer i Sverige till icke-finansiella bolag i utlandet",
+            "Varde": "113000"
+        },
+        {
+            "Text": "Icke-vinstdrivande organisationer som betjänar icke-finansiella bolag",
+            "Varde": "114000"
+        },
+        {
+            "Text": "Centralbanken",
+            "Varde": "121000"
+        },
+        {
+            "Text": "Banker, utom bankfilialer i Sverige till banker i utlandet",
+            "Varde": "122100"
+        },
+        {
+            "Text": "Bankfilialer i Sverige till banker i utlandet",
+            "Varde": "122200"
+        },
+        {
+            "Text": "Bostadsinstitut",
+            "Varde": "122300"
+        },
+        {
+            "Text": "Andra monetära kreditmarknadsföretag",
+            "Varde": "122400"
+        },
+        {
+            "Text": "Monetära värdepappersbolag och fondkommissionärer",
+            "Varde": "122500"
+        },
+        {
+            "Text": "Övriga monetära finansinstitut",
+            "Varde": "122900"
+        },
+        {
+            "Text": "Penningmarknadsfonder",
+            "Varde": "123000"
+        },
+        {
+            "Text": "Investeringsfonder, utom penningmarknadsfonder",
+            "Varde": "124000"
+        },
+        {
+            "Text": "Värdepapperiseringsinstitut, (FVC)",
+            "Varde": "125100"
+        },
+        {
+            "Text": "Icke-monetära värdepappersbolag och fondkommissionärer",
+            "Varde": "125200"
+        },
+        {
+            "Text": "Finansiella bolag med utlåningsverksamhet",
+            "Varde": "125300"
+        },
+        {
+            "Text": "Investmentbolag",
+            "Varde": "125400"
+        },
+        {
+            "Text": "Övriga finansförmedlare, utom försäkringsbolag och pensionsinstitut",
+            "Varde": "125900"
+        },
+        {
+            "Text": "Finansiella servicebolag, utom icke-vinstdrivande organisationer som betjänar finansiella bolag",
+            "Varde": "126100"
+        },
+        {
+            "Text": "Icke-vinstdrivande organisationer som betjänar finansiella bolag",
+            "Varde": "126200"
+        },
+        {
+            "Text": "Koncerninterna finansinstitut och utlåningsföretag",
+            "Varde": "127000"
+        },
+        {
+            "Text": "Försäkringsbolag, utom filialer i Sverige till försäkringsbolag i utlandet och försäkrings- och understödsföreningar",
+            "Varde": "128100"
+        },
+        {
+            "Text": "Filialer i Sverige till försäkringsbolag i utlandet",
+            "Varde": "128200"
+        },
+        {
+            "Text": "Försäkrings- och understödsföreningar, ej pension",
+            "Varde": "128300"
+        },
+        {
+            "Text": "Pensionsinstitut, utom filialer i Sverige till pensionsinstitut i utlandet, försäkrings- och understödsföreningar samt pensionsstiftelser",
+            "Varde": "129100"
+        },
+        {
+            "Text": "Filialer i Sverige till pensionsinstitut i utlandet",
+            "Varde": "129200"
+        },
+        {
+            "Text": "Försäkrings- och understödsföreningar, pension",
+            "Varde": "129300"
+        },
+        {
+            "Text": "Pensionsstiftelser",
+            "Varde": "129400"
+        },
+        {
+            "Text": "Statliga myndigheter, utom Riksgälden",
+            "Varde": "131110"
+        },
+        {
+            "Text": "Riksgälden",
+            "Varde": "131120"
+        },
+        {
+            "Text": "Andra institutioner hänförliga till statlig förvaltning",
+            "Varde": "131130"
+        },
+        {
+            "Text": "Delstatlig förvaltning (utom sociala trygghetsfonder)",
+            "Varde": "131200"
+        },
+        {
+            "Text": "Primärkommunala myndigheter",
+            "Varde": "131311"
+        },
+        {
+            "Text": "Kommunalförbund som till övervägande del består av primärkommuner",
+            "Varde": "131312"
+        },
+        {
+            "Text": "Andra institutioner hänförliga till primärkommunal förvaltning",
+            "Varde": "131313"
+        },
+        {
+            "Text": "Landstingskommunala myndigheter",
+            "Varde": "131321"
+        },
+        {
+            "Text": "Kommunalförbund som till övervägande del består av landsting",
+            "Varde": "131322"
+        },
+        {
+            "Text": "Andra institutioner hänförliga till landstingskommunal förvaltning",
+            "Varde": "131323"
+        },
+        {
+            "Text": "Sociala trygghetsfonder",
+            "Varde": "131400"
+        },
+        {
+            "Text": "Företagarhushåll med anställda",
+            "Varde": "141000"
+        },
+        {
+            "Text": "Företagarhushåll utan anställda",
+            "Varde": "142000"
+        },
+        {
+            "Text": "Löntagarhushåll",
+            "Varde": "143000"
+        },
+        {
+            "Text": "Mottagare av kapitalinkomster",
+            "Varde": "144100"
+        },
+        {
+            "Text": "Mottagare av pensioner",
+            "Varde": "144200"
+        },
+        {
+            "Text": "Mottagare av andra transfereringsinkomster",
+            "Varde": "144300"
+        },
+        {
+            "Text": "Hushållens icke-vinstdrivande organisationer, utom registrerade trossamfund",
+            "Varde": "151000"
+        },
+        {
+            "Text": "Svenska kyrkan",
+            "Varde": "152100"
+        },
+        {
+            "Text": "Andra registrerade trossamfund",
+            "Varde": "152200"
+        },
+        {
+            "Text": "Europeiska medlemsstater inom euroområdet",
+            "Varde": "211100"
+        },
+        {
+            "Text": "Europeiska medlemsstater utanför euroområdet",
+            "Varde": "211200"
+        },
+        {
+            "Text": "Europeiska centralbanken (ECB)",
+            "Varde": "212100"
+        },
+        {
+            "Text": "Europeiska unionens institutioner och organ, utom europeiska centralbanken",
+            "Varde": "212200"
+        },
+        {
+            "Text": "Länder utanför EU och internationella organisationer med säte utanför EU",
+            "Varde": "220000"
+        }
+    ]
+}

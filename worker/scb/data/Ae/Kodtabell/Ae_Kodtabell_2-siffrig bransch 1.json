@@ -1,0 +1,361 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "",
+    "Id_Kategori_AE": "2-siffrig bransch 1",
+    "Langd": "2",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Huvudgrupp saknas",
+            "Varde": "00"
+        },
+        {
+            "Text": "Jordbruk och jakt samt stödverksamhet i anslutning härtill",
+            "Varde": "01"
+        },
+        {
+            "Text": "Skogsbruk",
+            "Varde": "02"
+        },
+        {
+            "Text": "Fiske och vattenbruk",
+            "Varde": "03"
+        },
+        {
+            "Text": "Kolutvinning",
+            "Varde": "05"
+        },
+        {
+            "Text": "Utvinning av råpetroleum och naturgas",
+            "Varde": "06"
+        },
+        {
+            "Text": "Utvinning av metallmalmer",
+            "Varde": "07"
+        },
+        {
+            "Text": "Annan utvinning av mineral",
+            "Varde": "08"
+        },
+        {
+            "Text": "Stödverksamhet avseende utvinning",
+            "Varde": "09"
+        },
+        {
+            "Text": "Livsmedelsframställning",
+            "Varde": "10"
+        },
+        {
+            "Text": "Framställning av drycker",
+            "Varde": "11"
+        },
+        {
+            "Text": "Tobaksvarutillverkning",
+            "Varde": "12"
+        },
+        {
+            "Text": "Textilvarutillverkning",
+            "Varde": "13"
+        },
+        {
+            "Text": "Tillverkning av kläder",
+            "Varde": "14"
+        },
+        {
+            "Text": "Tillverkning av läder- och skinnvaror och liknande varor av andra material",
+            "Varde": "15"
+        },
+        {
+            "Text": "Tillverkning av trä och varor av trä och kork, utom möbler: tillverkning av varor av halm, rotting o.d.",
+            "Varde": "16"
+        },
+        {
+            "Text": "Pappers- och pappersvarutillverkning",
+            "Varde": "17"
+        },
+        {
+            "Text": "Grafisk produktion och reproduktion av inspelningar",
+            "Varde": "18"
+        },
+        {
+            "Text": "Tillverkning av stenkolsprodukter och raffinerade petroleumprodukter",
+            "Varde": "19"
+        },
+        {
+            "Text": "Tillverkning av kemikalier och kemiska produkter",
+            "Varde": "20"
+        },
+        {
+            "Text": "Tillverkning av farmaceutiska basprodukter och läkemedel",
+            "Varde": "21"
+        },
+        {
+            "Text": "Tillverkning av gummi- och plastvaror",
+            "Varde": "22"
+        },
+        {
+            "Text": "Tillverkning av andra icke-metalliska mineraliska produkter",
+            "Varde": "23"
+        },
+        {
+            "Text": "Stål- och metallframställning",
+            "Varde": "24"
+        },
+        {
+            "Text": "Tillverkning av metallvaror utom maskiner och apparater",
+            "Varde": "25"
+        },
+        {
+            "Text": "Tillverkning av datorer, elektronikvaror och optik",
+            "Varde": "26"
+        },
+        {
+            "Text": "Tillverkning av elapparatur",
+            "Varde": "27"
+        },
+        {
+            "Text": "Tillverkning av övriga maskiner",
+            "Varde": "28"
+        },
+        {
+            "Text": "Tillverkning av motorfordon, släpfordon och påhängsvagnar",
+            "Varde": "29"
+        },
+        {
+            "Text": "Tillverkning av andra transportmedel",
+            "Varde": "30"
+        },
+        {
+            "Text": "Tillverkning av möbler",
+            "Varde": "31"
+        },
+        {
+            "Text": "Annan tillverkning",
+            "Varde": "32"
+        },
+        {
+            "Text": "Reparation, underhåll och installation av maskiner och utrustning",
+            "Varde": "33"
+        },
+        {
+            "Text": "El-, gas- och ångförsörjning samt luftkonditionering",
+            "Varde": "35"
+        },
+        {
+            "Text": "Vattenförsörjning",
+            "Varde": "36"
+        },
+        {
+            "Text": "Avloppsrening",
+            "Varde": "37"
+        },
+        {
+            "Text": "Insamling av avfall, återvinning och bortskaffande",
+            "Varde": "38"
+        },
+        {
+            "Text": "Sanering, efterbehandling av jord och vatten samt annan verksamhet för föroreningsbekämpning",
+            "Varde": "39"
+        },
+        {
+            "Text": "Byggande av bostadshus och andra byggnader",
+            "Varde": "41"
+        },
+        {
+            "Text": "Anläggningsarbeten",
+            "Varde": "42"
+        },
+        {
+            "Text": "Specialiserad bygg- och anläggningsverksamhet",
+            "Varde": "43"
+        },
+        {
+            "Text": "Parti- och provisionshandel",
+            "Varde": "46"
+        },
+        {
+            "Text": "Detaljhandel",
+            "Varde": "47"
+        },
+        {
+            "Text": "Landtransport; transport i rörsystem",
+            "Varde": "49"
+        },
+        {
+            "Text": "Sjötransport",
+            "Varde": "50"
+        },
+        {
+            "Text": "Lufttransport",
+            "Varde": "51"
+        },
+        {
+            "Text": "Magasinering, varulagring och stödverksamhet avseende transport",
+            "Varde": "52"
+        },
+        {
+            "Text": "Post- och kurirverksamhet",
+            "Varde": "53"
+        },
+        {
+            "Text": "Hotell- och logiverksamhet",
+            "Varde": "55"
+        },
+        {
+            "Text": "Restaurang-, catering- och barverksamhet",
+            "Varde": "56"
+        },
+        {
+            "Text": "Förlagsverksamhet",
+            "Varde": "58"
+        },
+        {
+            "Text": "Film-, video- och tv-programverksamhet, ljudinspelning och musikutgivning",
+            "Varde": "59"
+        },
+        {
+            "Text": "Planering, radio- och tv-sändning, nyhetsbyråer och annan distribution av medieinnehåll",
+            "Varde": "60"
+        },
+        {
+            "Text": "Telekommunikation",
+            "Varde": "61"
+        },
+        {
+            "Text": "Dataprogrammering, datakonsultverksamhet o.d.",
+            "Varde": "62"
+        },
+        {
+            "Text": "Datainfrastruktur, databehandling, hosting och annan informationsverksamhet",
+            "Varde": "63"
+        },
+        {
+            "Text": "Finansiell verksamhet utom försäkrings- och pensionsfondsverksamhet",
+            "Varde": "64"
+        },
+        {
+            "Text": "Försäkrings-, återförsäkrings- och pensionsfondsverksamhet utom obligatorisk socialförsäkring",
+            "Varde": "65"
+        },
+        {
+            "Text": "Stödverksamhet avseende finansiella tjänster och försäkringsverksamhet",
+            "Varde": "66"
+        },
+        {
+            "Text": "Fastighetsverksamhet",
+            "Varde": "68"
+        },
+        {
+            "Text": "Juridisk och ekonomisk konsultverksamhet",
+            "Varde": "69"
+        },
+        {
+            "Text": "Verksamheter som utövas av huvudkontor samt konsultverksamhet avseende företag",
+            "Varde": "70"
+        },
+        {
+            "Text": "Arkitekt- och teknisk konsultverksamhet; teknisk provning och analys",
+            "Varde": "71"
+        },
+        {
+            "Text": "Vetenskaplig forskning och utveckling",
+            "Varde": "72"
+        },
+        {
+            "Text": "Reklamverksamhet, marknadsundersökningar och PR",
+            "Varde": "73"
+        },
+        {
+            "Text": "Annan verksamhet inom juridik, ekonomi, vetenskap och teknik",
+            "Varde": "74"
+        },
+        {
+            "Text": "Veterinärverksamhet",
+            "Varde": "75"
+        },
+        {
+            "Text": "Uthyrning och leasing",
+            "Varde": "77"
+        },
+        {
+            "Text": "Arbetsförmedling, bemanning och annan personalrelaterad verksamhet",
+            "Varde": "78"
+        },
+        {
+            "Text": "Resebyrå- och researrangörsverksamhet samt annan boknings- och reserelaterad verksamhet",
+            "Varde": "79"
+        },
+        {
+            "Text": "Säkerhets- och bevakningsverksamhet",
+            "Varde": "80"
+        },
+        {
+            "Text": "Fastighetsrelaterad stödverksamhet samt skötsel och underhåll av grönytor",
+            "Varde": "81"
+        },
+        {
+            "Text": "Kontorstjänster och annan stödverksamhet till företag",
+            "Varde": "82"
+        },
+        {
+            "Text": "Offentlig förvaltning och försvar; obligatorisk socialförsäkring",
+            "Varde": "84"
+        },
+        {
+            "Text": "Utbildning",
+            "Varde": "85"
+        },
+        {
+            "Text": "Hälso- och sjukvård",
+            "Varde": "86"
+        },
+        {
+            "Text": "Vård och omsorg med boende",
+            "Varde": "87"
+        },
+        {
+            "Text": "Öppna sociala insatser",
+            "Varde": "88"
+        },
+        {
+            "Text": "Konstnärligt skapande och scenkonst",
+            "Varde": "90"
+        },
+        {
+            "Text": "Biblioteks-, arkiv- och museiverksamhet m.m.",
+            "Varde": "91"
+        },
+        {
+            "Text": "Spel- och vadhållningsverksamhet",
+            "Varde": "92"
+        },
+        {
+            "Text": "Sport-, fritids- och nöjesverksamhet",
+            "Varde": "93"
+        },
+        {
+            "Text": "Intressebevakning; religiös verksamhet",
+            "Varde": "94"
+        },
+        {
+            "Text": "Reparation och underhåll av datorer, hushållsartiklar och varor för personligt bruk samt motorfordon och motorcyklar",
+            "Varde": "95"
+        },
+        {
+            "Text": "Konsumenttjänster",
+            "Varde": "96"
+        },
+        {
+            "Text": "Förvärvsarbete i hushåll",
+            "Varde": "97"
+        },
+        {
+            "Text": "Hushållens produktion av diverse varor och tjänster för eget bruk",
+            "Varde": "98"
+        },
+        {
+            "Text": "Verksamhet vid internationella organisationer, utländska ambassader o.d.",
+            "Varde": "99"
+        }
+    ]
+}

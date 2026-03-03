@@ -1,0 +1,101 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "",
+    "Id_Kategori_JE": "SätesLän",
+    "Langd": "2",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Län okänd",
+            "Varde": "00"
+        },
+        {
+            "Text": "Stockholm",
+            "Varde": "01"
+        },
+        {
+            "Text": "Uppsala",
+            "Varde": "03"
+        },
+        {
+            "Text": "Södermanland",
+            "Varde": "04"
+        },
+        {
+            "Text": "Östergötland",
+            "Varde": "05"
+        },
+        {
+            "Text": "Jönköping",
+            "Varde": "06"
+        },
+        {
+            "Text": "Kronoberg",
+            "Varde": "07"
+        },
+        {
+            "Text": "Kalmar",
+            "Varde": "08"
+        },
+        {
+            "Text": "Gotland",
+            "Varde": "09"
+        },
+        {
+            "Text": "Blekinge",
+            "Varde": "10"
+        },
+        {
+            "Text": "Skåne",
+            "Varde": "12"
+        },
+        {
+            "Text": "Halland",
+            "Varde": "13"
+        },
+        {
+            "Text": "Västra Götaland",
+            "Varde": "14"
+        },
+        {
+            "Text": "Värmland",
+            "Varde": "17"
+        },
+        {
+            "Text": "Örebro",
+            "Varde": "18"
+        },
+        {
+            "Text": "Västmanland",
+            "Varde": "19"
+        },
+        {
+            "Text": "Dalarna",
+            "Varde": "20"
+        },
+        {
+            "Text": "Gävleborg",
+            "Varde": "21"
+        },
+        {
+            "Text": "Västernorrland",
+            "Varde": "22"
+        },
+        {
+            "Text": "Jämtland",
+            "Varde": "23"
+        },
+        {
+            "Text": "Västerbotten",
+            "Varde": "24"
+        },
+        {
+            "Text": "Norrbotten",
+            "Varde": "25"
+        },
+        {
+            "Text": "Ej svenskt län",
+            "Varde": "99"
+        }
+    ]
+}

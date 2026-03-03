@@ -1,0 +1,41 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Publikt erbjuder aktieköp på börsen",
+    "Id_Kategori_JE": "Privat/publikt",
+    "Langd": "",
+    "TillaggsGrupp": "TG11PrivPubl",
+    "VardeLista": [
+        {
+            "Text": "Ej aktiebolag",
+            "Varde": "0"
+        },
+        {
+            "Text": "Privat",
+            "Varde": "10"
+        },
+        {
+            "Text": "Publikt, ej börsnoterat",
+            "Varde": "20"
+        },
+        {
+            "Text": "Publikt, Stockholm Large Cap",
+            "Varde": "21"
+        },
+        {
+            "Text": "Publikt, Stockholm Mid Cap",
+            "Varde": "22"
+        },
+        {
+            "Text": "Publikt, Stockholm Small Cap",
+            "Varde": "23"
+        },
+        {
+            "Text": "Publikt, Aktietorget",
+            "Varde": "24"
+        },
+        {
+            "Text": "Publikt, First North",
+            "Varde": "25"
+        }
+    ]
+}

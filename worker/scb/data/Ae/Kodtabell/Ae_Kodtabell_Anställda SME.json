@@ -1,0 +1,33 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Anställda i olika grupper",
+    "Id_Kategori_AE": "Anställda SME",
+    "Langd": "",
+    "TillaggsGrupp": "TG20AnstSmeAE",
+    "VardeLista": [
+        {
+            "Text": "0 anställda",
+            "Varde": "0"
+        },
+        {
+            "Text": "1-9 anställda",
+            "Varde": "1"
+        },
+        {
+            "Text": "10-49 anställda",
+            "Varde": "2"
+        },
+        {
+            "Text": "50-249 anställda",
+            "Varde": "3"
+        },
+        {
+            "Text": "250-499 anställda",
+            "Varde": "4"
+        },
+        {
+            "Text": "Minst 500 anställda",
+            "Varde": "5"
+        }
+    ]
+}

@@ -1,0 +1,21 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Verksamt om de är registrerade för moms,  arbetsgivare eller F-skatt.",
+    "Id_Kategori_JE": "Företagsstatus",
+    "Langd": "",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Har aldrig varit verksam",
+            "Varde": "0"
+        },
+        {
+            "Text": "Är verksam",
+            "Varde": "1"
+        },
+        {
+            "Text": "Är ej längre verksam",
+            "Varde": "9"
+        }
+    ]
+}

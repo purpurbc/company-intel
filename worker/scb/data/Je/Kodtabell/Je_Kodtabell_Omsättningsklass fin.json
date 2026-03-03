@@ -1,0 +1,93 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "",
+    "Id_Kategori_JE": "Omsättningsklass fin",
+    "Langd": "",
+    "TillaggsGrupp": "TG07Oms",
+    "VardeLista": [
+        {
+            "Text": "< 1 tkr",
+            "Varde": "1"
+        },
+        {
+            "Text": "1 - 49 tkr",
+            "Varde": "2"
+        },
+        {
+            "Text": "50 - 99 tkr",
+            "Varde": "3"
+        },
+        {
+            "Text": "100 - 149 tkr",
+            "Varde": "4"
+        },
+        {
+            "Text": "150 - 199 tkr",
+            "Varde": "5"
+        },
+        {
+            "Text": "200 - 299 tkr",
+            "Varde": "6"
+        },
+        {
+            "Text": "300 - 399 tkr",
+            "Varde": "7"
+        },
+        {
+            "Text": "400 - 499 tkr",
+            "Varde": "8"
+        },
+        {
+            "Text": "500 - 749 tkr",
+            "Varde": "9"
+        },
+        {
+            "Text": "750 - 999 tkr",
+            "Varde": "10"
+        },
+        {
+            "Text": "1 000 - 2 499 tkr",
+            "Varde": "11"
+        },
+        {
+            "Text": "2 500 - 4 999 tkr",
+            "Varde": "12"
+        },
+        {
+            "Text": "5 000 - 9 999 tkr",
+            "Varde": "13"
+        },
+        {
+            "Text": "10 000 - 19 999 tkr",
+            "Varde": "14"
+        },
+        {
+            "Text": "20 000 - 49 999 tkr",
+            "Varde": "15"
+        },
+        {
+            "Text": "50 000 - 99 999 tkr",
+            "Varde": "16"
+        },
+        {
+            "Text": "100 000 - 499 999 tkr",
+            "Varde": "17"
+        },
+        {
+            "Text": "500 000 - 999 999 tkr",
+            "Varde": "18"
+        },
+        {
+            "Text": "1 000 000 - 4 999 999 tkr",
+            "Varde": "19"
+        },
+        {
+            "Text": "5 000 000 - 9 999 999 tkr",
+            "Varde": "20"
+        },
+        {
+            "Text": ">9 999 999 tkr",
+            "Varde": "21"
+        }
+    ]
+}

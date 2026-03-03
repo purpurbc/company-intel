@@ -1,0 +1,21 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Om arbetsstället är verksamt eller ej",
+    "Id_Kategori_AE": "Arbetsställestatus",
+    "Langd": "",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Har aldrig varit verksam",
+            "Varde": "0"
+        },
+        {
+            "Text": "Är verksam",
+            "Varde": "1"
+        },
+        {
+            "Text": "Är ej längre verksam",
+            "Varde": "9"
+        }
+    ]
+}

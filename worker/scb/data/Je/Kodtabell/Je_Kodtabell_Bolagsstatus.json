@@ -1,0 +1,193 @@
+{
+    "Datatyp": "tinyint",
+    "ExtraInformation": "Uppgift från bolagsverket",
+    "Id_Kategori_JE": "Bolagsstatus",
+    "Langd": "",
+    "TillaggsGrupp": "TG15Stat_Bol",
+    "VardeLista": [
+        {
+            "Text": "Normalläge",
+            "Varde": "0"
+        },
+        {
+            "Text": "Ackordsförhandling inledd",
+            "Varde": "11"
+        },
+        {
+            "Text": "Ackordsförhandling upphör",
+            "Varde": "12"
+        },
+        {
+            "Text": "Ackordsförhandling upphävd av domstol",
+            "Varde": "13"
+        },
+        {
+            "Text": "Konkurs inledd",
+            "Varde": "20"
+        },
+        {
+            "Text": "Konkurs avslutad",
+            "Varde": "21"
+        },
+        {
+            "Text": "Konkurs avslutad med överskott",
+            "Varde": "22"
+        },
+        {
+            "Text": "Konkurs upphävd av rätt",
+            "Varde": "24"
+        },
+        {
+            "Text": "Likvidation avslutad",
+            "Varde": "31"
+        },
+        {
+            "Text": "Likvidation beslutad",
+            "Varde": "32"
+        },
+        {
+            "Text": "Likvidation fortsätter",
+            "Varde": "33"
+        },
+        {
+            "Text": "Likvidation upphör, verksamheten återupptas",
+            "Varde": "34"
+        },
+        {
+            "Text": "Likvidation upphävd av domstol",
+            "Varde": "35"
+        },
+        {
+            "Text": "Bolaget avfört enl 13 kap 18 § ABL",
+            "Varde": "36"
+        },
+        {
+            "Text": "Bolaget är avfört",
+            "Varde": "37"
+        },
+        {
+            "Text": "Fusion inledd",
+            "Varde": "40"
+        },
+        {
+            "Text": "Upplöst genom fusion",
+            "Varde": "41"
+        },
+        {
+            "Text": "Fusion tillåten",
+            "Varde": "45"
+        },
+        {
+            "Text": "Fusion pågår",
+            "Varde": "49"
+        },
+        {
+            "Text": "Avförd enligt 17§ handelsregisterlagen",
+            "Varde": "50"
+        },
+        {
+            "Text": "Avförd",
+            "Varde": "51"
+        },
+        {
+            "Text": "Avregistrerad",
+            "Varde": "52"
+        },
+        {
+            "Text": "Avregistrerad pga ny innehavare",
+            "Varde": "53"
+        },
+        {
+            "Text": "Avförd pga fusion med utländskt företag",
+            "Varde": "54"
+        },
+        {
+            "Text": "Avförd pga utländskt företags Likvidation/Konkurs",
+            "Varde": "60"
+        },
+        {
+            "Text": "Avförd, verksamheten har upphört",
+            "Varde": "61"
+        },
+        {
+            "Text": "Avförd, filialen saknar verkställande direktör",
+            "Varde": "62"
+        },
+        {
+            "Text": "Avförd, enligt domstolsbeslut",
+            "Varde": "63"
+        },
+        {
+            "Text": "Avförd, årsredovisning saknas",
+            "Varde": "64"
+        },
+        {
+            "Text": "Bolaget avfört på egen begäran",
+            "Varde": "70"
+        },
+        {
+            "Text": "Bolaget avfört av Bolagsverket",
+            "Varde": "71"
+        },
+        {
+            "Text": "Avförd",
+            "Varde": "73"
+        },
+        {
+            "Text": "Avförd, omregistrerat till Bankaktiebolag",
+            "Varde": "74"
+        },
+        {
+            "Text": "Beslut om ombildning",
+            "Varde": "75"
+        },
+        {
+            "Text": "Tillstånd till ombildning",
+            "Varde": "76"
+        },
+        {
+            "Text": "Avregistrerad pga ombildning",
+            "Varde": "77"
+        },
+        {
+            "Text": "Ombildning förfallen",
+            "Varde": "78"
+        },
+        {
+            "Text": "Företagsrekonstruktion inledd",
+            "Varde": "80"
+        },
+        {
+            "Text": "Företagsrekonstruktion upphörd",
+            "Varde": "81"
+        },
+        {
+            "Text": "Företagsrekonstruktion upphävd av domstol",
+            "Varde": "82"
+        },
+        {
+            "Text": "Resolution inledd",
+            "Varde": "85"
+        },
+        {
+            "Text": "Resolution avslutad",
+            "Varde": "86"
+        },
+        {
+            "Text": "Resolution upphävd",
+            "Varde": "87"
+        },
+        {
+            "Text": "Delning pågår",
+            "Varde": "90"
+        },
+        {
+            "Text": "Upplöst genom delning",
+            "Varde": "91"
+        },
+        {
+            "Text": "Övertagande av annat bolag pågår",
+            "Varde": "99"
+        }
+    ]
+}

@@ -1,0 +1,1177 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "",
+    "Id_Kategori_AE": "Kommun",
+    "Langd": "4",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "Kommunkod saknas",
+            "Varde": "0000"
+        },
+        {
+            "Text": "Upplands Väsby",
+            "Varde": "0114"
+        },
+        {
+            "Text": "Vallentuna",
+            "Varde": "0115"
+        },
+        {
+            "Text": "Österåker",
+            "Varde": "0117"
+        },
+        {
+            "Text": "Värmdö",
+            "Varde": "0120"
+        },
+        {
+            "Text": "Järfälla",
+            "Varde": "0123"
+        },
+        {
+            "Text": "Ekerö",
+            "Varde": "0125"
+        },
+        {
+            "Text": "Huddinge",
+            "Varde": "0126"
+        },
+        {
+            "Text": "Botkyrka",
+            "Varde": "0127"
+        },
+        {
+            "Text": "Salem",
+            "Varde": "0128"
+        },
+        {
+            "Text": "Haninge",
+            "Varde": "0136"
+        },
+        {
+            "Text": "Tyresö",
+            "Varde": "0138"
+        },
+        {
+            "Text": "Upplands-Bro",
+            "Varde": "0139"
+        },
+        {
+            "Text": "Nykvarn",
+            "Varde": "0140"
+        },
+        {
+            "Text": "Täby",
+            "Varde": "0160"
+        },
+        {
+            "Text": "Danderyd",
+            "Varde": "0162"
+        },
+        {
+            "Text": "Sollentuna",
+            "Varde": "0163"
+        },
+        {
+            "Text": "Stockholm",
+            "Varde": "0180"
+        },
+        {
+            "Text": "Södertälje",
+            "Varde": "0181"
+        },
+        {
+            "Text": "Nacka",
+            "Varde": "0182"
+        },
+        {
+            "Text": "Sundbyberg",
+            "Varde": "0183"
+        },
+        {
+            "Text": "Solna",
+            "Varde": "0184"
+        },
+        {
+            "Text": "Lidingö",
+            "Varde": "0186"
+        },
+        {
+            "Text": "Vaxholm",
+            "Varde": "0187"
+        },
+        {
+            "Text": "Norrtälje",
+            "Varde": "0188"
+        },
+        {
+            "Text": "Sigtuna",
+            "Varde": "0191"
+        },
+        {
+            "Text": "Nynäshamn",
+            "Varde": "0192"
+        },
+        {
+            "Text": "Håbo",
+            "Varde": "0305"
+        },
+        {
+            "Text": "Älvkarleby",
+            "Varde": "0319"
+        },
+        {
+            "Text": "Knivsta",
+            "Varde": "0330"
+        },
+        {
+            "Text": "Heby",
+            "Varde": "0331"
+        },
+        {
+            "Text": "Tierp",
+            "Varde": "0360"
+        },
+        {
+            "Text": "Uppsala",
+            "Varde": "0380"
+        },
+        {
+            "Text": "Enköping",
+            "Varde": "0381"
+        },
+        {
+            "Text": "Östhammar",
+            "Varde": "0382"
+        },
+        {
+            "Text": "Vingåker",
+            "Varde": "0428"
+        },
+        {
+            "Text": "Gnesta",
+            "Varde": "0461"
+        },
+        {
+            "Text": "Nyköping",
+            "Varde": "0480"
+        },
+        {
+            "Text": "Oxelösund",
+            "Varde": "0481"
+        },
+        {
+            "Text": "Flen",
+            "Varde": "0482"
+        },
+        {
+            "Text": "Katrineholm",
+            "Varde": "0483"
+        },
+        {
+            "Text": "Eskilstuna",
+            "Varde": "0484"
+        },
+        {
+            "Text": "Strängnäs",
+            "Varde": "0486"
+        },
+        {
+            "Text": "Trosa",
+            "Varde": "0488"
+        },
+        {
+            "Text": "Ödeshög",
+            "Varde": "0509"
+        },
+        {
+            "Text": "Ydre",
+            "Varde": "0512"
+        },
+        {
+            "Text": "Kinda",
+            "Varde": "0513"
+        },
+        {
+            "Text": "Boxholm",
+            "Varde": "0560"
+        },
+        {
+            "Text": "Åtvidaberg",
+            "Varde": "0561"
+        },
+        {
+            "Text": "Finspång",
+            "Varde": "0562"
+        },
+        {
+            "Text": "Valdemarsvik",
+            "Varde": "0563"
+        },
+        {
+            "Text": "Linköping",
+            "Varde": "0580"
+        },
+        {
+            "Text": "Norrköping",
+            "Varde": "0581"
+        },
+        {
+            "Text": "Söderköping",
+            "Varde": "0582"
+        },
+        {
+            "Text": "Motala",
+            "Varde": "0583"
+        },
+        {
+            "Text": "Vadstena",
+            "Varde": "0584"
+        },
+        {
+            "Text": "Mjölby",
+            "Varde": "0586"
+        },
+        {
+            "Text": "Aneby",
+            "Varde": "0604"
+        },
+        {
+            "Text": "Gnosjö",
+            "Varde": "0617"
+        },
+        {
+            "Text": "Mullsjö",
+            "Varde": "0642"
+        },
+        {
+            "Text": "Habo",
+            "Varde": "0643"
+        },
+        {
+            "Text": "Gislaved",
+            "Varde": "0662"
+        },
+        {
+            "Text": "Vaggeryd",
+            "Varde": "0665"
+        },
+        {
+            "Text": "Jönköping",
+            "Varde": "0680"
+        },
+        {
+            "Text": "Nässjö",
+            "Varde": "0682"
+        },
+        {
+            "Text": "Värnamo",
+            "Varde": "0683"
+        },
+        {
+            "Text": "Sävsjö",
+            "Varde": "0684"
+        },
+        {
+            "Text": "Vetlanda",
+            "Varde": "0685"
+        },
+        {
+            "Text": "Eksjö",
+            "Varde": "0686"
+        },
+        {
+            "Text": "Tranås",
+            "Varde": "0687"
+        },
+        {
+            "Text": "Uppvidinge",
+            "Varde": "0760"
+        },
+        {
+            "Text": "Lessebo",
+            "Varde": "0761"
+        },
+        {
+            "Text": "Tingsryd",
+            "Varde": "0763"
+        },
+        {
+            "Text": "Alvesta",
+            "Varde": "0764"
+        },
+        {
+            "Text": "Älmhult",
+            "Varde": "0765"
+        },
+        {
+            "Text": "Markaryd",
+            "Varde": "0767"
+        },
+        {
+            "Text": "Växjö",
+            "Varde": "0780"
+        },
+        {
+            "Text": "Ljungby",
+            "Varde": "0781"
+        },
+        {
+            "Text": "Högsby",
+            "Varde": "0821"
+        },
+        {
+            "Text": "Torsås",
+            "Varde": "0834"
+        },
+        {
+            "Text": "Mörbylånga",
+            "Varde": "0840"
+        },
+        {
+            "Text": "Hultsfred",
+            "Varde": "0860"
+        },
+        {
+            "Text": "Mönsterås",
+            "Varde": "0861"
+        },
+        {
+            "Text": "Emmaboda",
+            "Varde": "0862"
+        },
+        {
+            "Text": "Kalmar",
+            "Varde": "0880"
+        },
+        {
+            "Text": "Nybro",
+            "Varde": "0881"
+        },
+        {
+            "Text": "Oskarshamn",
+            "Varde": "0882"
+        },
+        {
+            "Text": "Västervik",
+            "Varde": "0883"
+        },
+        {
+            "Text": "Vimmerby",
+            "Varde": "0884"
+        },
+        {
+            "Text": "Borgholm",
+            "Varde": "0885"
+        },
+        {
+            "Text": "Gotland",
+            "Varde": "0980"
+        },
+        {
+            "Text": "Olofström",
+            "Varde": "1060"
+        },
+        {
+            "Text": "Karlskrona",
+            "Varde": "1080"
+        },
+        {
+            "Text": "Ronneby",
+            "Varde": "1081"
+        },
+        {
+            "Text": "Karlshamn",
+            "Varde": "1082"
+        },
+        {
+            "Text": "Sölvesborg",
+            "Varde": "1083"
+        },
+        {
+            "Text": "Svalöv",
+            "Varde": "1214"
+        },
+        {
+            "Text": "Staffanstorp",
+            "Varde": "1230"
+        },
+        {
+            "Text": "Burlöv",
+            "Varde": "1231"
+        },
+        {
+            "Text": "Vellinge",
+            "Varde": "1233"
+        },
+        {
+            "Text": "Östra Göinge",
+            "Varde": "1256"
+        },
+        {
+            "Text": "Örkelljunga",
+            "Varde": "1257"
+        },
+        {
+            "Text": "Bjuv",
+            "Varde": "1260"
+        },
+        {
+            "Text": "Kävlinge",
+            "Varde": "1261"
+        },
+        {
+            "Text": "Lomma",
+            "Varde": "1262"
+        },
+        {
+            "Text": "Svedala",
+            "Varde": "1263"
+        },
+        {
+            "Text": "Skurup",
+            "Varde": "1264"
+        },
+        {
+            "Text": "Sjöbo",
+            "Varde": "1265"
+        },
+        {
+            "Text": "Hörby",
+            "Varde": "1266"
+        },
+        {
+            "Text": "Höör",
+            "Varde": "1267"
+        },
+        {
+            "Text": "Tomelilla",
+            "Varde": "1270"
+        },
+        {
+            "Text": "Bromölla",
+            "Varde": "1272"
+        },
+        {
+            "Text": "Osby",
+            "Varde": "1273"
+        },
+        {
+            "Text": "Perstorp",
+            "Varde": "1275"
+        },
+        {
+            "Text": "Klippan",
+            "Varde": "1276"
+        },
+        {
+            "Text": "Åstorp",
+            "Varde": "1277"
+        },
+        {
+            "Text": "Båstad",
+            "Varde": "1278"
+        },
+        {
+            "Text": "Malmö",
+            "Varde": "1280"
+        },
+        {
+            "Text": "Lund",
+            "Varde": "1281"
+        },
+        {
+            "Text": "Landskrona",
+            "Varde": "1282"
+        },
+        {
+            "Text": "Helsingborg",
+            "Varde": "1283"
+        },
+        {
+            "Text": "Höganäs",
+            "Varde": "1284"
+        },
+        {
+            "Text": "Eslöv",
+            "Varde": "1285"
+        },
+        {
+            "Text": "Ystad",
+            "Varde": "1286"
+        },
+        {
+            "Text": "Trelleborg",
+            "Varde": "1287"
+        },
+        {
+            "Text": "Kristianstad",
+            "Varde": "1290"
+        },
+        {
+            "Text": "Simrishamn",
+            "Varde": "1291"
+        },
+        {
+            "Text": "Ängelholm",
+            "Varde": "1292"
+        },
+        {
+            "Text": "Hässleholm",
+            "Varde": "1293"
+        },
+        {
+            "Text": "Hylte",
+            "Varde": "1315"
+        },
+        {
+            "Text": "Halmstad",
+            "Varde": "1380"
+        },
+        {
+            "Text": "Laholm",
+            "Varde": "1381"
+        },
+        {
+            "Text": "Falkenberg",
+            "Varde": "1382"
+        },
+        {
+            "Text": "Varberg",
+            "Varde": "1383"
+        },
+        {
+            "Text": "Kungsbacka",
+            "Varde": "1384"
+        },
+        {
+            "Text": "Härryda",
+            "Varde": "1401"
+        },
+        {
+            "Text": "Partille",
+            "Varde": "1402"
+        },
+        {
+            "Text": "Öckerö",
+            "Varde": "1407"
+        },
+        {
+            "Text": "Stenungsund",
+            "Varde": "1415"
+        },
+        {
+            "Text": "Tjörn",
+            "Varde": "1419"
+        },
+        {
+            "Text": "Orust",
+            "Varde": "1421"
+        },
+        {
+            "Text": "Sotenäs",
+            "Varde": "1427"
+        },
+        {
+            "Text": "Munkedal",
+            "Varde": "1430"
+        },
+        {
+            "Text": "Tanum",
+            "Varde": "1435"
+        },
+        {
+            "Text": "Dals-Ed",
+            "Varde": "1438"
+        },
+        {
+            "Text": "Färgelanda",
+            "Varde": "1439"
+        },
+        {
+            "Text": "Ale",
+            "Varde": "1440"
+        },
+        {
+            "Text": "Lerum",
+            "Varde": "1441"
+        },
+        {
+            "Text": "Vårgårda",
+            "Varde": "1442"
+        },
+        {
+            "Text": "Bollebygd",
+            "Varde": "1443"
+        },
+        {
+            "Text": "Grästorp",
+            "Varde": "1444"
+        },
+        {
+            "Text": "Essunga",
+            "Varde": "1445"
+        },
+        {
+            "Text": "Karlsborg",
+            "Varde": "1446"
+        },
+        {
+            "Text": "Gullspång",
+            "Varde": "1447"
+        },
+        {
+            "Text": "Tranemo",
+            "Varde": "1452"
+        },
+        {
+            "Text": "Bengtsfors",
+            "Varde": "1460"
+        },
+        {
+            "Text": "Mellerud",
+            "Varde": "1461"
+        },
+        {
+            "Text": "Lilla Edet",
+            "Varde": "1462"
+        },
+        {
+            "Text": "Mark",
+            "Varde": "1463"
+        },
+        {
+            "Text": "Svenljunga",
+            "Varde": "1465"
+        },
+        {
+            "Text": "Herrljunga",
+            "Varde": "1466"
+        },
+        {
+            "Text": "Vara",
+            "Varde": "1470"
+        },
+        {
+            "Text": "Götene",
+            "Varde": "1471"
+        },
+        {
+            "Text": "Tibro",
+            "Varde": "1472"
+        },
+        {
+            "Text": "Töreboda",
+            "Varde": "1473"
+        },
+        {
+            "Text": "Göteborg",
+            "Varde": "1480"
+        },
+        {
+            "Text": "Mölndal",
+            "Varde": "1481"
+        },
+        {
+            "Text": "Kungälv",
+            "Varde": "1482"
+        },
+        {
+            "Text": "Lysekil",
+            "Varde": "1484"
+        },
+        {
+            "Text": "Uddevalla",
+            "Varde": "1485"
+        },
+        {
+            "Text": "Strömstad",
+            "Varde": "1486"
+        },
+        {
+            "Text": "Vänersborg",
+            "Varde": "1487"
+        },
+        {
+            "Text": "Trollhättan",
+            "Varde": "1488"
+        },
+        {
+            "Text": "Alingsås",
+            "Varde": "1489"
+        },
+        {
+            "Text": "Borås",
+            "Varde": "1490"
+        },
+        {
+            "Text": "Ulricehamn",
+            "Varde": "1491"
+        },
+        {
+            "Text": "Åmål",
+            "Varde": "1492"
+        },
+        {
+            "Text": "Mariestad",
+            "Varde": "1493"
+        },
+        {
+            "Text": "Lidköping",
+            "Varde": "1494"
+        },
+        {
+            "Text": "Skara",
+            "Varde": "1495"
+        },
+        {
+            "Text": "Skövde",
+            "Varde": "1496"
+        },
+        {
+            "Text": "Hjo",
+            "Varde": "1497"
+        },
+        {
+            "Text": "Tidaholm",
+            "Varde": "1498"
+        },
+        {
+            "Text": "Falköping",
+            "Varde": "1499"
+        },
+        {
+            "Text": "Kil",
+            "Varde": "1715"
+        },
+        {
+            "Text": "Eda",
+            "Varde": "1730"
+        },
+        {
+            "Text": "Torsby",
+            "Varde": "1737"
+        },
+        {
+            "Text": "Storfors",
+            "Varde": "1760"
+        },
+        {
+            "Text": "Hammarö",
+            "Varde": "1761"
+        },
+        {
+            "Text": "Munkfors",
+            "Varde": "1762"
+        },
+        {
+            "Text": "Forshaga",
+            "Varde": "1763"
+        },
+        {
+            "Text": "Grums",
+            "Varde": "1764"
+        },
+        {
+            "Text": "Årjäng",
+            "Varde": "1765"
+        },
+        {
+            "Text": "Sunne",
+            "Varde": "1766"
+        },
+        {
+            "Text": "Karlstad",
+            "Varde": "1780"
+        },
+        {
+            "Text": "Kristinehamn",
+            "Varde": "1781"
+        },
+        {
+            "Text": "Filipstad",
+            "Varde": "1782"
+        },
+        {
+            "Text": "Hagfors",
+            "Varde": "1783"
+        },
+        {
+            "Text": "Arvika",
+            "Varde": "1784"
+        },
+        {
+            "Text": "Säffle",
+            "Varde": "1785"
+        },
+        {
+            "Text": "Lekeberg",
+            "Varde": "1814"
+        },
+        {
+            "Text": "Laxå",
+            "Varde": "1860"
+        },
+        {
+            "Text": "Hallsberg",
+            "Varde": "1861"
+        },
+        {
+            "Text": "Degerfors",
+            "Varde": "1862"
+        },
+        {
+            "Text": "Hällefors",
+            "Varde": "1863"
+        },
+        {
+            "Text": "Ljusnarsberg",
+            "Varde": "1864"
+        },
+        {
+            "Text": "Örebro",
+            "Varde": "1880"
+        },
+        {
+            "Text": "Kumla",
+            "Varde": "1881"
+        },
+        {
+            "Text": "Askersund",
+            "Varde": "1882"
+        },
+        {
+            "Text": "Karlskoga",
+            "Varde": "1883"
+        },
+        {
+            "Text": "Nora",
+            "Varde": "1884"
+        },
+        {
+            "Text": "Lindesberg",
+            "Varde": "1885"
+        },
+        {
+            "Text": "Skinnskatteberg",
+            "Varde": "1904"
+        },
+        {
+            "Text": "Surahammar",
+            "Varde": "1907"
+        },
+        {
+            "Text": "Kungsör",
+            "Varde": "1960"
+        },
+        {
+            "Text": "Hallstahammar",
+            "Varde": "1961"
+        },
+        {
+            "Text": "Norberg",
+            "Varde": "1962"
+        },
+        {
+            "Text": "Västerås",
+            "Varde": "1980"
+        },
+        {
+            "Text": "Sala",
+            "Varde": "1981"
+        },
+        {
+            "Text": "Fagersta",
+            "Varde": "1982"
+        },
+        {
+            "Text": "Köping",
+            "Varde": "1983"
+        },
+        {
+            "Text": "Arboga",
+            "Varde": "1984"
+        },
+        {
+            "Text": "Vansbro",
+            "Varde": "2021"
+        },
+        {
+            "Text": "Malung",
+            "Varde": "2023"
+        },
+        {
+            "Text": "Gagnef",
+            "Varde": "2026"
+        },
+        {
+            "Text": "Leksand",
+            "Varde": "2029"
+        },
+        {
+            "Text": "Rättvik",
+            "Varde": "2031"
+        },
+        {
+            "Text": "Orsa",
+            "Varde": "2034"
+        },
+        {
+            "Text": "Älvdalen",
+            "Varde": "2039"
+        },
+        {
+            "Text": "Smedjebacken",
+            "Varde": "2061"
+        },
+        {
+            "Text": "Mora",
+            "Varde": "2062"
+        },
+        {
+            "Text": "Falun",
+            "Varde": "2080"
+        },
+        {
+            "Text": "Borlänge",
+            "Varde": "2081"
+        },
+        {
+            "Text": "Säter",
+            "Varde": "2082"
+        },
+        {
+            "Text": "Hedemora",
+            "Varde": "2083"
+        },
+        {
+            "Text": "Avesta",
+            "Varde": "2084"
+        },
+        {
+            "Text": "Ludvika",
+            "Varde": "2085"
+        },
+        {
+            "Text": "Ockelbo",
+            "Varde": "2101"
+        },
+        {
+            "Text": "Hofors",
+            "Varde": "2104"
+        },
+        {
+            "Text": "Ovanåker",
+            "Varde": "2121"
+        },
+        {
+            "Text": "Nordanstig",
+            "Varde": "2132"
+        },
+        {
+            "Text": "Ljusdal",
+            "Varde": "2161"
+        },
+        {
+            "Text": "Gävle",
+            "Varde": "2180"
+        },
+        {
+            "Text": "Sandviken",
+            "Varde": "2181"
+        },
+        {
+            "Text": "Söderhamn",
+            "Varde": "2182"
+        },
+        {
+            "Text": "Bollnäs",
+            "Varde": "2183"
+        },
+        {
+            "Text": "Hudiksvall",
+            "Varde": "2184"
+        },
+        {
+            "Text": "Ånge",
+            "Varde": "2260"
+        },
+        {
+            "Text": "Timrå",
+            "Varde": "2262"
+        },
+        {
+            "Text": "Härnösand",
+            "Varde": "2280"
+        },
+        {
+            "Text": "Sundsvall",
+            "Varde": "2281"
+        },
+        {
+            "Text": "Kramfors",
+            "Varde": "2282"
+        },
+        {
+            "Text": "Sollefteå",
+            "Varde": "2283"
+        },
+        {
+            "Text": "Örnsköldsvik",
+            "Varde": "2284"
+        },
+        {
+            "Text": "Ragunda",
+            "Varde": "2303"
+        },
+        {
+            "Text": "Bräcke",
+            "Varde": "2305"
+        },
+        {
+            "Text": "Krokom",
+            "Varde": "2309"
+        },
+        {
+            "Text": "Strömsund",
+            "Varde": "2313"
+        },
+        {
+            "Text": "Åre",
+            "Varde": "2321"
+        },
+        {
+            "Text": "Berg",
+            "Varde": "2326"
+        },
+        {
+            "Text": "Härjedalen",
+            "Varde": "2361"
+        },
+        {
+            "Text": "Östersund",
+            "Varde": "2380"
+        },
+        {
+            "Text": "Nordmaling",
+            "Varde": "2401"
+        },
+        {
+            "Text": "Bjurholm",
+            "Varde": "2403"
+        },
+        {
+            "Text": "Vindeln",
+            "Varde": "2404"
+        },
+        {
+            "Text": "Robertsfors",
+            "Varde": "2409"
+        },
+        {
+            "Text": "Norsjö",
+            "Varde": "2417"
+        },
+        {
+            "Text": "Malå",
+            "Varde": "2418"
+        },
+        {
+            "Text": "Storuman",
+            "Varde": "2421"
+        },
+        {
+            "Text": "Sorsele",
+            "Varde": "2422"
+        },
+        {
+            "Text": "Dorotea",
+            "Varde": "2425"
+        },
+        {
+            "Text": "Vännäs",
+            "Varde": "2460"
+        },
+        {
+            "Text": "Vilhelmina",
+            "Varde": "2462"
+        },
+        {
+            "Text": "Åsele",
+            "Varde": "2463"
+        },
+        {
+            "Text": "Umeå",
+            "Varde": "2480"
+        },
+        {
+            "Text": "Lycksele",
+            "Varde": "2481"
+        },
+        {
+            "Text": "Skellefteå",
+            "Varde": "2482"
+        },
+        {
+            "Text": "Arvidsjaur",
+            "Varde": "2505"
+        },
+        {
+            "Text": "Arjeplog",
+            "Varde": "2506"
+        },
+        {
+            "Text": "Jokkmokk",
+            "Varde": "2510"
+        },
+        {
+            "Text": "Överkalix",
+            "Varde": "2513"
+        },
+        {
+            "Text": "Kalix",
+            "Varde": "2514"
+        },
+        {
+            "Text": "Övertorneå",
+            "Varde": "2518"
+        },
+        {
+            "Text": "Pajala",
+            "Varde": "2521"
+        },
+        {
+            "Text": "Gällivare",
+            "Varde": "2523"
+        },
+        {
+            "Text": "Älvsbyn",
+            "Varde": "2560"
+        },
+        {
+            "Text": "Luleå",
+            "Varde": "2580"
+        },
+        {
+            "Text": "Piteå",
+            "Varde": "2581"
+        },
+        {
+            "Text": "Boden",
+            "Varde": "2582"
+        },
+        {
+            "Text": "Haparanda",
+            "Varde": "2583"
+        },
+        {
+            "Text": "Kiruna",
+            "Varde": "2584"
+        },
+        {
+            "Text": "Ej svensk hemortskommun",
+            "Varde": "9999"
+        }
+    ]
+}

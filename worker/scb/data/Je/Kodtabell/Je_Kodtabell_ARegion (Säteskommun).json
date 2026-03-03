@@ -1,0 +1,293 @@
+{
+    "Datatyp": "char",
+    "ExtraInformation": "Aregioner en sammanslagning av kommuner",
+    "Id_Kategori_JE": "ARegion (Säteskommun)",
+    "Langd": "2",
+    "TillaggsGrupp": "",
+    "VardeLista": [
+        {
+            "Text": "A-region okänd",
+            "Varde": "00"
+        },
+        {
+            "Text": "Stockholm/Södertälje",
+            "Varde": "01"
+        },
+        {
+            "Text": "Norrtälje",
+            "Varde": "02"
+        },
+        {
+            "Text": "Enköping",
+            "Varde": "03"
+        },
+        {
+            "Text": "Uppsala",
+            "Varde": "04"
+        },
+        {
+            "Text": "Nyköping",
+            "Varde": "05"
+        },
+        {
+            "Text": "Katrineholm",
+            "Varde": "06"
+        },
+        {
+            "Text": "Eskilstuna",
+            "Varde": "07"
+        },
+        {
+            "Text": "Mjölby/Motala",
+            "Varde": "08"
+        },
+        {
+            "Text": "Linköping",
+            "Varde": "09"
+        },
+        {
+            "Text": "Norrköping",
+            "Varde": "10"
+        },
+        {
+            "Text": "Jönköping",
+            "Varde": "11"
+        },
+        {
+            "Text": "Tranås",
+            "Varde": "12"
+        },
+        {
+            "Text": "Eksjö/Nässjö/Vetlanda",
+            "Varde": "13"
+        },
+        {
+            "Text": "Värnamo",
+            "Varde": "14"
+        },
+        {
+            "Text": "Ljungby",
+            "Varde": "15"
+        },
+        {
+            "Text": "Växjö",
+            "Varde": "16"
+        },
+        {
+            "Text": "Västervik",
+            "Varde": "17"
+        },
+        {
+            "Text": "Hultsfred/Vimmerby",
+            "Varde": "18"
+        },
+        {
+            "Text": "Oskarshamn",
+            "Varde": "19"
+        },
+        {
+            "Text": "Kalmar/Nybro",
+            "Varde": "20"
+        },
+        {
+            "Text": "Visby",
+            "Varde": "21"
+        },
+        {
+            "Text": "Karlskrona",
+            "Varde": "22"
+        },
+        {
+            "Text": "Karlshamn",
+            "Varde": "23"
+        },
+        {
+            "Text": "Kristianstad",
+            "Varde": "24"
+        },
+        {
+            "Text": "Hässleholm",
+            "Varde": "25"
+        },
+        {
+            "Text": "Ängelholm",
+            "Varde": "26"
+        },
+        {
+            "Text": "Helsingborg/Landskrona",
+            "Varde": "27"
+        },
+        {
+            "Text": "Malmö/Lund/Trelleborg",
+            "Varde": "28"
+        },
+        {
+            "Text": "Ystad/Simrishamn",
+            "Varde": "29"
+        },
+        {
+            "Text": "Eslöv",
+            "Varde": "30"
+        },
+        {
+            "Text": "Halmstad",
+            "Varde": "31"
+        },
+        {
+            "Text": "Falkenberg/Varberg",
+            "Varde": "32"
+        },
+        {
+            "Text": "Göteborg",
+            "Varde": "33"
+        },
+        {
+            "Text": "Uddevalla",
+            "Varde": "34"
+        },
+        {
+            "Text": "Trollhättan/Vänersborg",
+            "Varde": "35"
+        },
+        {
+            "Text": "Borås",
+            "Varde": "36"
+        },
+        {
+            "Text": "Lidköping/Skara",
+            "Varde": "37"
+        },
+        {
+            "Text": "Falköping",
+            "Varde": "38"
+        },
+        {
+            "Text": "Skövde",
+            "Varde": "39"
+        },
+        {
+            "Text": "Mariestad",
+            "Varde": "40"
+        },
+        {
+            "Text": "Kristinehamn",
+            "Varde": "41"
+        },
+        {
+            "Text": "Karlstad",
+            "Varde": "42"
+        },
+        {
+            "Text": "Säffle/Åmål",
+            "Varde": "43"
+        },
+        {
+            "Text": "Arvika",
+            "Varde": "44"
+        },
+        {
+            "Text": "Örebro",
+            "Varde": "45"
+        },
+        {
+            "Text": "Karlskoga",
+            "Varde": "46"
+        },
+        {
+            "Text": "Lindesberg",
+            "Varde": "47"
+        },
+        {
+            "Text": "Västerås",
+            "Varde": "48"
+        },
+        {
+            "Text": "Köping",
+            "Varde": "49"
+        },
+        {
+            "Text": "Fagersta",
+            "Varde": "50"
+        },
+        {
+            "Text": "Sala",
+            "Varde": "51"
+        },
+        {
+            "Text": "Borlänge/Falun",
+            "Varde": "52"
+        },
+        {
+            "Text": "Avesta/Hedemora",
+            "Varde": "53"
+        },
+        {
+            "Text": "Ludvika",
+            "Varde": "54"
+        },
+        {
+            "Text": "Mora",
+            "Varde": "55"
+        },
+        {
+            "Text": "Gävle/Sandviken",
+            "Varde": "56"
+        },
+        {
+            "Text": "Bollnäs/Söderhamn",
+            "Varde": "57"
+        },
+        {
+            "Text": "Hudiksvall/Ljusdal",
+            "Varde": "58"
+        },
+        {
+            "Text": "Sundsvall",
+            "Varde": "59"
+        },
+        {
+            "Text": "Härnösand/Kramfors",
+            "Varde": "60"
+        },
+        {
+            "Text": "Sollefteå",
+            "Varde": "61"
+        },
+        {
+            "Text": "Örnsköldsvik",
+            "Varde": "62"
+        },
+        {
+            "Text": "Östersund",
+            "Varde": "63"
+        },
+        {
+            "Text": "Umeå",
+            "Varde": "64"
+        },
+        {
+            "Text": "Skellefteå",
+            "Varde": "65"
+        },
+        {
+            "Text": "Lycksele",
+            "Varde": "66"
+        },
+        {
+            "Text": "Piteå",
+            "Varde": "67"
+        },
+        {
+            "Text": "Luleå/Boden",
+            "Varde": "68"
+        },
+        {
+            "Text": "Haparanda/Kalix",
+            "Varde": "69"
+        },
+        {
+            "Text": "Kiruna/Gällivare",
+            "Varde": "70"
+        }
+    ]
+}

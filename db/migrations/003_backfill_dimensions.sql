@@ -92,4 +92,11 @@ FROM company
 WHERE company_state_code IS NOT NULL AND company_state IS NOT NULL
 ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name;
 
+-- Arbetsgivarstatus
+INSERT INTO dim_employer_status (code, name)
+SELECT DISTINCT employer_status_code, employer_status
+FROM company
+WHERE employer_status_code IS NOT NULL AND employer_status IS NOT NULL
+ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name;
+
 COMMIT;

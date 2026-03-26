@@ -13,6 +13,7 @@ from worker.scb.config import PARTITIONS
 import time
 from typing import List
 import copy
+import json
 
 def valid_operator(operator):
     # TODO: implement
@@ -118,6 +119,24 @@ class SCBCustomClient(SCBClient):
         
         return int(res)
     
+    def get_category_codes(self, cat : Category, cat_tables = None):
+        if cat_tables is None:
+            cat_tables = self._get_Je_KategorierMedKodtabeller()
+        
+        cat_dict = next(
+            (ct for ct in cat_tables if ct.get("Id_Kategori_JE") == cat), 
+            None
+        )
+        
+        if cat_dict is None:
+            raise NameError(f"Category {cat} doesnt exist.")
+        
+        value_list = cat_dict.get("VardeLista", [])
+        text = [v.get("Text") for v in value_list]
+        values = [v.get("Varde") for v in value_list]
+        
+        return values, text
+    
     def Je_count(self, 
             reg_status : str = "1", 
             co_status : str = "1", 
@@ -132,6 +151,7 @@ class SCBCustomClient(SCBClient):
                 variables= variables,
                 categories= categories
             )
+            print("|", end="")
         except:
             raise Exception(f"EXCEPTION: {reg_status} {co_status} {variables} {categories}")
         
@@ -141,7 +161,6 @@ class SCBCustomClient(SCBClient):
         """ Recursive method to retrieve the category partitions to call the api
         with later to get the actual company data.
         """
-        # TODO: don't like this, fix later
         success_list = []
         fail_list = []
         zeros_list = []
@@ -151,11 +170,16 @@ class SCBCustomClient(SCBClient):
         p_dict = partitions.get(level, None)
         
         # Extract category and values
-        current_cat = p_dict.get("cat", Category.EMPTY)
-        current_values = p_dict.get("values", [])
+        current_cat : Category = p_dict.get("cat", Category.EMPTY)
+        
+        if current_cat == Category.INDUSTRY:
+            prev_val = [pd["values"][pd.get("active_value", 0)] for lvl, pd in partitions.items() if lvl == level - 1][0].get("Varde", "")
+            current_values = [v for v in p_dict.get("values", []) if v.get("Varde","").startswith(prev_val)]
+        else:
+            current_values = p_dict.get("values", [])
         
         # DEBUGGING
-        print("\t" * level + f"======== {current_cat} ==========")
+        print(" " * level + f"======== {current_cat} ==========")
         
         # Get previous categories for previous levels
         prev_cats = [pd["cat"] for lvl, pd in partitions.items() if lvl < level]
@@ -169,10 +193,6 @@ class SCBCustomClient(SCBClient):
         for _, vd in enumerate(current_values):
             categories = prev_categories + [SCBCategory(current_cat, codes=[vd.get("Varde")])]
             
-            # NOTE: SCB only allows 10 calls per 10 seconds. Add sleep to accomodate
-            # TODO: stresstest
-            time.sleep(1.05)
-            
             # Calculate the number of companies for the category combination
             num_co = self.Je_count(categories= categories)
             if num_co is None:
@@ -181,7 +201,7 @@ class SCBCustomClient(SCBClient):
             p_dict["current_sum"] += num_co if num_co >= 0 else 0
             
             # DEBUGGING
-            print("\t" * level + f"{vd.get("Text")}: found {num_co} companies. ({p_dict["current_sum"]}) [{p_dict["active_value"]}]")
+            print(" " * level + f"{vd.get("Text")}: found {num_co} companies. ({p_dict["current_sum"]}) [{p_dict["active_value"]}]")
             
             cats = [cat.dict for cat in categories]
             data = {"num_co" : num_co, "num_cat" : len(cats), "cats" : cats}
@@ -248,11 +268,20 @@ class SCBCustomClient(SCBClient):
         """ Calculates all the category partitions, perform the call
         to retrieve the companies and seed them into the db
         """
+        success_list, fail_list, zeros_list, insufficient_list = self._get_company_partitions()
         
-        # TODO: break this method apart. 
+        with open("worker/scb/data/res/success_list.json", "w") as f:
+            json.dump(success_list, f)
+            
+        with open("worker/scb/data/res/fail_list.json", "w") as f:
+            json.dump(fail_list, f)
         
-        success_list, _, _, _ = self._get_company_partitions()
-
+        with open("worker/scb/data/res/zeros_list.json", "w") as f:
+            json.dump(zeros_list, f)
+            
+        with open("worker/scb/data/res/insufficient_list.json", "w") as f:
+            json.dump(insufficient_list, f)
+            
         # DEBUGGING
         expected_total = 0
         actual_total = 0
@@ -264,13 +293,13 @@ class SCBCustomClient(SCBClient):
             # Extract values
             cats = data.get("cats", [])
             expected_num_co = data.get("num_co", -9999)
-            
+            catssss = [SCBCategory(
+                category= cd.get("Kategori", Category.EMPTY), 
+                codes= cd.get("Kod")) for cd in cats
+            ]
             # Perform call
             res = self._post_Je_HamtaForetag(
-                categories= [SCBCategory(
-                    category= cd.get("Kategori", Category.EMPTY), 
-                    codes= cd.get("Kod")) for cd in cats
-                ]
+                categories= catssss
             )
             
             # DEBUGGING
@@ -278,7 +307,7 @@ class SCBCustomClient(SCBClient):
             expected_total += expected_num_co
             actual_total += num_co
             if num_co != expected_num_co:
-                print(f"[{i}]: ERROR. expected {expected_num_co}, got {num_co}")
+                print(f"[{i}]: ERROR. expected {expected_num_co}, got {num_co}, cats: {catssss}")
             
             # Seed companies to db                
             with get_db_connection() as conn:

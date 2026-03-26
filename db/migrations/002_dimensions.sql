@@ -77,4 +77,10 @@ CREATE TABLE IF NOT EXISTS dim_company_state (
   name TEXT NOT NULL
 );
 
+-- Arbetsgivarstatus
+CREATE TABLE IF NOT EXISTS dim_employer_status (
+  code TEXT PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
 COMMIT;

@@ -4,15 +4,15 @@ from enum import Enum
 
 class Category(str, Enum):
     # Shared
-    INDUSTRY_2_DIGIT = "2-siffrig bransch 1"
-    INDUSTRY = "Bransch"
-    EMPLOYEES = "Anställda"
-    ADVERTISING = "Reklam"
-    ADDRESS_STATUS = "Adresstatus"
-    EMPLOYEES_SME = "Anställda SME"
-    OWNER_CONTROL = "Ägarkontroll"
-    PRIVATE_PUBLIC = "Privat/publikt"
-    SECTOR = "Sektor"
+    INDUSTRY_2_DIGIT = "2-siffrig bransch 1"    # 88 OK
+    INDUSTRY = "Bransch"                        
+    EMPLOYEES = "Anställda"                     # 17 OK
+    ADVERTISING = "Reklam"                      # 6 OK
+    ADDRESS_STATUS = "Adresstatus"              # 4 OK
+    EMPLOYEES_SME = "Anställda SME"             # 6 OK
+    OWNER_CONTROL = "Ägarkontroll"              # 6 OK
+    PRIVATE_PUBLIC = "Privat/publikt"           # 8 OK
+    SECTOR = "Sektor"                           # 53 OK
     EMPTY = ""
 
     # AE
@@ -25,18 +25,18 @@ class Category(str, Enum):
     LOCALITY_TYPE = "Typ av ort"
 
     # JE
-    COMPANY_STATUS = "Företagsstatus"
-    REGISTRATION_STATUS = "Registreringsstatus"
-    SEAT_MUNICIPALITY = "SätesKommun"
-    SEAT_COUNTY = "SätesLän"
-    SEAT_AREGION = "ARegion (Säteskommun)"
-    LEGAL_FORM = "Juridisk form"
-    TURNOVER_CLASS_FIN = "Omsättningsklass fin"
-    TURNOVER_CLASS_GROSS = "Omsättningsklass grov"
-    EMPLOYER_STATUS = "Arbetsgivarstatus"
-    VAT_STATUS = "Momsstatus"
-    F_TAX_STATUS = "F-skattstatus"
-    COMPANY_STATE = "Bolagsstatus"
+    COMPANY_STATUS = "Företagsstatus"               # 3 OK
+    REGISTRATION_STATUS = "Registreringsstatus"     # 2 OK
+    SEAT_MUNICIPALITY = "SätesKommun"               # 292 OK
+    SEAT_COUNTY = "SätesLän"                        # 23 OK
+    SEAT_AREGION = "ARegion (Säteskommun)"          # 71 OK
+    LEGAL_FORM = "Juridisk form"                    # 35 OK
+    TURNOVER_CLASS_FIN = "Omsättningsklass fin"     # 21 NOT OK 1122400
+    TURNOVER_CLASS_GROSS = "Omsättningsklass grov"  # 13 OK
+    EMPLOYER_STATUS = "Arbetsgivarstatus"           # 6 OK
+    VAT_STATUS = "Momsstatus" # 4
+    F_TAX_STATUS = "F-skattstatus"  # 3
+    COMPANY_STATE = "Bolagsstatus" # 46
     EXPORT_TURNOVER = "Exportomsättning"
     IMPORT_TURNOVER = "Importomsättning"
 

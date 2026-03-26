@@ -54,7 +54,7 @@ class SCBClient:
         resp.raise_for_status()
         return resp.json()
 
-    def post(self, path: str, json_body: dict, max_failures : int = 10, fail_sleep : float = 2.0) -> dict:
+    def post(self, path: str, json_body: dict, max_failures : int = 15, fail_sleep : float = 2.0) -> dict:
         """POST request using pkcs12_post.
         """
         url = self._url(path)
@@ -223,8 +223,7 @@ class SCBClient:
             registration_status, 
             company_status, 
             variables, 
-            categories, 
-            save=False
+            categories
         )
         if n > SCB_MAX_ROWS_RETURNED:
             raise ValueError(

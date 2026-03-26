@@ -46,7 +46,10 @@ SELECT
   c.company_state_code,
   st.name AS company_state_name,
 
-  c.ingested_at
+  c.ingested_at,
+
+  c.employer_status_code,
+  es.name AS employer_status_name
 
 FROM company c
 LEFT JOIN dim_county co ON co.code = c.seat_county_code
@@ -60,7 +63,8 @@ LEFT JOIN dim_turnover_fin tf ON tf.code = c.turnover_fin_size_code
 LEFT JOIN dim_legal_form lf ON lf.code = c.legal_form_code
 LEFT JOIN dim_sector se ON se.code = c.sector_code
 LEFT JOIN dim_company_status cs ON cs.code = c.company_status_code
-LEFT JOIN dim_company_state st ON st.code = c.company_state_code;
+LEFT JOIN dim_company_state st ON st.code = c.company_state_code
+LEFT JOIN dim_employer_status es ON es.code = c.employer_status_code;
 
 -- Full view for detail pages (everything + labels)
 CREATE OR REPLACE VIEW v_company_full AS

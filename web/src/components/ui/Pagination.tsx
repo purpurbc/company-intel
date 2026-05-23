@@ -1,3 +1,5 @@
+import { Button } from "@/src/components/ui/Button";
+
 type PaginationProps = {
   canPrev: boolean;
   canNext: boolean;
@@ -14,22 +16,24 @@ export function Pagination({
   onNext,
 }: PaginationProps) {
   return (
-    <div className="flex gap-2">
-      <button
-        className="border rounded px-3 py-2"
+    <div className="flex flex-wrap items-center gap-3">
+      <Button
+        variant="secondary"
         disabled={!canPrev || loading}
         onClick={onPrev}
+        type="button"
       >
         Föregående
-      </button>
+      </Button>
 
-      <button
-        className="border rounded px-3 py-2"
+      <Button
+        variant="secondary"
         disabled={!canNext || loading}
         onClick={onNext}
+        type="button"
       >
         Nästa
-      </button>
+      </Button>
     </div>
   );
 }

@@ -21,15 +21,17 @@ export type PaginatedResponse<T> = {
 export type CompanySearchBy =
   | "all"
   | "company_name"
-  | "org_nr"
-  | "seat_municipality_name";
-
+  | "org_nr";
 
 export type ListCompaniesParams = {
   q?: string;
   search_by?: CompanySearchBy;
-  county_code?: string;
-  municipality_code?: string;
+
+  county_codes?: string[];
+  municipality_codes?: string[];
+  size_class_codes?: string[];
+  industry_codes?: string[];
+
   limit?: number;
   offset?: number;
 };

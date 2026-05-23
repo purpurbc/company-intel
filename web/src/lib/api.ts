@@ -17,24 +17,39 @@ async function fetchJson<T>(url: string): Promise<T> {
 export async function listCompanies({
   q,
   search_by = "all",
-  county_code,
-  municipality_code,
+  county_codes,
+  municipality_codes,
+  size_class_codes,
+  industry_codes,
   limit = 25,
   offset = 0,
 }: ListCompaniesParams = {}) {
   const params = new URLSearchParams();
 
   if (q?.trim()) params.set("q", q.trim());
+  
   if (search_by) params.set("search_by", search_by);
-  if (county_code?.trim()) params.set("county_code", county_code.trim());
-  if (municipality_code?.trim()) {
-    params.set("municipality_code", municipality_code.trim());
-  }
+
+  county_codes?.forEach((value) => 
+    params.append("county_codes", value)
+  );
+
+  municipality_codes?.forEach((value) =>
+    params.append("municipality_codes", value)
+  );
+
+  size_class_codes?.forEach((value) =>
+    params.append("size_class_codes", value)
+  );
+
+  industry_codes?.forEach((value) => 
+    params.append("industry_codes", value)
+  );
 
   params.set("limit", String(limit));
   params.set("offset", String(offset));
 
-  return fetchJson<CompaniesResponse>(`${API}/companies?${params}`);
+  return fetchJson<CompaniesResponse>(`${API}/companies?${params.toString()}`);
 }
 
 export async function getCompany(orgNr: string): Promise<CompanyResponse> {

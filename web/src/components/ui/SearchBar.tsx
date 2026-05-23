@@ -1,4 +1,6 @@
 import type { CompanySearchBy } from "@/src/lib/types";
+import { ui } from "@/src/lib/uiStyles";
+import { Button } from "@/src/components/ui/Button";
 
 type SearchBarProps = {
   value: string;
@@ -29,54 +31,57 @@ export function SearchBar({
   placeholder,
 }: SearchBarProps) {
   return (
-    <div className="space-y-3">
-      <div className="flex flex-col gap-2 md:flex-row">
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") onSearch();
-          }}
-          placeholder={placeholder}
-          className="border rounded px-3 py-2 w-full"
-        />
+    <div className={[ui.card, "p-4"].join(" ")}>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 lg:flex-row">
+          <div className="min-w-0 flex-1">
+            <input
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onSearch();
+              }}
+              placeholder={placeholder}
+              className={ui.input}
+            />
+          </div>
 
-        <select
-          value={searchBy}
-          onChange={(e) => onSearchByChange(e.target.value as CompanySearchBy)}
-          className="border rounded px-3 py-2"
-        >
-          <option value="all">Sök i alla</option>
-          <option value="company_name">Företagsnamn</option>
-          <option value="org_nr">Org.nr</option>
-          <option value="seat_municipality_name">Kommun</option>
+          <select
+            value={searchBy}
+            onChange={(e) => onSearchByChange(e.target.value as CompanySearchBy)}
+            className={ui.select}
+          >
+            <option value="all">Sök i alla</option>
+            <option value="company_name">Företagsnamn</option>
+            <option value="org_nr">Org.nr</option>
+          </select>
 
-        </select>
+          <Button
+            onClick={onSearch}
+            disabled={loading}
+            type="button"
+            variant="primary"
+          >
+            Sök
+          </Button>
+        </div>
 
-        <button
-          onClick={onSearch}
-          className="border rounded px-3 py-2"
-          disabled={loading}
-        >
-          Sök
-        </button>
-      </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <label className={ui.label}>Rader per sida</label>
 
-      <div className="flex flex-col gap-2 md:flex-row md:items-center">
-        <label className="text-sm text-gray-600">Rader per sida</label>
-
-        <select
-          value={limit}
-          onChange={(e) => onLimitChange(Number(e.target.value))}
-          className="border rounded px-3 py-2 md:w-36"
-        >
-          {LIMIT_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+          <select
+            value={limit}
+            onChange={(e) => onLimitChange(Number(e.target.value))}
+            className={[ui.select, "sm:w-36"].join(" ")}
+          >
+            {LIMIT_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );
-}
+}   

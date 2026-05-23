@@ -40,7 +40,7 @@ export function FilterChipGroup({
           <h3 className="text-sm font-semibold text-slate-100">{title}</h3>
 
           {selectedValues.length > 0 && (
-            <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-300">
+            <span className="rounded-md bg-slate-800 px-2.5 py-1 text-xs text-slate-300">
               {selectedValues.length} valda
             </span>
           )}
@@ -52,7 +52,7 @@ export function FilterChipGroup({
             open ? "rotate-180" : "",
           ].join(" ")}
         >
-          ▼
+          v
         </span>
       </button>
 
@@ -90,7 +90,7 @@ export function FilterChipGroup({
               </div>
             ) : (
               <div
-                className={`rounded-xl border border-dashed px-3 py-4 ${ui.divider} ${ui.helpText}`}
+                className={`rounded-md border border-dashed px-3 py-4 ${ui.divider} ${ui.helpText}`}
               >
                 {emptyText}
               </div>

@@ -1,5 +1,5 @@
 type Item = {
-  code: string,
+  code: string;
   name: string;
   count: number;
 };
@@ -20,25 +20,27 @@ export function HorizontalBarList({
   const total = sorted.reduce((sum, i) => sum + i.count, 0);
 
   return (
-    <div className="space-y-3">
-      <h3 className="font-semibold">{title}</h3>
+    <div className="rounded-lg border border-slate-800 bg-slate-900 p-5">
+      <h3 className="text-base font-semibold text-slate-100">{title}</h3>
 
-      <div className="space-y-2">
+      <div className="mt-4 space-y-3">
         {top.map((item) => {
           const pct = total > 0 ? (item.count / total) * 100 : 0;
 
           return (
-            <div key={item.name} className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className="truncate">{item.code} {item.name}</span>
-                <span className="text-gray-600">
-                  {item.count.toLocaleString("sv-SE")} · {pct.toFixed(1)}%
+            <div key={`${item.code}-${item.name}`} className="space-y-1">
+              <div className="flex justify-between gap-4 text-sm">
+                <span className="truncate text-slate-300">
+                  {item.code} {item.name}
+                </span>
+                <span className="shrink-0 text-slate-500">
+                  {item.count.toLocaleString("sv-SE")} | {pct.toFixed(1)}%
                 </span>
               </div>
 
-              <div className="h-2 bg-gray-100 rounded">
+              <div className="h-2 rounded-sm bg-slate-800">
                 <div
-                  className="h-2 bg-black/70 rounded"
+                  className="h-2 rounded-sm bg-emerald-400/80"
                   style={{ width: `${pct}%` }}
                 />
               </div>

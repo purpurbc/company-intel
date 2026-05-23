@@ -3,7 +3,7 @@ import type { Company, CompanyNotFound, CompanyResponse } from "@/src/lib/types"
 
 import { BackLink } from "@/src/components/ui/BackLink";
 import { CompanyHeaderCard } from "@/src/components/company/CompanyHeaderCard";
-import { CompanyOverviewCard } from "@/src/components/company/CompanyOverviewCard";
+import { CompanyInsightSections } from "@/src/components/company/CompanyInsightSections";
 import { RawPayload } from "@/src/components/company/RawPayload";
 
 function isCompanyNotFound(company: CompanyResponse): company is CompanyNotFound {
@@ -22,13 +22,15 @@ export default async function CompanyPage({
 
   if (isCompanyNotFound(data)) {
     return (
-      <main className="p-6 max-w-3xl mx-auto space-y-4">
-        <BackLink href="/">← Tillbaka</BackLink>
-        <div className="border rounded p-4">
-          <h1 className="text-2xl font-semibold">Bolag hittades inte</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Ingen företagsinformation kunde hämtas för organisationsnumret.
-          </p>
+      <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
+        <div className="mx-auto max-w-7xl space-y-4">
+          <BackLink href="/">Tillbaka</BackLink>
+          <div className="rounded-lg border border-slate-800 bg-slate-900 p-5">
+            <h1 className="text-2xl font-semibold">Bolag hittades inte</h1>
+            <p className="mt-2 text-sm text-slate-400">
+              Ingen företagsinformation kunde hämtas för organisationsnumret.
+            </p>
+          </div>
         </div>
       </main>
     );
@@ -37,12 +39,14 @@ export default async function CompanyPage({
   const company: Company = data;
 
   return (
-    <main className="p-6 max-w-3xl mx-auto space-y-4">
-      <BackLink href="/">← Tillbaka</BackLink>
+    <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
+      <div className="mx-auto max-w-7xl space-y-5">
+        <BackLink href="/">Tillbaka</BackLink>
 
-      <CompanyHeaderCard company={company} />
-      <CompanyOverviewCard company={company} />
-      <RawPayload data={company} />
+        <CompanyHeaderCard company={company} />
+        <CompanyInsightSections company={company} />
+        <RawPayload data={company} />
+      </div>
     </main>
   );
 }

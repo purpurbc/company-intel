@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 
 import {
   COUNTY_OPTIONS,
@@ -21,6 +22,7 @@ type CompanyFilterPanelProps = {
   onMunicipalityCodesChange: (values: string[]) => void;
   onSizeClassCodesChange: (values: string[]) => void;
   onIndustryCodesChange: (values: string[]) => void;
+  actions?: ReactNode;
 };
 
 function toggleValue(values: string[], value: string): string[] {
@@ -38,8 +40,9 @@ export function CompanyFilterPanel({
   onMunicipalityCodesChange,
   onSizeClassCodesChange,
   onIndustryCodesChange,
+  actions,
 }: CompanyFilterPanelProps) {
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [municipalitySearch, setMunicipalitySearch] = useState("");
   const [industrySearch, setIndustrySearch] = useState("");
 
@@ -75,40 +78,44 @@ export function CompanyFilterPanel({
 
   return (
     <div className={ui.cardMuted}>
-      <button
-        type="button"
-        onClick={() => setPanelOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left md:px-6"
-      >
-        <div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-base font-semibold text-slate-100">Filter</h2>
+      <div className="flex flex-col gap-4 px-4 py-4 md:flex-row md:items-start md:justify-between md:px-6">
+        <button
+          type="button"
+          onClick={() => setPanelOpen((prev) => !prev)}
+          className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
+        >
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-base font-semibold text-slate-100">Filter</h2>
 
-            {totalSelectedCount > 0 && (
-              <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs text-slate-700">
-                {totalSelectedCount} valda
-              </span>
-            )}
+              {totalSelectedCount > 0 && (
+                <span className="rounded-md bg-slate-200 px-2.5 py-1 text-xs text-slate-700">
+                  {totalSelectedCount} valda
+                </span>
+              )}
+            </div>
+
+            <p className={`mt-1 ${ui.helpText}`}>
+              Välj geografi, storlek och branscher. Detta blir samma struktur
+              som ICP senare fyller i.
+            </p>
           </div>
 
-          <p className={`mt-1 ${ui.helpText}`}>
-            Välj geografi, storlek och branscher. Detta blir samma struktur som
-            ICP senare fyller i.
-          </p>
-        </div>
+          <span
+            className={[
+              "shrink-0 text-sm text-slate-500 transition-transform",
+              panelOpen ? "rotate-180" : "",
+            ].join(" ")}
+          >
+            v
+          </span>
+        </button>
 
-        <span
-          className={[
-            "text-sm text-slate-500 transition-transform",
-            panelOpen ? "rotate-180" : "",
-          ].join(" ")}
-        >
-          ▼
-        </span>
-      </button>
+        {actions ? <div className="shrink-0">{actions}</div> : null}
+      </div>
 
       {panelOpen && (
-        <div className="border-t border-slate-200 px-4 py-4 md:px-6 md:py-6">
+        <div className="border-t border-slate-800 px-4 py-4 md:px-6 md:py-6">
           <div className="space-y-4">
             <FilterChipGroup
               title="Län"

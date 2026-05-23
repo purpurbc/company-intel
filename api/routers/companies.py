@@ -15,7 +15,7 @@ def companies(
     size_class_codes: Annotated[list[str] | None, Query()] = None,
     industry_codes: Annotated[list[str] | None, Query()] = None,
 
-    limit: int = Query(default=50, ge=1, le=200),
+    limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
 ):
     return get_companies(

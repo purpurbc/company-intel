@@ -17,7 +17,7 @@ type SearchBarProps = {
   placeholder?: string;
 };
 
-const LIMIT_OPTIONS = [10, 25, 50, 100];
+const LIMIT_OPTIONS = [10, 25, 50, 100, 200, 500];
 
 export function SearchBar({
   value,
@@ -84,4 +84,4 @@ export function SearchBar({
       </div>
     </div>
   );
-}   
+}

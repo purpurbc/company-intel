@@ -18,10 +18,12 @@ function KpiCard({
   sub?: string;
 }) {
   return (
-    <div className="border rounded p-4">
-      <div className="text-sm text-gray-600">{label}</div>
-      <div className="text-xl font-semibold">{value}</div>
-      {sub && <div className="text-xs text-gray-500 mt-1">{sub}</div>}
+    <div className="rounded-md border border-slate-800 bg-slate-900 p-4">
+      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
+      <div className="mt-2 text-xl font-semibold text-slate-50">{value}</div>
+      {sub ? <div className="mt-1 text-xs text-slate-500">{sub}</div> : null}
     </div>
   );
 }
@@ -38,33 +40,23 @@ export function CountyKpis({ totals }: CountyKpisProps) {
       : 0;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
       <KpiCard
-        label="Totalt antal företag"
+        label="Företag"
         value={totals.companies.toLocaleString("sv-SE")}
       />
-
       <KpiCard
-        label="Aktiva företag"
+        label="Aktiva"
         value={totals.active.toLocaleString("sv-SE")}
         sub={`${activeShare}% av totalt`}
       />
-
       <KpiCard
         label="Arbetsgivare"
         value={totals.employers.toLocaleString("sv-SE")}
         sub={`${employerShare}% av totalt`}
       />
-
-      <KpiCard
-        label="Kommuner"
-        value={totals.municipalities}
-      />
-
-      <KpiCard
-        label="A-regioner"
-        value={totals.aregions}
-      />
+      <KpiCard label="Kommuner" value={totals.municipalities} />
+      <KpiCard label="A-regioner" value={totals.aregions} />
     </div>
   );
 }

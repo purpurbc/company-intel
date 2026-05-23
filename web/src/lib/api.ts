@@ -21,7 +21,7 @@ export async function listCompanies({
   municipality_codes,
   size_class_codes,
   industry_codes,
-  limit = 25,
+  limit = 100,
   offset = 0,
 }: ListCompaniesParams = {}) {
   const params = new URLSearchParams();

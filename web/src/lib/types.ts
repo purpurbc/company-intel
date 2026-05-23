@@ -41,9 +41,20 @@ export type CompanyListItem = {
   org_nr: string;
   company_name: string;
   post_ort: string | null;
+  seat_county_code?: string | null;
   seat_county_name: string | null;
   seat_municipality_name: string | null;
   industry_5_name: string | null;
+  size_class_code?: string | null;
+  size_class_name?: string | null;
+  turnover_gross_name?: string | null;
+  turnover_fin_name?: string | null;
+  company_status_code?: string | null;
+  company_status_name?: string | null;
+  company_state_code?: string | null;
+  company_state_name?: string | null;
+  employer_status_code?: string | null;
+  employer_status_name?: string | null;
 };
 
 /** Full shape returned by GET /company/:org_nr (detail view) */

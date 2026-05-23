@@ -2,9 +2,10 @@ import { CompanySearch } from "@/src/components/company/CompanySearch";
 
 export default function HomePage() {
   return (
-    <main className="p-6 max-w-4xl mx-auto space-y-4">
-      <h1 className="text-2xl font-semibold">Company Intel</h1>
-      <CompanySearch />
+    <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
+      <div className="mx-auto max-w-7xl">
+        <CompanySearch />
+      </div>
     </main>
   );
 }

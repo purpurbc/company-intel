@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AppTopBar } from "@/src/components/ui/AppTopBar";
+import { AppShell } from "@/src/components/ui/AppShell";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,13 +23,27 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeScript = `
+    try {
+      var storedTheme = localStorage.getItem("company-intel-theme");
+      var theme = storedTheme === "light" || storedTheme === "dark"
+        ? storedTheme
+        : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.dataset.theme = theme;
+    } catch (_) {}
+  `;
+
   return (
-    <html lang="sv">
+    <html lang="sv" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-slate-950 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppTopBar />
-        {children}
+        <AppShell>
+          {children}
+        </AppShell>
       </body>
     </html>
   );

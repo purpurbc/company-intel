@@ -1255,6 +1255,10 @@ export const MUNICIPALITY_OPTIONS: FilterOption[] = [
 
 export const SIZE_OPTIONS: FilterOption[] = [
   {
+    "value": "1",
+    "label": "0 anställda"
+  },
+  {
     "value": "2",
     "label": "1-4 anställda"
   },
@@ -1959,4 +1963,3 @@ export const MUNICIPALITY_TO_COUNTY: Record<string, string> = {
   "2583": "25",
   "2584": "25"
 };
-

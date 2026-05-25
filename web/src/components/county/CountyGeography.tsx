@@ -34,6 +34,7 @@ export function CountyGeography({
           title="Företag per kommun"
           items={byMunicipality}
           maxItems={100}
+          hrefPrefix="/municipality"
         />
 
         <HorizontalBarList

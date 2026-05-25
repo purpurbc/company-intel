@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Company } from "@/src/lib/types";
+import { INDUSTRY_OPTIONS } from "@/src/lib/companyFilterOptions";
 
 type CompanyInsightSectionsProps = {
   company: Company;
@@ -125,6 +126,21 @@ function DataGrid({
 function countyHref(company: Company) {
   const countyCode = text(company, "seat_county_code");
   return countyCode ? `/county/${encodeURIComponent(countyCode)}` : null;
+}
+
+function municipalityHref(company: Company) {
+  const municipalityCode = text(company, "seat_municipality_code");
+  return municipalityCode
+    ? `/municipality/${encodeURIComponent(municipalityCode)}`
+    : null;
+}
+
+function industryGroup(company: Company) {
+  const code = text(company, "bransch_1_code")?.slice(0, 2);
+  if (!code) return null;
+
+  const option = INDUSTRY_OPTIONS.find((item) => item.value === code);
+  return option ? `${code} ${option.label}` : code;
 }
 
 function CountyOverviewLink({
@@ -286,6 +302,8 @@ function ActionButton({ children }: { children: ReactNode }) {
 
 export function CompanyInsightSections({ company }: CompanyInsightSectionsProps) {
   const countyOverviewHref = countyHref(company);
+  const municipalityOverviewHref = municipalityHref(company);
+  const industryGroupName = industryGroup(company);
 
   return (
     <div className="space-y-5">
@@ -355,7 +373,7 @@ export function CompanyInsightSections({ company }: CompanyInsightSectionsProps)
               {
                 label: "Kommun",
                 value: (
-                  <CountyOverviewLink href={countyOverviewHref}>
+                  <CountyOverviewLink href={municipalityOverviewHref}>
                     {text(company, "seat_municipality_name", "seat_municipality")}
                   </CountyOverviewLink>
                 ),
@@ -373,6 +391,7 @@ export function CompanyInsightSections({ company }: CompanyInsightSectionsProps)
             rows={[
               { label: "Bransch / SNI", value: text(company, "bransch_1", "industry_5_name", "bransch_1_name_dim") },
               { label: "SNI-kod", value: text(company, "bransch_1_code") },
+              { label: "SNI-grupp", value: industryGroupName },
               { label: "Avdelning", value: text(company, "avdelning_1", "avdelning_1_name_dim") },
               { label: "Segment", value: text(company, "industry_2_name") },
               { label: "Storleksklass", value: text(company, "size_class", "size_class_name_dim") },

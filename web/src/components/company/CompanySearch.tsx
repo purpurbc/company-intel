@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import type {
@@ -22,6 +22,23 @@ type DashboardCardProps = {
   label: string;
   value: string;
   sub?: string;
+};
+
+const DASHBOARD_SESSION_KEY = "company-intel-dashboard-search";
+
+type PersistedDashboardSearch = {
+  q: string;
+  searchBy: CompanySearchBy;
+  limit: number;
+  compactList: boolean;
+  countyCodes: string[];
+  municipalityCodes: string[];
+  sizeClassCodes: string[];
+  sectionCodes: string[];
+  industryCodes: string[];
+  industryDetailCodes: string[];
+  turnoverSizeCodes: string[];
+  offset: number;
 };
 
 function DashboardCard({ label, value, sub }: DashboardCardProps) {
@@ -53,11 +70,10 @@ function DashboardHero({
             Daily lead workspace
           </p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-50">
-            Company Intel
+            Cintela
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-400">
-            Starta dagen med matchande företag och en tydlig lista att arbeta
-            vidare från.
+            Hitta matchande företag utifrån din profil och få iniskter för att maximera sälj.
           </p>
         </div>
 
@@ -134,6 +150,8 @@ function SearchWorkspace({ children }: { children: ReactNode }) {
 }
 
 export function CompanySearch() {
+  const skipNextAutoSearch = useRef(true);
+  const [sessionReady, setSessionReady] = useState(false);
   const [q, setQ] = useState("");
   const [searchBy, setSearchBy] = useState<CompanySearchBy>("all");
   const [limit, setLimit] = useState(100);
@@ -142,12 +160,97 @@ export function CompanySearch() {
   const [countyCodes, setCountyCodes] = useState<string[]>([]);
   const [municipalityCodes, setMunicipalityCodes] = useState<string[]>([]);
   const [sizeClassCodes, setSizeClassCodes] = useState<string[]>([]);
+  const [sectionCodes, setSectionCodes] = useState<string[]>([]);
   const [industryCodes, setIndustryCodes] = useState<string[]>([]);
+  const [industryDetailCodes, setIndustryDetailCodes] = useState<string[]>([]);
+  const [turnoverSizeCodes, setTurnoverSizeCodes] = useState<string[]>([]);
 
   const [data, setData] = useState<CompaniesResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+
+  function persistedSearchParams(
+    persisted: PersistedDashboardSearch,
+  ): Partial<ListCompaniesParams> {
+    return {
+      q: persisted.q,
+      search_by: persisted.searchBy,
+      county_codes:
+        persisted.countyCodes.length > 0 ? persisted.countyCodes : undefined,
+      municipality_codes:
+        persisted.municipalityCodes.length > 0
+          ? persisted.municipalityCodes
+          : undefined,
+      size_class_codes:
+        persisted.sizeClassCodes.length > 0
+          ? persisted.sizeClassCodes
+          : undefined,
+      section_codes:
+        persisted.sectionCodes.length > 0 ? persisted.sectionCodes : undefined,
+      industry_codes:
+        persisted.industryCodes.length > 0
+          ? persisted.industryCodes
+          : undefined,
+      industry_detail_codes:
+        persisted.industryDetailCodes.length > 0
+          ? persisted.industryDetailCodes
+          : undefined,
+      turnover_size_codes:
+        persisted.turnoverSizeCodes.length > 0
+          ? persisted.turnoverSizeCodes
+          : undefined,
+      limit: persisted.limit,
+    };
+  }
+
+  function readPersistedSearch(): PersistedDashboardSearch | null {
+    try {
+      const raw = sessionStorage.getItem(DASHBOARD_SESSION_KEY);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw) as Partial<PersistedDashboardSearch>;
+      if (!parsed || typeof parsed !== "object") return null;
+
+      return {
+        q: typeof parsed.q === "string" ? parsed.q : "",
+        searchBy:
+          parsed.searchBy === "company_name" ||
+          parsed.searchBy === "org_nr" ||
+          parsed.searchBy === "all"
+            ? parsed.searchBy
+            : "all",
+        limit: typeof parsed.limit === "number" ? parsed.limit : 100,
+        compactList: Boolean(parsed.compactList),
+        countyCodes: Array.isArray(parsed.countyCodes)
+          ? parsed.countyCodes.filter((value) => typeof value === "string")
+          : [],
+        municipalityCodes: Array.isArray(parsed.municipalityCodes)
+          ? parsed.municipalityCodes.filter((value) => typeof value === "string")
+          : [],
+        sizeClassCodes: Array.isArray(parsed.sizeClassCodes)
+          ? parsed.sizeClassCodes.filter((value) => typeof value === "string")
+          : [],
+        sectionCodes: Array.isArray(parsed.sectionCodes)
+          ? parsed.sectionCodes.filter((value) => typeof value === "string")
+          : [],
+        industryCodes: Array.isArray(parsed.industryCodes)
+          ? parsed.industryCodes.filter((value) => typeof value === "string")
+          : [],
+        industryDetailCodes: Array.isArray(parsed.industryDetailCodes)
+          ? parsed.industryDetailCodes.filter(
+              (value) => typeof value === "string",
+            )
+          : [],
+        turnoverSizeCodes: Array.isArray(parsed.turnoverSizeCodes)
+          ? parsed.turnoverSizeCodes.filter((value) => typeof value === "string")
+          : [],
+        offset: typeof parsed.offset === "number" ? parsed.offset : 0,
+      };
+    } catch {
+      return null;
+    }
+  }
 
   async function search(offset = 0, overrides: Partial<ListCompaniesParams> = {}) {
     setLoading(true);
@@ -175,11 +278,29 @@ export function CompanySearch() {
             : sizeClassCodes.length > 0
               ? sizeClassCodes
               : undefined,
+        section_codes:
+          "section_codes" in overrides
+            ? overrides.section_codes
+            : sectionCodes.length > 0
+              ? sectionCodes
+              : undefined,
         industry_codes:
           "industry_codes" in overrides
             ? overrides.industry_codes
             : industryCodes.length > 0
               ? industryCodes
+              : undefined,
+        industry_detail_codes:
+          "industry_detail_codes" in overrides
+            ? overrides.industry_detail_codes
+            : industryDetailCodes.length > 0
+              ? industryDetailCodes
+              : undefined,
+        turnover_size_codes:
+          "turnover_size_codes" in overrides
+            ? overrides.turnover_size_codes
+            : turnoverSizeCodes.length > 0
+              ? turnoverSizeCodes
               : undefined,
         limit: overrides.limit ?? limit,
         offset,
@@ -201,10 +322,14 @@ export function CompanySearch() {
     setCountyCodes([]);
     setMunicipalityCodes([]);
     setSizeClassCodes([]);
+    setSectionCodes([]);
     setIndustryCodes([]);
+    setIndustryDetailCodes([]);
+    setTurnoverSizeCodes([]);
   }
 
   function resetFiltersAndSearch() {
+    skipNextAutoSearch.current = true;
     resetFilters();
     setConfirmResetOpen(false);
     search(0, {
@@ -213,21 +338,16 @@ export function CompanySearch() {
       county_codes: undefined,
       municipality_codes: undefined,
       size_class_codes: undefined,
+      section_codes: undefined,
       industry_codes: undefined,
+      industry_detail_codes: undefined,
+      turnover_size_codes: undefined,
       limit: 100,
     });
   }
 
   const filterActions = (
     <div className="flex flex-wrap gap-3">
-      <button
-        onClick={() => search(0)}
-        className="rounded-md bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-950 shadow-sm transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={loading}
-      >
-        Använd filter
-      </button>
-
       <button
         onClick={() => setConfirmResetOpen(true)}
         className="rounded-md border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
@@ -239,7 +359,31 @@ export function CompanySearch() {
   );
 
   useEffect(() => {
-    search(0);
+    const timer = window.setTimeout(() => {
+      const persisted = readPersistedSearch();
+
+      if (persisted) {
+        setQ(persisted.q);
+        setSearchBy(persisted.searchBy);
+        setLimit(persisted.limit);
+        setCompactList(persisted.compactList);
+        setCountyCodes(persisted.countyCodes);
+        setMunicipalityCodes(persisted.municipalityCodes);
+        setSizeClassCodes(persisted.sizeClassCodes);
+        setSectionCodes(persisted.sectionCodes);
+        setIndustryCodes(persisted.industryCodes);
+        setIndustryDetailCodes(persisted.industryDetailCodes);
+        setTurnoverSizeCodes(persisted.turnoverSizeCodes);
+        setSessionReady(true);
+        search(persisted.offset, persistedSearchParams(persisted));
+        return;
+      }
+
+      setSessionReady(true);
+      search(0);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -253,6 +397,62 @@ export function CompanySearch() {
 
   const canPrev = offset > 0;
   const canNext = itemCount === limit && limit > 0;
+
+  useEffect(() => {
+    if (!sessionReady) return;
+
+    if (skipNextAutoSearch.current) {
+      skipNextAutoSearch.current = false;
+      return;
+    }
+
+    search(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    countyCodes,
+    industryCodes,
+    industryDetailCodes,
+    municipalityCodes,
+    sectionCodes,
+    sessionReady,
+    sizeClassCodes,
+    turnoverSizeCodes,
+  ]);
+
+  useEffect(() => {
+    if (!sessionReady) return;
+
+    const persisted: PersistedDashboardSearch = {
+      q,
+      searchBy,
+      limit,
+      compactList,
+      countyCodes,
+      municipalityCodes,
+      sizeClassCodes,
+      sectionCodes,
+      industryCodes,
+      industryDetailCodes,
+      turnoverSizeCodes,
+      offset,
+    };
+
+    sessionStorage.setItem(DASHBOARD_SESSION_KEY, JSON.stringify(persisted));
+  }, [
+    compactList,
+    countyCodes,
+    industryCodes,
+    industryDetailCodes,
+    limit,
+    municipalityCodes,
+    offset,
+    q,
+    searchBy,
+    sectionCodes,
+    sessionReady,
+    sizeClassCodes,
+    turnoverSizeCodes,
+  ]);
 
   return (
     <div className="space-y-5">
@@ -286,19 +486,26 @@ export function CompanySearch() {
           onLimitChange={setLimit}
           loading={loading}
           placeholder="Sök företag"
-        />
-
-        <CompanyFilterPanel
-          countyCodes={countyCodes}
-          municipalityCodes={municipalityCodes}
-          sizeClassCodes={sizeClassCodes}
-          industryCodes={industryCodes}
-          onCountyCodesChange={setCountyCodes}
-          onMunicipalityCodesChange={setMunicipalityCodes}
-          onSizeClassCodesChange={setSizeClassCodes}
-          onIndustryCodesChange={setIndustryCodes}
-          actions={filterActions}
-        />
+        >
+          <CompanyFilterPanel
+            countyCodes={countyCodes}
+            municipalityCodes={municipalityCodes}
+            sizeClassCodes={sizeClassCodes}
+            sectionCodes={sectionCodes}
+            industryCodes={industryCodes}
+            industryDetailCodes={industryDetailCodes}
+            turnoverSizeCodes={turnoverSizeCodes}
+            onCountyCodesChange={setCountyCodes}
+            onMunicipalityCodesChange={setMunicipalityCodes}
+            onSizeClassCodesChange={setSizeClassCodes}
+            onSectionCodesChange={setSectionCodes}
+            onIndustryCodesChange={setIndustryCodes}
+            onIndustryDetailCodesChange={setIndustryDetailCodes}
+            onTurnoverSizeCodesChange={setTurnoverSizeCodes}
+            actions={filterActions}
+            embedded
+          />
+        </SearchBar>
       </SearchWorkspace>
 
       <RecommendedLeads items={recommendedLeads} />

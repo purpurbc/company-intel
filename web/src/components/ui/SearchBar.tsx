@@ -1,4 +1,5 @@
 import type { CompanySearchBy } from "@/src/lib/types";
+import type { ReactNode } from "react";
 import { ui } from "@/src/lib/uiStyles";
 import { Button } from "@/src/components/ui/Button";
 
@@ -15,6 +16,7 @@ type SearchBarProps = {
 
   loading?: boolean;
   placeholder?: string;
+  children?: ReactNode;
 };
 
 const LIMIT_OPTIONS = [10, 25, 50, 100, 200, 500];
@@ -29,6 +31,7 @@ export function SearchBar({
   onLimitChange,
   loading = false,
   placeholder,
+  children,
 }: SearchBarProps) {
   return (
     <div className={[ui.card, "p-4"].join(" ")}>
@@ -81,6 +84,10 @@ export function SearchBar({
             ))}
           </select>
         </div>
+
+        {children ? (
+          <div className="border-t border-slate-800 pt-4">{children}</div>
+        ) : null}
       </div>
     </div>
   );

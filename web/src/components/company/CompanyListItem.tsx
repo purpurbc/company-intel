@@ -50,6 +50,9 @@ export function CompanyListItem({
   const countyHref = company.seat_county_code
     ? `/county/${encodeURIComponent(company.seat_county_code)}`
     : null;
+  const municipalityHref = company.seat_municipality_code
+    ? `/municipality/${encodeURIComponent(company.seat_municipality_code)}`
+    : null;
   const isActive =
     company.company_status_code === "1" ||
     company.company_status_name === "Aktivt";
@@ -75,7 +78,16 @@ export function CompanyListItem({
           <div className="col-start-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-slate-400 md:col-start-auto md:justify-end">
             <span>{company.org_nr}</span>
             <span className="truncate">
-              {company.seat_municipality_name ?? "-"}
+              {municipalityHref ? (
+                <Link
+                  href={municipalityHref}
+                  className="underline decoration-slate-600 underline-offset-4 hover:text-slate-200"
+                >
+                  {company.seat_municipality_name ?? "-"}
+                </Link>
+              ) : (
+                company.seat_municipality_name ?? "-"
+              )}
               {", "}
               {countyHref ? (
                 <Link
@@ -113,7 +125,16 @@ export function CompanyListItem({
           <div className="text-sm text-slate-400">
             {company.org_nr}
             {" | "}
-            {company.seat_municipality_name ?? "-"}
+            {municipalityHref ? (
+              <Link
+                href={municipalityHref}
+                className="underline decoration-slate-600 underline-offset-4 hover:text-slate-200"
+              >
+                {company.seat_municipality_name ?? "-"}
+              </Link>
+            ) : (
+              company.seat_municipality_name ?? "-"
+            )}
             {", "}
             {countyHref ? (
               <Link

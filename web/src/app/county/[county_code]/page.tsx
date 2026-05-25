@@ -10,6 +10,7 @@ import { CountyHeader } from "@/src/components/county/CountyHeader";
 import { CountyKpis } from "@/src/components/county/CountyKpis";
 import { CountyGeography } from "@/src/components/county/CountyGeography";
 import { CountyInsightSections } from "@/src/components/county/CountyInsightSections";
+import { CountyBusinessMix } from "@/src/components/county/CountyBusinessMix";
 
 function isCountyNotFound(
   data: CountyOverviewResponse,
@@ -55,6 +56,11 @@ export default async function CountyPage({
         <CountyGeography
           byMunicipality={county.by_municipality}
           byAregion={county.by_aregion}
+        />
+        <CountyBusinessMix
+          byIndustry={county.by_industry}
+          bySize={county.by_size}
+          byTurnover={county.by_turnover}
         />
       </div>
     </main>

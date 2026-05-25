@@ -6,7 +6,10 @@ def get_companies(
     county_codes: list[str] | None,
     municipality_codes: list[str] | None,
     size_class_codes: list[str] | None,
+    section_codes: list[str] | None,
     industry_codes: list[str] | None,
+    industry_detail_codes: list[str] | None,
+    turnover_size_codes: list[str] | None,
     limit: int,
     offset: int,
 ):
@@ -16,7 +19,10 @@ def get_companies(
     county_codes = county_codes or []
     municipality_codes = municipality_codes or []
     size_class_codes = size_class_codes or []
+    section_codes = section_codes or []
     industry_codes = industry_codes or []
+    industry_detail_codes = industry_detail_codes or []
+    turnover_size_codes = turnover_size_codes or []
 
     if q:
         q = q.strip()
@@ -48,9 +54,33 @@ def get_companies(
         where.append("size_class_code = ANY(%(size_class_codes)s)")
         params["size_class_codes"] = size_class_codes
 
+    if section_codes:
+        where.append("avdelning_1_code = ANY(%(section_codes)s)")
+        params["section_codes"] = section_codes
+
     if industry_codes:
-        where.append("industry_code = ANY(%(industry_codes)s)")
+        where.append(
+            """
+            EXISTS (
+                SELECT 1
+                FROM unnest(%(industry_codes)s::text[]) AS industry_code
+                WHERE (
+                    length(industry_code) <= 2
+                    AND bransch_1_code LIKE industry_code || '%%'
+                )
+                OR bransch_1_code = industry_code
+            )
+            """
+        )
         params["industry_codes"] = industry_codes
+
+    if industry_detail_codes:
+        where.append("bransch_1_code = ANY(%(industry_detail_codes)s)")
+        params["industry_detail_codes"] = industry_detail_codes
+
+    if turnover_size_codes:
+        where.append("turnover_size_code = ANY(%(turnover_size_codes)s)")
+        params["turnover_size_codes"] = turnover_size_codes
 
     where_sql = "WHERE " + " AND ".join(where) if where else ""
 

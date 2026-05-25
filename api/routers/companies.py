@@ -13,7 +13,10 @@ def companies(
     county_codes: Annotated[list[str] | None, Query()] = None,
     municipality_codes: Annotated[list[str] | None, Query()] = None,
     size_class_codes: Annotated[list[str] | None, Query()] = None,
+    section_codes: Annotated[list[str] | None, Query()] = None,
     industry_codes: Annotated[list[str] | None, Query()] = None,
+    industry_detail_codes: Annotated[list[str] | None, Query()] = None,
+    turnover_size_codes: Annotated[list[str] | None, Query()] = None,
 
     limit: int = Query(default=100, ge=1, le=500),
     offset: int = Query(default=0, ge=0),
@@ -24,7 +27,10 @@ def companies(
         county_codes=county_codes,
         municipality_codes=municipality_codes,
         size_class_codes=size_class_codes,
+        section_codes=section_codes,
         industry_codes=industry_codes,
+        industry_detail_codes=industry_detail_codes,
+        turnover_size_codes=turnover_size_codes,
         limit=limit,
         offset=offset,
     )

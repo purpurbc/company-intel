@@ -2,6 +2,7 @@
 import type {
   CompaniesResponse,
   CountyOverviewResponse,
+  MunicipalityOverviewResponse,
   CompanyResponse,
   ListCompaniesParams,
 } from "@/src/lib/types";
@@ -20,7 +21,10 @@ export async function listCompanies({
   county_codes,
   municipality_codes,
   size_class_codes,
+  section_codes,
   industry_codes,
+  industry_detail_codes,
+  turnover_size_codes,
   limit = 100,
   offset = 0,
 }: ListCompaniesParams = {}) {
@@ -42,8 +46,20 @@ export async function listCompanies({
     params.append("size_class_codes", value)
   );
 
+  section_codes?.forEach((value) =>
+    params.append("section_codes", value)
+  );
+
   industry_codes?.forEach((value) => 
     params.append("industry_codes", value)
+  );
+
+  industry_detail_codes?.forEach((value) =>
+    params.append("industry_detail_codes", value)
+  );
+
+  turnover_size_codes?.forEach((value) =>
+    params.append("turnover_size_codes", value)
   );
 
   params.set("limit", String(limit));
@@ -61,5 +77,13 @@ export async function getCountyOverview(
 ): Promise<CountyOverviewResponse> {
   return fetchJson<CountyOverviewResponse>(
     `${API}/county/${encodeURIComponent(countyCode)}`
+  );
+}
+
+export async function getMunicipalityOverview(
+  municipalityCode: string
+): Promise<MunicipalityOverviewResponse> {
+  return fetchJson<MunicipalityOverviewResponse>(
+    `${API}/municipality/${encodeURIComponent(municipalityCode)}`
   );
 }

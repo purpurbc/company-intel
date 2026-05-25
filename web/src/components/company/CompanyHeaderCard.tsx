@@ -31,6 +31,13 @@ function countyHref(company: Company) {
     : null;
 }
 
+function municipalityHref(company: Company) {
+  const municipalityCode = company.seat_municipality_code;
+  return typeof municipalityCode === "string" && municipalityCode.trim()
+    ? `/municipality/${encodeURIComponent(municipalityCode)}`
+    : null;
+}
+
 export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
   const isActive =
     company.company_status_code === "1" ||
@@ -41,6 +48,7 @@ export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
     company.employer_status_code === "1" ||
     company.employer_status === "Arbetsgivare";
   const countyOverviewHref = countyHref(company);
+  const municipalityOverviewHref = municipalityHref(company);
   const municipality = display(
     company.seat_municipality_name ?? company.seat_municipality,
   );
@@ -78,21 +86,29 @@ export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
             {display(company.bransch_1)}
           </div>
           <div className="mt-2 text-slate-400">
-            {countyOverviewHref ? (
+            {countyOverviewHref || municipalityOverviewHref ? (
               <>
-                <Link
-                  href={countyOverviewHref}
-                  className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-white"
-                >
-                  {municipality}
-                </Link>
+                {municipalityOverviewHref ? (
+                  <Link
+                    href={municipalityOverviewHref}
+                    className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-white"
+                  >
+                    {municipality}
+                  </Link>
+                ) : (
+                  municipality
+                )}
                 {", "}
-                <Link
-                  href={countyOverviewHref}
-                  className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-white"
-                >
-                  {county}
-                </Link>
+                {countyOverviewHref ? (
+                  <Link
+                    href={countyOverviewHref}
+                    className="text-slate-200 underline decoration-slate-600 underline-offset-4 hover:text-white"
+                  >
+                    {county}
+                  </Link>
+                ) : (
+                  county
+                )}
               </>
             ) : (
               <>

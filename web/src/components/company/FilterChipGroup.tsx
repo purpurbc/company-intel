@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import type { FilterOption } from "@/src/lib/companyFilterOptions";
 import { ui } from "@/src/lib/uiStyles";
 
@@ -14,6 +15,8 @@ type FilterChipGroupProps = {
   onSearchChange?: (value: string) => void;
   emptyText?: string;
   defaultOpen?: boolean;
+  showOptionValues?: boolean;
+  headerControl?: ReactNode;
 };
 
 export function FilterChipGroup({
@@ -26,35 +29,45 @@ export function FilterChipGroup({
   onSearchChange,
   emptyText = "Inga val hittades.",
   defaultOpen = false,
+  showOptionValues = false,
+  headerControl,
 }: FilterChipGroupProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
     <div className={ui.card}>
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
-      >
-        <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-slate-100">{title}</h3>
+      <div className="px-4 py-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
+          >
+            <div className="flex items-center gap-3">
+              <h3 className="text-sm font-semibold text-slate-100">{title}</h3>
 
-          {selectedValues.length > 0 && (
-            <span className="rounded-md bg-slate-800 px-2.5 py-1 text-xs text-slate-300">
-              {selectedValues.length} valda
+              {selectedValues.length > 0 && (
+                <span className="rounded-md bg-slate-800 px-2.5 py-1 text-xs text-slate-300">
+                  {selectedValues.length} valda
+                </span>
+              )}
+            </div>
+
+            <span
+              className={[
+                "text-sm text-slate-500 transition-transform",
+                open ? "rotate-180" : "",
+              ].join(" ")}
+            >
+              v
             </span>
-          )}
-        </div>
+          </button>
 
-        <span
-          className={[
-            "text-sm text-slate-500 transition-transform",
-            open ? "rotate-180" : "",
-          ].join(" ")}
-        >
-          v
-        </span>
-      </button>
+          {headerControl ? (
+            <div className="min-w-0 lg:w-96">{headerControl}</div>
+          ) : null}
+        </div>
+      </div>
 
       {open && (
         <div className={`border-t px-4 py-4 ${ui.divider}`}>
@@ -72,6 +85,9 @@ export function FilterChipGroup({
               <div className="flex flex-wrap gap-2">
                 {options.map((option) => {
                   const selected = selectedValues.includes(option.value);
+                  const label = showOptionValues
+                    ? `${option.value} ${option.label}`
+                    : option.label;
 
                   return (
                     <button
@@ -83,7 +99,7 @@ export function FilterChipGroup({
                         selected ? ui.chipSelected : "",
                       ].join(" ")}
                     >
-                      <span className="block leading-snug">{option.label}</span>
+                      <span className="block leading-snug">{label}</span>
                     </button>
                   );
                 })}

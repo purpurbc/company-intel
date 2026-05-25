@@ -1,0 +1,59 @@
+1. Stabil företagsdatabas + sök/filter
+   Grundfunktionen måste vara snabb, korrekt och användbar.
+
+2. Företagssida
+   Visa tydlig företagsdata, status, bransch, plats, storlek och signaler.
+
+3. Historik och förändringsdetektion
+   Spara ändringar från SCB direkt. Detta blir din moat.
+
+4. Business Signals
+   Skapa events som nystartat, ny arbetsgivare, ändrad storlek, moms/F-skatt, ny kommun.
+
+5. Sparade segment
+   Användare kan spara filter som “Bygg Stockholm 1–10 anställda”.
+
+6. Opportunity Feed
+   Visa “nya företag och signaler sedan sist” för varje sparat segment.
+
+7. User Profile / ICP Setup
+   Användaren beskriver sitt bolag, erbjudande, målgrupp och geografi.
+
+8. Current Customers
+   Användaren väljer befintliga kunder och markerar varför de är bra/dåliga.
+
+9. AI Segment Generator
+   AI föreslår filter/segment utifrån profil + kunder. AI ska skapa filter, inte välja företag direkt.
+
+10. Lead / Match Score
+   Regelbaserad score först. AI senare. Visa varför ett företag matchar.
+
+11. AI Business Summary
+   Kort sammanfattning per företag, cachad och endast genererad vid behov.
+
+12. AI Outreach Recommendation
+   Rekommenderad pitch, kontaktvinkel och möjliga behov.
+
+13. Similar Companies
+   Hitta företag som liknar ett bra lead eller en befintlig kund.
+
+14. Website Enrichment
+   Användaren kan lägga in hemsida och köra analys på utvalda företag.
+
+15. PageSpeed / Website Opportunity Score
+   Extra starkt för webbyråer, SEO, marketing och digitala tjänster.
+
+16. Weekly Email / Report
+   Skicka “veckans nya möjligheter” från sparade segment.
+
+17. Lists / CRM-lite
+   Spara leads, status, anteckningar och enkel pipeline.
+
+18. Export
+   CSV/export för betalande användare.
+
+19. Team / Workspace
+   Flera användare per bolag, delade segment och listor.
+
+20. Billing / Subscription
+   Sätt betalvägg kring saved segments, opportunity feed, AI-insikter, export och website enrichment.

@@ -30,7 +30,10 @@ export type ListCompaniesParams = {
   county_codes?: string[];
   municipality_codes?: string[];
   size_class_codes?: string[];
+  section_codes?: string[];
   industry_codes?: string[];
+  industry_detail_codes?: string[];
+  turnover_size_codes?: string[];
 
   limit?: number;
   offset?: number;
@@ -43,6 +46,7 @@ export type CompanyListItem = {
   post_ort: string | null;
   seat_county_code?: string | null;
   seat_county_name: string | null;
+  seat_municipality_code?: string | null;
   seat_municipality_name: string | null;
   industry_5_name: string | null;
   size_class_code?: string | null;
@@ -167,6 +171,9 @@ export type CountyOverview = {
 
   by_municipality: CountByName[];
   by_aregion: CountByName[];
+  by_industry: CountByName[];
+  by_size: CountByName[];
+  by_turnover: CountByName[];
 };
 
 export type CountyOverviewNotFound = {
@@ -174,3 +181,35 @@ export type CountyOverviewNotFound = {
 };
 
 export type CountyOverviewResponse = CountyOverview | CountyOverviewNotFound;
+
+// ------------------------------------------------------------
+// Municipality overview (Kommun)
+// ------------------------------------------------------------
+
+export type MunicipalityOverview = {
+  municipality_code: string;
+  municipality_name: string;
+  county_code: string;
+  county_name: string;
+
+  totals: {
+    companies: number;
+    active: number;
+    employers: number;
+    aregions: number;
+    industries: number;
+  };
+
+  by_industry: CountByName[];
+  by_size: CountByName[];
+  by_turnover: CountByName[];
+  by_aregion: CountByName[];
+};
+
+export type MunicipalityOverviewNotFound = {
+  error: "not_found";
+};
+
+export type MunicipalityOverviewResponse =
+  | MunicipalityOverview
+  | MunicipalityOverviewNotFound;

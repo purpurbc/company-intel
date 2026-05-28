@@ -9,11 +9,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <AppSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <AppSidebar
+        open={sidebarOpen}
+        onOpen={() => setSidebarOpen(true)}
+        onClose={() => setSidebarOpen(false)}
+      />
       <div
         className={[
           "min-h-screen transition-[padding]",
-          sidebarOpen ? "md:pl-64" : "",
+          sidebarOpen ? "md:pl-64" : "md:pl-14",
         ].join(" ")}
       >
         <AppTopBar

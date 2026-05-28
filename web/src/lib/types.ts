@@ -23,18 +23,42 @@ export type CompanySearchBy =
   | "company_name"
   | "org_nr";
 
+export type CompanyNameSort = "asc" | "desc";
+
+export type CompanyMetricSort =
+  | "none"
+  | "turnover_asc"
+  | "turnover_desc"
+  | "size_asc"
+  | "size_desc";
+
 export type ListCompaniesParams = {
   q?: string;
   search_by?: CompanySearchBy;
 
   county_codes?: string[];
   municipality_codes?: string[];
+  company_status_codes?: string[];
+  company_state_codes?: string[];
+  employer_status_codes?: string[];
+  vat_status_codes?: string[];
+  f_tax_status_codes?: string[];
+  marketing_status_codes?: string[];
   size_class_codes?: string[];
+  age_min?: number;
+  age_max?: number;
+  post_ort?: string;
+  post_nr?: string;
+  owner_category_codes?: string[];
+  sme_size_codes?: string[];
+  export_import_marks?: string[];
   section_codes?: string[];
   industry_codes?: string[];
   industry_detail_codes?: string[];
   turnover_size_codes?: string[];
 
+  name_sort?: CompanyNameSort;
+  metric_sort?: CompanyMetricSort;
   limit?: number;
   offset?: number;
 };
@@ -99,6 +123,19 @@ export type CompanyNotFound = {
 export type CompanyResponse = Company | CompanyNotFound;
 
 export type CompaniesResponse = PaginatedResponse<CompanyListItem>;
+
+export type CompanyTurnoverHistoryItem = {
+  year: number;
+  turnover_size_code: string | null;
+  turnover_size: string | null;
+  turnover_fin_size_code: string | null;
+  turnover_fin_size: string | null;
+  source: "current" | "history";
+};
+
+export type CompanyTurnoverHistoryResponse = {
+  items: CompanyTurnoverHistoryItem[];
+};
 
 // ------------------------------------------------------------
 // Workplace (Arbetsställe / Ae)
@@ -213,3 +250,38 @@ export type MunicipalityOverviewNotFound = {
 export type MunicipalityOverviewResponse =
   | MunicipalityOverview
   | MunicipalityOverviewNotFound;
+
+// ------------------------------------------------------------
+// Sweden overview
+// ------------------------------------------------------------
+
+export type SwedenOverview = {
+  scope: "sweden";
+
+  totals: {
+    companies: number;
+    active: number;
+    inactive: number;
+    never_active: number;
+    employers: number;
+    vat_registered: number;
+    f_tax_registered: number;
+    accepts_marketing: number;
+    counties: number;
+    municipalities: number;
+    industry_groups: number;
+  };
+
+  by_county: CountByName[];
+  by_municipality: CountByName[];
+  by_industry: CountByName[];
+  by_section: CountByName[];
+  by_size: CountByName[];
+  by_turnover: CountByName[];
+  by_status: CountByName[];
+  by_state: CountByName[];
+  by_employer_status: CountByName[];
+  by_vat_status: CountByName[];
+  by_f_tax_status: CountByName[];
+  by_marketing: CountByName[];
+};

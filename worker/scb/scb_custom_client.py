@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 from worker.seed.seed_company import seed_company
+from worker.seed.company_history import (
+    finish_ingestion_run,
+    start_ingestion_run,
+    update_ingestion_run_counts,
+)
 from worker.database import get_db_connection
 from worker.scb.utils.client_config import SCBClientConfig
 from worker.scb.models.variable import Variable, Operator
@@ -157,7 +162,13 @@ class SCBCustomClient(SCBClient):
         
         return res if isinstance(res, int) else -9999
     
-    def _partition(self, partitions : dict, level : int = 0):
+    def _partition(
+        self,
+        partitions: dict,
+        level: int = 0,
+        reg_status: str = "1",
+        co_status: str = "1",
+    ):
         """ Recursive method to retrieve the category partitions to call the api
         with later to get the actual company data.
         """
@@ -194,7 +205,11 @@ class SCBCustomClient(SCBClient):
             categories = prev_categories + [SCBCategory(current_cat, codes=[vd.get("Varde")])]
             
             # Calculate the number of companies for the category combination
-            num_co = self.Je_count(categories= categories)
+            num_co = self.Je_count(
+                reg_status=reg_status,
+                co_status=co_status,
+                categories=categories,
+            )
             if num_co is None:
                 continue
             
@@ -217,7 +232,12 @@ class SCBCustomClient(SCBClient):
             elif next_level is not None: 
                 p_dict["current_sum"] = 0
                 
-                s, f, z, i = self._partition(partitions, level= next_level)
+                s, f, z, i = self._partition(
+                    partitions,
+                    level=next_level,
+                    reg_status=reg_status,
+                    co_status=co_status,
+                )
                 success_list.extend(s)
                 fail_list.extend(f)
                 zeros_list.extend(z)
@@ -238,14 +258,18 @@ class SCBCustomClient(SCBClient):
 
         return success_list, fail_list, zeros_list, insufficient_list
                      
-    def _get_company_partitions(self):
+    def _get_company_partitions(
+        self,
+        reg_status: str = "1",
+        co_status: str = "1",
+    ):
         """Returns all the category partitions using _partition()
         """
         # Gather all the available categories
         cat_tables = self._get_Je_KategorierMedKodtabeller()
         
         # Copy the partitions (need to be copied)
-        partitions = copy.copy(PARTITIONS)
+        partitions = copy.deepcopy(PARTITIONS)
         
         # Extract and add the values to the partitions dict
         for _, p_dict in partitions.items():
@@ -262,13 +286,32 @@ class SCBCustomClient(SCBClient):
             p_dict["values"] = values if not p_dict.get("exclude_first_last") else values[1:-1]
         
         # Perform the calls   
-        return self._partition(partitions)            
+        return self._partition(
+            partitions,
+            reg_status=reg_status,
+            co_status=co_status,
+        )            
         
-    def seed_all_companies(self) -> None:
+    def seed_all_companies(
+        self,
+        reg_status: str = "1",
+        co_status: str = "1",
+    ) -> None:
         """ Calculates all the category partitions, perform the call
         to retrieve the companies and seed them into the db
         """
-        success_list, fail_list, zeros_list, insufficient_list = self._get_company_partitions()
+        ingestion_run_id = None
+        with get_db_connection() as conn:
+            ingestion_run_id = start_ingestion_run(
+                conn,
+                source=f"scb_je:reg_status={reg_status}:company_status={co_status}",
+            )
+            conn.commit()
+
+        success_list, fail_list, zeros_list, insufficient_list = self._get_company_partitions(
+            reg_status=reg_status,
+            co_status=co_status,
+        )
         
         with open("worker/scb/data/res/success_list.json", "w") as f:
             json.dump(success_list, f)
@@ -289,35 +332,68 @@ class SCBCustomClient(SCBClient):
         num_lines = len(success_list)
         
         data : dict
-        for i, data in enumerate(success_list):
-            # Extract values
-            cats = data.get("cats", [])
-            expected_num_co = data.get("num_co", -9999)
-            catssss = [SCBCategory(
-                category= cd.get("Kategori", Category.EMPTY), 
-                codes= cd.get("Kod")) for cd in cats
-            ]
-            # Perform call
-            res = self._post_Je_HamtaForetag(
-                categories= catssss
-            )
-            
-            # DEBUGGING
-            num_co = len(res)
-            expected_total += expected_num_co
-            actual_total += num_co
-            if num_co != expected_num_co:
-                print(f"[{i}]: ERROR. expected {expected_num_co}, got {num_co}, cats: {catssss}")
-            
-            # Seed companies to db                
+        try:
+            for i, data in enumerate(success_list):
+                # Extract values
+                cats = data.get("cats", [])
+                expected_num_co = data.get("num_co", -9999)
+                catssss = [SCBCategory(
+                    category= cd.get("Kategori", Category.EMPTY), 
+                    codes= cd.get("Kod")) for cd in cats
+                ]
+                # Perform call
+                res = self._post_Je_HamtaForetag(
+                    registration_status=reg_status,
+                    company_status=co_status,
+                    categories= catssss
+                )
+                
+                # DEBUGGING
+                num_co = len(res)
+                expected_total += expected_num_co
+                actual_total += num_co
+                if num_co != expected_num_co:
+                    print(f"[{i}]: ERROR. expected {expected_num_co}, got {num_co}, cats: {catssss}")
+                
+                # Seed companies to db                
+                records_new = 0
+                records_changed = 0
+                with get_db_connection() as conn:
+                    for company in [CompanyJE.from_scb(c) for c in res]:
+                        seed_result = seed_company(
+                            conn,
+                            company,
+                            ingestion_run_id=ingestion_run_id,
+                        )
+                        records_new += 1 if seed_result["is_new"] else 0
+                        records_changed += 1 if seed_result["has_changes"] else 0
+
+                    update_ingestion_run_counts(
+                        conn,
+                        ingestion_run_id,
+                        records_seen=num_co,
+                        records_new=records_new,
+                        records_changed=records_changed,
+                    )
+                    conn.commit()
+                
+                # DEBUGGING
+                if i % update_freq == 0:
+                    print(f"[{i}] ({i/num_lines}%) ({i}/{num_lines}) expected: {expected_total} actual: {actual_total} diff: {expected_total-actual_total}")
+                
             with get_db_connection() as conn:
-                for company in [CompanyJE.from_scb(c) for c in res]:
-                    seed_company(conn, company)
+                finish_ingestion_run(conn, ingestion_run_id)
                 conn.commit()
-            
-            # DEBUGGING
-            if i % update_freq == 0:
-                print(f"[{i}] ({i/num_lines}%) ({i}/{num_lines}) expected: {expected_total} actual: {actual_total} diff: {expected_total-actual_total}")
+        except Exception as exc:
+            with get_db_connection() as conn:
+                finish_ingestion_run(
+                    conn,
+                    ingestion_run_id,
+                    status="failed",
+                    error=str(exc),
+                )
+                conn.commit()
+            raise
             
         # DEBUGGING         
         print(f"DONE: expected: {expected_total} actual: {actual_total} diff: {expected_total-actual_total}")

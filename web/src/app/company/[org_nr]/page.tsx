@@ -1,4 +1,4 @@
-import { getCompany } from "@/src/lib/api";
+import { getCompany, getCompanyTurnoverHistory } from "@/src/lib/api";
 import type { Company, CompanyNotFound, CompanyResponse } from "@/src/lib/types";
 
 import { BackLink } from "@/src/components/ui/BackLink";
@@ -18,7 +18,10 @@ export default async function CompanyPage({
   const { org_nr } = await params;
 
   const orgNr = decodeURIComponent(org_nr);
-  const data = await getCompany(orgNr);
+  const [data, turnoverHistory] = await Promise.all([
+    getCompany(orgNr),
+    getCompanyTurnoverHistory(orgNr),
+  ]);
 
   if (isCompanyNotFound(data)) {
     return (
@@ -44,7 +47,10 @@ export default async function CompanyPage({
         <BackLink href="/">Tillbaka</BackLink>
 
         <CompanyHeaderCard company={company} />
-        <CompanyInsightSections company={company} />
+        <CompanyInsightSections
+          company={company}
+          turnoverHistory={turnoverHistory.items}
+        />
         <RawPayload data={company} />
       </div>
     </main>

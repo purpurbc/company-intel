@@ -1,5 +1,11 @@
 import Link from "next/link";
 import type { Company } from "@/src/lib/types";
+import {
+  companyStatusLabel,
+  companyStatusTone,
+  statusToneClass,
+  type StatusTone,
+} from "@/src/lib/companyStatus";
 
 type CompanyHeaderCardProps = {
   company: Company;
@@ -9,14 +15,12 @@ function display(value: unknown) {
   return typeof value === "string" && value.trim() ? value : "-";
 }
 
-function statusBadge(label: string, active: boolean) {
+function statusBadge(label: string, tone: StatusTone) {
   return (
     <span
       className={[
         "rounded-full border px-3 py-1 text-xs font-medium",
-        active
-          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
-          : "border-slate-700 bg-slate-900 text-slate-400",
+        statusToneClass(tone),
       ].join(" ")}
     >
       {label}
@@ -39,10 +43,15 @@ function municipalityHref(company: Company) {
 }
 
 export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
-  const isActive =
-    company.company_status_code === "1" ||
-    company.company_status === "Aktivt" ||
-    company.company_status_name_dim === "Aktivt";
+  const statusCode =
+    typeof company.company_status_code === "string"
+      ? company.company_status_code
+      : null;
+  const statusLabel = companyStatusLabel(
+    statusCode,
+    (company.company_status as string | null) ??
+      (company.company_status_name_dim as string | null),
+  );
 
   const isEmployer =
     company.employer_status_code === "1" ||
@@ -69,14 +78,14 @@ export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {statusBadge(isActive ? "Aktivt" : "Status okänd", isActive)}
+            {statusBadge(statusLabel, companyStatusTone(statusCode))}
             {statusBadge(
               isEmployer ? "Arbetsgivare" : "Ej verifierad arbetsgivare",
-              isEmployer,
+              isEmployer ? "positive" : "neutral",
             )}
             {statusBadge(
               display(company.private_public) as string,
-              Boolean(company.private_public),
+              company.private_public ? "positive" : "neutral",
             )}
           </div>
         </div>

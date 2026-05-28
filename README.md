@@ -31,6 +31,20 @@ psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/002_dim
 psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/003_backfill_dimensions.sql
 psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/004_views.sql
 psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/005_indexes.sql
+psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/006_company_history.sql
+psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/007_company_status_labels.sql
+
+Run a fresh SCB update:
+python -m worker.run_scb_update
+
+Run only inactive/non-active company statuses:
+python -m worker.run_scb_update --include-inactive
+
+Run active and inactive company statuses:
+python -m worker.run_scb_update --include-inactive --include-active
+
+Run one specific SCB company status:
+python -m worker.run_scb_update --company-status 2
 
 ## 2. Backend (FastAPI)
 Install dependencies:

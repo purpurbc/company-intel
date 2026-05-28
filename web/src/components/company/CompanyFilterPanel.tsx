@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 
 import {
   COUNTY_OPTIONS,
@@ -10,6 +10,10 @@ import {
   MUNICIPALITY_TO_COUNTY,
   SIZE_OPTIONS,
 } from "@/src/lib/companyFilterOptions";
+import {
+  COMPANY_STATE_OPTIONS,
+  COMPANY_STATUS_OPTIONS,
+} from "@/src/lib/companyStatus";
 import {
   INDUSTRY_DETAIL_OPTIONS,
   SECTION_OPTIONS,
@@ -24,14 +28,38 @@ type RangeBucket = { value: string; label: string; min: number; max: number };
 type CompanyFilterPanelProps = {
   countyCodes: string[];
   municipalityCodes: string[];
+  companyStatusCodes: string[];
+  companyStateCodes: string[];
+  employerStatusCodes: string[];
+  vatStatusCodes: string[];
+  fTaxStatusCodes: string[];
+  marketingStatusCodes: string[];
   sizeClassCodes: string[];
+  companyAgeRange: RangeValue;
+  postOrt: string;
+  postNr: string;
+  ownerCategoryCodes: string[];
+  smeSizeCodes: string[];
+  exportImportMarks: string[];
   sectionCodes: string[];
   industryCodes: string[];
   industryDetailCodes: string[];
   turnoverSizeCodes: string[];
   onCountyCodesChange: (values: string[]) => void;
   onMunicipalityCodesChange: (values: string[]) => void;
+  onCompanyStatusCodesChange: (values: string[]) => void;
+  onCompanyStateCodesChange: (values: string[]) => void;
+  onEmployerStatusCodesChange: (values: string[]) => void;
+  onVatStatusCodesChange: (values: string[]) => void;
+  onFTaxStatusCodesChange: (values: string[]) => void;
+  onMarketingStatusCodesChange: (values: string[]) => void;
   onSizeClassCodesChange: (values: string[]) => void;
+  onCompanyAgeRangeChange: (values: RangeValue) => void;
+  onPostOrtChange: (value: string) => void;
+  onPostNrChange: (value: string) => void;
+  onOwnerCategoryCodesChange: (values: string[]) => void;
+  onSmeSizeCodesChange: (values: string[]) => void;
+  onExportImportMarksChange: (values: string[]) => void;
   onSectionCodesChange: (values: string[]) => void;
   onIndustryCodesChange: (values: string[]) => void;
   onIndustryDetailCodesChange: (values: string[]) => void;
@@ -75,8 +103,73 @@ const TURNOVER_BUCKETS: RangeBucket[] = [
   { value: "12", label: "10 000 000+ tkr", min: 10000000, max: 10000000 },
 ];
 
+const AGE_BUCKETS: RangeBucket[] = Array.from({ length: 101 }, (_, age) => ({
+  value: String(age),
+  label: age === 100 ? "100+ år" : `${age} år`,
+  min: age,
+  max: age,
+}));
+
 const EMPLOYEE_RANGE: RangeValue = [0, EMPLOYEE_BUCKETS.length - 1];
 const TURNOVER_RANGE: RangeValue = [0, TURNOVER_BUCKETS.length - 1];
+const AGE_RANGE: RangeValue = [0, 100];
+
+const EMPLOYER_STATUS_OPTIONS = [
+  { value: "0", label: "Har aldrig varit registrerad som arbetsgivare" },
+  { value: "1", label: "Är registrerad som vanlig arbetsgivare" },
+  { value: "2", label: "Är registrerad som privatarbetsgivare" },
+  { value: "3", label: "Är registrerad som arbetsgivare via representant" },
+  { value: "4", label: "Är registrerad som ambassad eller konsulat" },
+  { value: "9", label: "Är avregistrerad som arbetsgivare" },
+];
+
+const VAT_STATUS_OPTIONS = [
+  { value: "0", label: "Har aldrig varit registrerad för moms" },
+  { value: "1", label: "Är registrerad för moms" },
+  { value: "3", label: "Är registrerad för moms via representant" },
+  { value: "9", label: "Är avregistrerad för moms" },
+];
+
+const F_TAX_STATUS_OPTIONS = [
+  { value: "0", label: "Har aldrig varit registrerad för F-skatt" },
+  { value: "1", label: "Är registrerad för F-skatt" },
+  { value: "9", label: "Är avregistrerad för F-skatt" },
+];
+
+const MARKETING_STATUS_OPTIONS = [
+  { value: "11", label: "Tar emot reklam, ej telefonnummerspärrat" },
+  { value: "12", label: "Tar emot reklam, telefonnummerspärr telemarketing" },
+  { value: "13", label: "Tar emot reklam, nix-telefon" },
+  { value: "21", label: "Har frånsagt sig reklam, ej telefonnummerspärrat" },
+  { value: "22", label: "Har frånsagt sig reklam, telefonnummerspärr telemarketing" },
+  { value: "23", label: "Har frånsagt sig reklam, nix-telefon" },
+];
+
+const OWNER_CATEGORY_OPTIONS = [
+  { value: "10", label: "Statligt" },
+  { value: "20", label: "Kommunalt" },
+  { value: "30", label: "Regioner" },
+  { value: "41", label: "Privat svenskt utan koncern" },
+  { value: "42", label: "Privat svenskt med koncern" },
+  { value: "50", label: "Utländska" },
+];
+
+const SME_SIZE_OPTIONS = [
+  { value: "0", label: "0 anställda" },
+  { value: "1", label: "1-9 anställda" },
+  { value: "2", label: "10-49 anställda" },
+  { value: "3", label: "50-249 anställda" },
+  { value: "4", label: "250-499 anställda" },
+  { value: "5", label: "Minst 500 anställda" },
+];
+
+const EXPORT_IMPORT_OPTIONS = [
+  { value: "J", label: "Har export/import-markering" },
+];
+
+function textFilterInputClass() {
+  return `${ui.input} min-w-0`;
+}
 
 function toggleValue(values: string[], value: string): string[] {
   return values.includes(value)
@@ -116,14 +209,23 @@ function RangeFilterControl({
   buckets,
   onChange,
   onCommit,
+  manualInputs = false,
 }: {
   value: RangeValue;
   buckets: RangeBucket[];
   onChange: (value: RangeValue) => void;
   onCommit: (value: RangeValue) => void;
+  manualInputs?: boolean;
 }) {
   const min = 0;
   const max = buckets.length - 1;
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const valueRef = useRef<RangeValue>(value);
+  const dragRef = useRef<{
+    pointerId: number;
+    handle: "min" | "max" | "pending";
+    startValue: number;
+  } | null>(null);
   const selectedStart = buckets[value[0]];
   const selectedEnd = buckets[value[1]];
   const selectedLabel =
@@ -133,16 +235,116 @@ function RangeFilterControl({
   const startPercent = (value[0] / max) * 100;
   const endOffsetPercent = ((max - value[1]) / max) * 100;
   const selectionStyle = {
-    left: `calc(8px + ${startPercent}% - ${startPercent * 0.16}px)`,
-    right: `calc(8px + ${endOffsetPercent}% - ${endOffsetPercent * 0.16}px)`,
+    left: `${startPercent}%`,
+    right: `${endOffsetPercent}%`,
   };
 
-  function updateMin(nextMin: number) {
-    onChange([Math.min(nextMin, value[1]), value[1]]);
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  function clampIndex(index: number) {
+    return Math.max(min, Math.min(max, index));
   }
 
-  function updateMax(nextMax: number) {
-    onChange([value[0], Math.max(nextMax, value[0])]);
+  function valueFromPointer(clientX: number) {
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect || rect.width <= 0) return valueRef.current[0];
+
+    const ratio = (clientX - rect.left) / rect.width;
+    return clampIndex(Math.round(ratio * max));
+  }
+
+  function setRange(next: RangeValue) {
+    valueRef.current = next;
+    onChange(next);
+  }
+
+  function updateRange(nextIndex: number) {
+    const current = valueRef.current;
+    const drag = dragRef.current;
+    if (!drag) return;
+
+    if (drag.handle === "pending") {
+      if (nextIndex < drag.startValue) {
+        drag.handle = "min";
+      } else if (nextIndex > drag.startValue) {
+        drag.handle = "max";
+      } else {
+        return;
+      }
+    }
+
+    if (drag.handle === "min") {
+      setRange([Math.min(nextIndex, current[1]), current[1]]);
+    } else {
+      setRange([current[0], Math.max(nextIndex, current[0])]);
+    }
+  }
+
+  function beginDrag(
+    event: ReactPointerEvent,
+    handle: "min" | "max" | "auto",
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    const current = valueRef.current;
+    const nextIndex = valueFromPointer(event.clientX);
+    let nextHandle: "min" | "max" | "pending";
+
+    if (handle === "auto") {
+      if (current[0] === current[1]) {
+        nextHandle =
+          nextIndex < current[0]
+            ? "min"
+            : nextIndex > current[1]
+              ? "max"
+              : "pending";
+      } else {
+        nextHandle =
+          Math.abs(nextIndex - current[0]) <= Math.abs(nextIndex - current[1])
+            ? "min"
+            : "max";
+      }
+    } else {
+      nextHandle = current[0] === current[1] ? "pending" : handle;
+    }
+
+    dragRef.current = {
+      pointerId: event.pointerId,
+      handle: nextHandle,
+      startValue: current[0] === current[1] ? current[0] : nextIndex,
+    };
+
+    trackRef.current?.setPointerCapture(event.pointerId);
+    updateRange(nextIndex);
+  }
+
+  function continueDrag(event: ReactPointerEvent) {
+    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    updateRange(valueFromPointer(event.clientX));
+  }
+
+  function endDrag(event: ReactPointerEvent) {
+    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    dragRef.current = null;
+    onCommit(valueRef.current);
+  }
+
+  function updateManualMin(nextValue: number) {
+    const nextMin = clampIndex(nextValue);
+    setRange([Math.min(nextMin, valueRef.current[1]), valueRef.current[1]]);
+  }
+
+  function updateManualMax(nextValue: number) {
+    const nextMax = clampIndex(nextValue);
+    setRange([valueRef.current[0], Math.max(nextMax, valueRef.current[0])]);
   }
 
   return (
@@ -151,45 +353,82 @@ function RangeFilterControl({
         <span>{selectedLabel}</span>
       </div>
 
-      <div className="range-filter relative h-7">
-        <div className="range-filter-track" />
-        <div className="range-filter-selection" style={selectionStyle} />
-        <div className="range-filter-ticks" aria-hidden="true">
+      <div
+        ref={trackRef}
+        className="relative h-7 touch-none"
+        onPointerDown={(event) => beginDrag(event, "auto")}
+        onPointerMove={continueDrag}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
+        <div className="absolute left-0 right-0 top-3 h-1 rounded-full bg-slate-800" />
+        <div
+          className="absolute top-3 h-1 rounded-full bg-emerald-400"
+          style={selectionStyle}
+        />
+        <div
+          className="absolute left-0 right-0 top-2 z-10 flex justify-between"
+          aria-hidden="true"
+        >
           {buckets.map((bucket) => (
             <span key={bucket.value} className="range-filter-tick" />
           ))}
         </div>
-        <input
+
+        <button
+          type="button"
           aria-label="Min"
-          type="range"
-          min={min}
-          max={max}
-          step={1}
-          value={value[0]}
-          onChange={(event) => updateMin(Number(event.target.value))}
-          onPointerUp={(event) =>
-            onCommit([Number(event.currentTarget.value), value[1]])
-          }
-          onKeyUp={(event) =>
-            onCommit([Number(event.currentTarget.value), value[1]])
-          }
+          className="absolute top-1 z-20 h-5 w-5 -translate-x-1/2 rounded-full border-2 border-slate-500 bg-slate-950 shadow"
+          style={{ left: `${startPercent}%` }}
+          onPointerDown={(event) => beginDrag(event, "min")}
         />
-        <input
+        <button
+          type="button"
           aria-label="Max"
-          type="range"
-          min={min}
-          max={max}
-          step={1}
-          value={value[1]}
-          onChange={(event) => updateMax(Number(event.target.value))}
-          onPointerUp={(event) =>
-            onCommit([value[0], Number(event.currentTarget.value)])
-          }
-          onKeyUp={(event) =>
-            onCommit([value[0], Number(event.currentTarget.value)])
-          }
+          className="absolute top-1 z-30 h-5 w-5 -translate-x-1/2 rounded-full border-2 border-slate-500 bg-slate-950 shadow"
+          style={{ left: `${100 - endOffsetPercent}%` }}
+          onPointerDown={(event) => beginDrag(event, "max")}
         />
       </div>
+
+      {manualInputs ? (
+        <div className="grid grid-cols-2 gap-2">
+          <label className="space-y-1">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              Min
+            </span>
+            <input
+              type="number"
+              min={min}
+              max={max}
+              value={value[0]}
+              onChange={(event) => updateManualMin(Number(event.target.value))}
+              onBlur={() => onCommit(valueRef.current)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") onCommit(valueRef.current);
+              }}
+              className={ui.input}
+            />
+          </label>
+          <label className="space-y-1">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              Max
+            </span>
+            <input
+              type="number"
+              min={min}
+              max={max}
+              value={value[1]}
+              onChange={(event) => updateManualMax(Number(event.target.value))}
+              onBlur={() => onCommit(valueRef.current)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") onCommit(valueRef.current);
+              }}
+              className={ui.input}
+            />
+          </label>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -232,14 +471,38 @@ function detailBelongsToSections(detailCode: string, sectionCodes: string[]) {
 export function CompanyFilterPanel({
   countyCodes,
   municipalityCodes,
+  companyStatusCodes,
+  companyStateCodes,
+  employerStatusCodes,
+  vatStatusCodes,
+  fTaxStatusCodes,
+  marketingStatusCodes,
   sizeClassCodes,
+  companyAgeRange,
+  postOrt,
+  postNr,
+  ownerCategoryCodes,
+  smeSizeCodes,
+  exportImportMarks,
   sectionCodes,
   industryCodes,
   industryDetailCodes,
   turnoverSizeCodes,
   onCountyCodesChange,
   onMunicipalityCodesChange,
+  onCompanyStatusCodesChange,
+  onCompanyStateCodesChange,
+  onEmployerStatusCodesChange,
+  onVatStatusCodesChange,
+  onFTaxStatusCodesChange,
+  onMarketingStatusCodesChange,
   onSizeClassCodesChange,
+  onCompanyAgeRangeChange,
+  onPostOrtChange,
+  onPostNrChange,
+  onOwnerCategoryCodesChange,
+  onSmeSizeCodesChange,
+  onExportImportMarksChange,
   onSectionCodesChange,
   onIndustryCodesChange,
   onIndustryDetailCodesChange,
@@ -257,6 +520,9 @@ export function CompanyFilterPanel({
   const [turnoverRange, setTurnoverRange] = useState<RangeValue>(
     rangeFromSelectedBuckets(TURNOVER_BUCKETS, turnoverSizeCodes, TURNOVER_RANGE),
   );
+  const [ageRange, setAgeRange] = useState<RangeValue>(companyAgeRange);
+  const [postOrtDraft, setPostOrtDraft] = useState(postOrt);
+  const [postNrDraft, setPostNrDraft] = useState(postNr);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -285,6 +551,18 @@ export function CompanyFilterPanel({
 
     return () => window.clearTimeout(timer);
   }, [turnoverSizeCodes]);
+
+  useEffect(() => {
+    setAgeRange(companyAgeRange);
+  }, [companyAgeRange]);
+
+  useEffect(() => {
+    setPostOrtDraft(postOrt);
+  }, [postOrt]);
+
+  useEffect(() => {
+    setPostNrDraft(postNr);
+  }, [postNr]);
 
   const visibleMunicipalities = useMemo(() => {
     let options = MUNICIPALITY_OPTIONS;
@@ -342,7 +620,21 @@ export function CompanyFilterPanel({
   const totalSelectedCount =
     countyCodes.length +
     municipalityCodes.length +
+    companyStatusCodes.length +
+    companyStateCodes.length +
+    employerStatusCodes.length +
+    vatStatusCodes.length +
+    fTaxStatusCodes.length +
+    marketingStatusCodes.length +
     sizeClassCodes.length +
+    (companyAgeRange[0] > AGE_RANGE[0] || companyAgeRange[1] < AGE_RANGE[1]
+      ? 1
+      : 0) +
+    (postOrt.trim() ? 1 : 0) +
+    (postNr.trim() ? 1 : 0) +
+    ownerCategoryCodes.length +
+    smeSizeCodes.length +
+    exportImportMarks.length +
     sectionCodes.length +
     industryCodes.length +
     industryDetailCodes.length +
@@ -362,6 +654,15 @@ export function CompanyFilterPanel({
         ? []
         : bucketValuesInRange(TURNOVER_BUCKETS, range),
     );
+  }
+
+  function commitAgeRange(range: RangeValue) {
+    onCompanyAgeRangeChange(range);
+  }
+
+  function commitPostalFilters() {
+    if (postOrtDraft !== postOrt) onPostOrtChange(postOrtDraft);
+    if (postNrDraft !== postNr) onPostNrChange(postNrDraft);
   }
 
   return (
@@ -465,6 +766,73 @@ export function CompanyFilterPanel({
             />
 
             <FilterChipGroup
+              title="Företagsstatus"
+              options={COMPANY_STATUS_OPTIONS}
+              selectedValues={companyStatusCodes}
+              onToggle={(value) =>
+                onCompanyStatusCodesChange(
+                  toggleValue(companyStatusCodes, value),
+                )
+              }
+              showOptionValues
+              defaultOpen
+            />
+
+            <FilterChipGroup
+              title="Bolagsstatus"
+              options={COMPANY_STATE_OPTIONS}
+              selectedValues={companyStateCodes}
+              onToggle={(value) =>
+                onCompanyStateCodesChange(toggleValue(companyStateCodes, value))
+              }
+              showOptionValues
+            />
+
+            <FilterChipGroup
+              title="Arbetsgivarstatus"
+              options={EMPLOYER_STATUS_OPTIONS}
+              selectedValues={employerStatusCodes}
+              onToggle={(value) =>
+                onEmployerStatusCodesChange(
+                  toggleValue(employerStatusCodes, value),
+                )
+              }
+              showOptionValues
+            />
+
+            <FilterChipGroup
+              title="Momsstatus"
+              options={VAT_STATUS_OPTIONS}
+              selectedValues={vatStatusCodes}
+              onToggle={(value) =>
+                onVatStatusCodesChange(toggleValue(vatStatusCodes, value))
+              }
+              showOptionValues
+            />
+
+            <FilterChipGroup
+              title="F-skattstatus"
+              options={F_TAX_STATUS_OPTIONS}
+              selectedValues={fTaxStatusCodes}
+              onToggle={(value) =>
+                onFTaxStatusCodesChange(toggleValue(fTaxStatusCodes, value))
+              }
+              showOptionValues
+            />
+
+            <FilterChipGroup
+              title="Reklamstatus"
+              options={MARKETING_STATUS_OPTIONS}
+              selectedValues={marketingStatusCodes}
+              onToggle={(value) =>
+                onMarketingStatusCodesChange(
+                  toggleValue(marketingStatusCodes, value),
+                )
+              }
+              showOptionValues
+            />
+
+            <FilterChipGroup
               title="Företagsstorlek"
               options={SIZE_OPTIONS}
               selectedValues={sizeClassCodes}
@@ -479,6 +847,98 @@ export function CompanyFilterPanel({
                   onCommit={commitEmployeeRange}
                 />
               }
+            />
+
+            <FilterChipGroup
+              title="Företagsålder"
+              options={[]}
+              selectedValues={
+                companyAgeRange[0] > AGE_RANGE[0] ||
+                companyAgeRange[1] < AGE_RANGE[1]
+                  ? [`${companyAgeRange[0]}-${companyAgeRange[1]}`]
+                  : []
+              }
+              onToggle={() => undefined}
+              emptyText="Använd reglaget för att välja åldersspann."
+              headerControl={
+                <RangeFilterControl
+                  value={ageRange}
+                  buckets={AGE_BUCKETS}
+                  onChange={setAgeRange}
+                  onCommit={commitAgeRange}
+                  manualInputs
+                />
+              }
+            />
+
+            <div className={ui.card}>
+              <div className="grid gap-3 px-4 py-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                <label className="space-y-2">
+                  <span className="text-sm font-semibold text-slate-100">
+                    Postort
+                  </span>
+                  <input
+                    value={postOrtDraft}
+                    onChange={(event) => setPostOrtDraft(event.target.value)}
+                    onBlur={commitPostalFilters}
+                    placeholder="Ex. Stockholm"
+                    className={textFilterInputClass()}
+                  />
+                </label>
+
+                <label className="space-y-2">
+                  <span className="text-sm font-semibold text-slate-100">
+                    Postnummer
+                  </span>
+                  <input
+                    value={postNrDraft}
+                    onChange={(event) => setPostNrDraft(event.target.value)}
+                    onBlur={commitPostalFilters}
+                    placeholder="Ex. 111 eller 11122"
+                    className={textFilterInputClass()}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={commitPostalFilters}
+                  className="rounded-md border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
+                >
+                  Applicera
+                </button>
+              </div>
+            </div>
+
+            <FilterChipGroup
+              title="Ägarstruktur"
+              options={OWNER_CATEGORY_OPTIONS}
+              selectedValues={ownerCategoryCodes}
+              onToggle={(value) =>
+                onOwnerCategoryCodesChange(
+                  toggleValue(ownerCategoryCodes, value),
+                )
+              }
+              showOptionValues
+            />
+
+            <FilterChipGroup
+              title="SME-klass"
+              options={SME_SIZE_OPTIONS}
+              selectedValues={smeSizeCodes}
+              onToggle={(value) =>
+                onSmeSizeCodesChange(toggleValue(smeSizeCodes, value))
+              }
+              showOptionValues
+            />
+
+            <FilterChipGroup
+              title="Export/import"
+              options={EXPORT_IMPORT_OPTIONS}
+              selectedValues={exportImportMarks}
+              onToggle={(value) =>
+                onExportImportMarksChange(toggleValue(exportImportMarks, value))
+              }
+              showOptionValues
             />
 
             <FilterChipGroup

@@ -25,6 +25,48 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.theme-logo-light {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-logo-dark {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-logo-light {
+  display: inline-block;
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 2.8s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.46;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+.clean-map-popup .maplibregl-popup-content {
+  background: rgb(15 23 42 / 0.96);
+  border: 1px solid rgb(51 65 85);
+  border-radius: 6px;
+  box-shadow: 0 12px 24px rgb(2 6 23 / 0.35);
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 8px;
+}
+
+.clean-map-popup .maplibregl-popup-tip {
+  border-top-color: rgb(15 23 42 / 0.96);
+  border-bottom-color: rgb(15 23 42 / 0.96);
+}
+
 .range-filter input[type="range"] {
   position: absolute;
   inset: 0;
@@ -139,12 +181,15 @@ body {
 :root[data-theme="light"] [class~="bg-slate-950/70"],
 :root[data-theme="light"] [class~="bg-slate-950/60"],
 :root[data-theme="light"] [class~="bg-slate-950/50"],
+:root[data-theme="light"] [class~="bg-slate-950/45"],
 :root[data-theme="light"] [class~="bg-slate-950/40"],
 :root[data-theme="light"] [class~="bg-slate-950/30"] {
   background-color: rgb(241 245 249 / 0.8) !important;
 }
 
 :root[data-theme="light"] [class~="bg-slate-900"],
+:root[data-theme="light"] [class~="bg-slate-900/80"],
+:root[data-theme="light"] [class~="bg-slate-900/70"],
 :root[data-theme="light"] [class~="bg-slate-900/60"] {
   background-color: #ffffff !important;
 }

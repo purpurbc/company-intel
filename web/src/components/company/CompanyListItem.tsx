@@ -1,6 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { CompaniesResponse } from "@/src/lib/types";
+import {
+  companyStatusLabel,
+  companyStatusTone,
+  statusToneClass,
+  type StatusTone,
+} from "@/src/lib/companyStatus";
 
 type CompanyListItemProps = {
   company: CompaniesResponse["items"][number];
@@ -13,18 +19,11 @@ function Badge({
   tone = "neutral",
 }: {
   children: ReactNode;
-  tone?: "positive" | "warning" | "neutral";
+  tone?: StatusTone;
 }) {
-  const toneClass =
-    tone === "positive"
-      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
-      : tone === "warning"
-        ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
-        : "border-slate-700 bg-slate-950/60 text-slate-300";
-
   return (
     <span
-      className={["rounded-md border px-2 py-1 text-xs", toneClass].join(" ")}
+      className={["rounded-md border px-2 py-1 text-xs", statusToneClass(tone)].join(" ")}
     >
       {children}
     </span>
@@ -53,9 +52,11 @@ export function CompanyListItem({
   const municipalityHref = company.seat_municipality_code
     ? `/municipality/${encodeURIComponent(company.seat_municipality_code)}`
     : null;
-  const isActive =
-    company.company_status_code === "1" ||
-    company.company_status_name === "Aktivt";
+  const statusLabel = companyStatusLabel(
+    company.company_status_code,
+    company.company_status_name,
+  );
+  const statusTone = companyStatusTone(company.company_status_code);
   const turnover =
     company.turnover_fin_name ??
     company.turnover_gross_name ??
@@ -155,9 +156,7 @@ export function CompanyListItem({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge tone={isActive ? "positive" : "warning"}>
-              {isActive ? "Aktivt" : (company.company_status_name ?? "Status saknas")}
-            </Badge>
+            <Badge tone={statusTone}>{statusLabel}</Badge>
             <Badge>{turnover}</Badge>
             <Badge>{employees}</Badge>
           </div>

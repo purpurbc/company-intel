@@ -33,6 +33,10 @@ psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/004_vie
 psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/005_indexes.sql
 psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/006_company_history.sql
 psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/007_company_status_labels.sql
+psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/008_saved_segments.sql
+psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/010_offers_and_customers.sql
+psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/011_app_user.sql
+psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/012_customer_insights.sql
 
 Run a fresh SCB update:
 python -m worker.run_scb_update

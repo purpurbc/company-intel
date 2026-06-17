@@ -47,7 +47,7 @@ export function FilterChipGroup({
               <h3 className="text-sm font-semibold text-slate-100">{title}</h3>
 
               {selectedValues.length > 0 && (
-                <span className="rounded-md bg-slate-800 px-2.5 py-1 text-xs text-slate-300">
+                <span className={ui.countChip}>
                   {selectedValues.length} valda
                 </span>
               )}

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Button } from "@/src/components/ui/Button";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -27,11 +28,6 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   if (!open) return null;
 
-  const confirmClass =
-    tone === "danger"
-      ? "bg-red-200 text-red-950 hover:bg-red-100"
-      : "bg-slate-100 text-slate-950 hover:bg-slate-200";
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4">
       <div
@@ -54,23 +50,20 @@ export function ConfirmDialog({
         {children ? <div className="mt-4">{children}</div> : null}
 
         <div className="mt-5 flex justify-end gap-3">
-          <button
+          <Button
             type="button"
             onClick={onCancel}
-            className="rounded-md border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
+            variant="secondary"
           >
             {cancelLabel}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={onConfirm}
-            className={[
-              "rounded-md px-4 py-2.5 text-sm font-medium transition",
-              confirmClass,
-            ].join(" ")}
+            variant={tone === "danger" ? "delete" : "accept"}
           >
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

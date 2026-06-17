@@ -3,7 +3,7 @@ import os
 
 # DB
 DATABASE_URL = os.getenv("DATABASE_URL", "")
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+APP_ENV = os.getenv("APP_ENV", "development")
 
 # SCB
 SCB_BASE_URL = os.getenv("SCB_BASE_URL", "https://privateapi.scb.se/nv0101/v1/sokpavar/")

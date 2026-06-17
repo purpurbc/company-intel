@@ -1,33 +1,42 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import type {
   CompaniesResponse,
-  CompanyListItem,
   CompanyMetricSort,
   CompanyNameSort,
   CompanySearchBy,
   ListCompaniesParams,
+  SavedSegmentPayload,
 } from "@/src/lib/types";
-import { listCompanies } from "@/src/lib/api";
+import { createSavedSegment, listCompanies } from "@/src/lib/api";
 
-import { SearchBar } from "@/src/components/ui/SearchBar";
+import { LIMIT_OPTIONS, SearchBar } from "@/src/components/ui/SearchBar";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { CompanyList } from "@/src/components/company/CompanyList";
-import { CompanyListItem as LeadListItem } from "@/src/components/company/CompanyListItem";
 import { CompanyFilterPanel } from "@/src/components/company/CompanyFilterPanel";
 import { ConfirmDialog } from "@/src/components/ui/ConfirmDialog";
 import { SkeletonList } from "@/src/components/ui/Skeleton";
+import { SavedSegmentDialog } from "@/src/components/profile/SavedSegmentDialog";
+import { SelectMenu } from "@/src/components/ui/SelectMenu";
+import { ToggleButton } from "@/src/components/ui/ToggleButton";
 
-type DashboardCardProps = {
+type SearchStatCardProps = {
   label: string;
   value: string;
   sub?: string;
 };
 
-const DASHBOARD_SESSION_KEY = "company-intel-dashboard-search";
+const DASHBOARD_SESSION_KEY = "company-intel-company-search";
+
+type ActiveDashboardSegment = {
+  id: string;
+  name: string;
+  filters: Record<string, unknown>;
+  sort: Record<string, unknown>;
+};
 
 type PersistedDashboardSearch = {
   q: string;
@@ -57,6 +66,8 @@ type PersistedDashboardSearch = {
   metricSort: CompanyMetricSort;
   sort?: string;
   offset: number;
+  resultCount: number | null;
+  activeSegment?: ActiveDashboardSegment | null;
 };
 
 const NAME_SORT_OPTIONS: { value: CompanyNameSort; label: string }[] = [
@@ -72,6 +83,11 @@ const METRIC_SORT_OPTIONS: { value: CompanyMetricSort; label: string }[] = [
   { value: "size_desc", label: "Storlek fallande" },
 ];
 
+const LIMIT_MENU_OPTIONS = LIMIT_OPTIONS.map((option) => ({
+  value: String(option),
+  label: String(option),
+}));
+
 function isCompanyNameSort(value: unknown): value is CompanyNameSort {
   return (
     typeof value === "string" &&
@@ -86,7 +102,37 @@ function isCompanyMetricSort(value: unknown): value is CompanyMetricSort {
   );
 }
 
-function DashboardCard({ label, value, sub }: DashboardCardProps) {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readActiveSegment(value: unknown): ActiveDashboardSegment | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.id !== "string" || typeof value.name !== "string") {
+    return null;
+  }
+
+  return {
+    id: value.id,
+    name: value.name,
+    filters: isRecord(value.filters) ? value.filters : {},
+    sort: isRecord(value.sort) ? value.sort : {},
+  };
+}
+
+function stableJson(value: unknown) {
+  return JSON.stringify(value, (_key, item) => {
+    if (!isRecord(item)) return item;
+    return Object.keys(item)
+      .sort()
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = item[key];
+        return acc;
+      }, {});
+  });
+}
+
+function SearchStatCard({ label, value, sub }: SearchStatCardProps) {
   return (
     <div className="rounded-lg border border-slate-800 bg-slate-900 p-4">
       <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -98,82 +144,36 @@ function DashboardCard({ label, value, sub }: DashboardCardProps) {
   );
 }
 
-function DashboardHero({
+function SearchHeader({
   total,
   visible,
-  recommended,
 }: {
   total: number | null;
   visible: number;
-  recommended: number;
 }) {
   return (
     <section className="rounded-lg border border-slate-800 bg-slate-900 p-5">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Daily lead workspace
+            Företagssök
           </p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-50">
-            Hej Vium
+            Sök företag
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-slate-400">
-            Hitta matchande företag utifrån din profil och få iniskter för att maximera sälj.
+            Hitta, filtrera och spara relevanta företag som segment.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:min-w-96">
-          <DashboardCard
+        <div className="grid gap-3 sm:min-w-72">
+          <SearchStatCard
             label="Matchande företag"
             value={total === null ? "-" : total.toLocaleString("sv-SE")}
             sub={`${visible} visas just nu`}
           />
-          <DashboardCard
-            label="Rekommenderade leads"
-            value={String(recommended)}
-            sub="Baserat på aktuell vy"
-          />
         </div>
       </div>
-    </section>
-  );
-}
-
-function RecommendedLeads({ items }: { items: CompanyListItem[] }) {
-  return (
-    <section className="rounded-lg border border-slate-800 bg-slate-900">
-      <div className="border-b border-slate-800 p-5">
-        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-              Prioritering
-            </p>
-            <h2 className="text-base font-semibold text-slate-100">
-              Recommended Leads
-            </h2>
-          </div>
-          <p className="text-sm text-slate-500">
-            MVP: visar de första relevanta träffarna från aktuell sökning.
-          </p>
-        </div>
-      </div>
-
-      {items.length > 0 ? (
-        <ul>
-          {items.map((company, index) => (
-            <LeadListItem
-              key={company.org_nr}
-              company={company}
-              compact
-              position={index + 1}
-            />
-          ))}
-        </ul>
-      ) : (
-        <div className="p-5 text-sm text-slate-500">
-          Inga rekommenderade leads ännu. Kör en sökning eller välj filter.
-        </div>
-      )}
     </section>
   );
 }
@@ -186,62 +186,11 @@ function SearchWorkspace({ children }: { children: ReactNode }) {
           Prospektering
         </p>
         <h2 className="text-lg font-semibold text-slate-100">
-          Search & Filters
+          Sök & filtrera
         </h2>
       </div>
       {children}
     </section>
-  );
-}
-
-function SortMenu<T extends string>({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: { value: T; label: string }[];
-  value: T;
-  onChange: (value: T) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const selected = options.find((option) => option.value === value);
-
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((current) => !current)}
-        className="rounded-md border border-slate-800 bg-slate-900 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
-        aria-expanded={open}
-      >
-        {label}: {selected?.label ?? "-"}
-      </button>
-
-      {open ? (
-        <div className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-md border border-slate-800 bg-slate-900 shadow-xl">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-              }}
-              className={[
-                "block w-full px-3 py-2 text-left text-sm transition",
-                option.value === value
-                  ? "bg-slate-100 text-slate-950"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-slate-50",
-              ].join(" ")}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
-    </div>
   );
 }
 
@@ -281,6 +230,11 @@ export function CompanySearch() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+  const [segmentDialogOpen, setSegmentDialogOpen] = useState(false);
+  const [segmentSaving, setSegmentSaving] = useState(false);
+  const [segmentError, setSegmentError] = useState<string | null>(null);
+  const [activeSegment, setActiveSegment] =
+    useState<ActiveDashboardSegment | null>(null);
 
   function persistedSearchParams(
     persisted: PersistedDashboardSearch,
@@ -453,6 +407,9 @@ export function CompanySearch() {
           ? parsed.turnoverSizeCodes.filter((value) => typeof value === "string")
           : [],
         offset: typeof parsed.offset === "number" ? parsed.offset : 0,
+        resultCount:
+          typeof parsed.resultCount === "number" ? parsed.resultCount : null,
+        activeSegment: readActiveSegment(parsed.activeSegment),
       };
     } catch {
       return null;
@@ -623,6 +580,7 @@ export function CompanySearch() {
     setIndustryCodes([]);
     setIndustryDetailCodes([]);
     setTurnoverSizeCodes([]);
+    setActiveSegment(null);
   }
 
   function resetFiltersAndSearch() {
@@ -656,6 +614,69 @@ export function CompanySearch() {
       metric_sort: "none",
       limit: 100,
     });
+  }
+
+  function currentSegmentPayload(): SavedSegmentPayload {
+    return {
+      name: "",
+      description: "",
+      filters: {
+        q: q.trim(),
+        search_by: searchBy,
+        county_codes: countyCodes,
+        municipality_codes: municipalityCodes,
+        company_status_codes: companyStatusCodes,
+        company_state_codes: companyStateCodes,
+        employer_status_codes: employerStatusCodes,
+        vat_status_codes: vatStatusCodes,
+        f_tax_status_codes: fTaxStatusCodes,
+        marketing_status_codes: marketingStatusCodes,
+        size_class_codes: sizeClassCodes,
+        age_min: companyAgeRange[0] > 0 ? companyAgeRange[0] : null,
+        age_max: companyAgeRange[1] < 100 ? companyAgeRange[1] : null,
+        post_ort: postOrt.trim(),
+        post_nr: postNr.trim(),
+        owner_category_codes: ownerCategoryCodes,
+        sme_size_codes: smeSizeCodes,
+        export_import_marks: exportImportMarks,
+        section_codes: sectionCodes,
+        industry_codes: industryCodes,
+        industry_detail_codes: industryDetailCodes,
+        turnover_size_codes: turnoverSizeCodes,
+      },
+      sort: {
+        name_sort: nameSort,
+        metric_sort: metricSort,
+        limit,
+      },
+      source: "manual",
+      visibility: "private",
+      result_count: total,
+    };
+  }
+
+  function currentSegmentSnapshot() {
+    const payload = currentSegmentPayload();
+    return {
+      filters: payload.filters ?? {},
+      sort: payload.sort ?? {},
+    };
+  }
+
+  async function saveCurrentSegment(payload: SavedSegmentPayload) {
+    setSegmentSaving(true);
+    setSegmentError(null);
+
+    try {
+      await createSavedSegment(payload);
+      setSegmentDialogOpen(false);
+    } catch (error) {
+      setSegmentError(
+        error instanceof Error ? error.message : "Kunde inte spara segmentet.",
+      );
+    } finally {
+      setSegmentSaving(false);
+    }
   }
 
   const filterActions = (
@@ -700,6 +721,7 @@ export function CompanySearch() {
         setIndustryCodes(persisted.industryCodes);
         setIndustryDetailCodes(persisted.industryDetailCodes);
         setTurnoverSizeCodes(persisted.turnoverSizeCodes);
+        setActiveSegment(persisted.activeSegment ?? null);
         setSessionReady(true);
         search(persisted.offset, persistedSearchParams(persisted));
         return;
@@ -716,11 +738,6 @@ export function CompanySearch() {
   const offset = data?.offset ?? 0;
   const itemCount = data?.items?.length ?? 0;
   const total = typeof data?.total === "number" ? data.total : null;
-  const recommendedLeads = useMemo(
-    () => (data?.items ?? []).slice(0, 3),
-    [data?.items],
-  );
-
   const canPrev = offset > 0;
   const canNext = itemCount === limit && limit > 0;
 
@@ -744,6 +761,7 @@ export function CompanySearch() {
     fTaxStatusCodes,
     industryCodes,
     industryDetailCodes,
+    limit,
     municipalityCodes,
     nameSort,
     metricSort,
@@ -751,6 +769,45 @@ export function CompanySearch() {
     ownerCategoryCodes,
     postNr,
     postOrt,
+    sectionCodes,
+    sessionReady,
+    sizeClassCodes,
+    smeSizeCodes,
+    turnoverSizeCodes,
+    vatStatusCodes,
+  ]);
+
+  useEffect(() => {
+    if (!sessionReady || !activeSegment) return;
+
+    const snapshot = currentSegmentSnapshot();
+    const matches =
+      stableJson(snapshot.filters) === stableJson(activeSegment.filters) &&
+      stableJson(snapshot.sort) === stableJson(activeSegment.sort);
+
+    if (!matches) setActiveSegment(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    activeSegment,
+    companyAgeRange,
+    companyStatusCodes,
+    companyStateCodes,
+    countyCodes,
+    employerStatusCodes,
+    exportImportMarks,
+    fTaxStatusCodes,
+    industryCodes,
+    industryDetailCodes,
+    limit,
+    marketingStatusCodes,
+    metricSort,
+    municipalityCodes,
+    nameSort,
+    ownerCategoryCodes,
+    postNr,
+    postOrt,
+    q,
+    searchBy,
     sectionCodes,
     sessionReady,
     sizeClassCodes,
@@ -789,11 +846,14 @@ export function CompanySearch() {
       nameSort,
       metricSort,
       offset,
+      resultCount: total,
+      activeSegment,
     };
 
     sessionStorage.setItem(DASHBOARD_SESSION_KEY, JSON.stringify(persisted));
   }, [
     compactList,
+    activeSegment,
     companyAgeRange,
     companyStatusCodes,
     companyStateCodes,
@@ -819,29 +879,16 @@ export function CompanySearch() {
     sizeClassCodes,
     smeSizeCodes,
     turnoverSizeCodes,
+    total,
     vatStatusCodes,
   ]);
 
   return (
     <div className="space-y-5">
-      <DashboardHero
+      <SearchHeader
         total={total}
         visible={itemCount}
-        recommended={recommendedLeads.length}
       />
-
-      <div className="grid gap-3 md:grid-cols-2">
-        <DashboardCard
-          label="Nya bolag"
-          value="-"
-          sub="Kräver historik/startdatum"
-        />
-        <DashboardCard
-          label="Högpotential"
-          value="-"
-          sub="Kräver scoringmodell"
-        />
-      </div>
 
       <SearchWorkspace>
         <SearchBar
@@ -850,11 +897,40 @@ export function CompanySearch() {
           onSearch={() => search(0)}
           searchBy={searchBy}
           onSearchByChange={setSearchBy}
-          limit={limit}
-          onLimitChange={setLimit}
           loading={loading}
           placeholder="Sök företag"
         >
+          <div className="mb-4 flex flex-col gap-3 rounded-md border border-app-border bg-app-panel-soft p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="text-sm font-semibold text-app-text">
+                  Spara aktuellt urval
+                </div>
+                {activeSegment ? (
+                  <a
+                    href="/profile"
+                    className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+                  >
+                    Aktivt segment: {activeSegment.name}
+                  </a>
+                ) : null}
+              </div>
+              <div className="mt-1 text-xs text-app-text-subtle">
+                Sparar söktext, filter, sortering och ungefärligt antal träffar.
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSegmentError(null);
+                setSegmentDialogOpen(true);
+              }}
+              className="rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm font-medium text-app-text transition hover:bg-app-panel-hover"
+            >
+              Spara segment
+            </button>
+          </div>
+
           <CompanyFilterPanel
             countyCodes={countyCodes}
             municipalityCodes={municipalityCodes}
@@ -900,8 +976,6 @@ export function CompanySearch() {
         </SearchBar>
       </SearchWorkspace>
 
-      <RecommendedLeads items={recommendedLeads} />
-
       {err && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {err}
@@ -929,45 +1003,38 @@ export function CompanySearch() {
               </div>
 
               <div className="flex flex-wrap justify-end gap-2">
-                <SortMenu
+                <SelectMenu
                   label="Namn"
                   options={NAME_SORT_OPTIONS}
                   value={nameSort}
                   onChange={setNameSort}
+                  compact
                 />
-                <SortMenu
+                <SelectMenu
                   label="Sortera"
                   options={METRIC_SORT_OPTIONS}
                   value={metricSort}
                   onChange={setMetricSort}
+                  compact
                 />
 
-                <div className="flex rounded-md border border-slate-800 bg-slate-900 p-1">
-                  <button
-                    type="button"
-                    onClick={() => setCompactList(false)}
-                    className={[
-                      "rounded px-3 py-1.5 text-sm font-medium transition",
-                      !compactList
-                        ? "bg-slate-100 text-slate-950"
-                        : "text-slate-400 hover:text-slate-200",
-                    ].join(" ")}
-                  >
-                    Kort
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCompactList(true)}
-                    className={[
-                      "rounded px-3 py-1.5 text-sm font-medium transition",
-                      compactList
-                        ? "bg-slate-100 text-slate-950"
-                        : "text-slate-400 hover:text-slate-200",
-                    ].join(" ")}
-                  >
-                    Kompakt
-                  </button>
-                </div>
+                <SelectMenu
+                  label="Rader"
+                  options={LIMIT_MENU_OPTIONS}
+                  value={String(limit)}
+                  onChange={(value) => setLimit(Number(value))}
+                  compact
+                />
+
+                <ToggleButton
+                  value={compactList ? "compact" : "card"}
+                  options={[
+                    { value: "card", label: "Kort" },
+                    { value: "compact", label: "Kompakt" },
+                  ]}
+                  onChange={(value) => setCompactList(value === "compact")}
+                  ariaLabel="Visningsläge för företag"
+                />
               </div>
             </div>
           </div>
@@ -999,6 +1066,16 @@ export function CompanySearch() {
         tone="danger"
         onConfirm={resetFiltersAndSearch}
         onCancel={() => setConfirmResetOpen(false)}
+      />
+
+      <SavedSegmentDialog
+        open={segmentDialogOpen}
+        mode="create"
+        initialPayload={currentSegmentPayload()}
+        saving={segmentSaving}
+        error={segmentError}
+        onCancel={() => setSegmentDialogOpen(false)}
+        onSave={saveCurrentSegment}
       />
     </div>
   );

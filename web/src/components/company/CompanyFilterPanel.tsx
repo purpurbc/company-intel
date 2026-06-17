@@ -683,7 +683,7 @@ export function CompanyFilterPanel({
               <h2 className="text-base font-semibold text-slate-100">Filter</h2>
 
               {totalSelectedCount > 0 && (
-                <span className="rounded-md bg-slate-200 px-2.5 py-1 text-xs text-slate-700">
+                <span className={ui.countChip}>
                   {totalSelectedCount} valda
                 </span>
               )}

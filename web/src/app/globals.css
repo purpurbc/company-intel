@@ -1,20 +1,124 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  /* Core palette: most UI colors below intentionally alias these roles. */
+  --app-canvas: #020617;
+  --app-surface: #0f172a;
+  --app-surface-soft: rgb(15 23 42 / 0.62);
+  --app-surface-hover: #1e293b;
+  --app-line: #334155;
+  --app-ink: #f8fafc;
+  --app-ink-muted: #94a3b8;
+  --app-inverse: #020617;
+  --app-inverse-bg: #f8fafc;
+  --app-inverse-hover: #e2e8f0;
+
+  --background: var(--app-canvas);
+  --foreground: var(--app-ink);
+  --app-bg: var(--app-canvas);
+  --app-overlay: rgb(2 6 23 / 0.7);
+  --app-overlay-soft: rgb(15 23 42 / 0.8);
+  --app-panel: var(--app-surface);
+  --app-panel-muted: var(--app-surface-soft);
+  --app-panel-soft: var(--app-surface-soft);
+  --app-panel-hover: var(--app-surface-hover);
+  --app-panel-hover-soft: var(--app-surface-hover);
+  --app-border: var(--app-line);
+  --app-border-strong: var(--app-line);
+  --app-text: var(--app-ink);
+  --app-text-strong: var(--app-ink);
+  --app-text-muted: var(--app-ink-muted);
+  --app-text-subtle: var(--app-ink-muted);
+  --app-placeholder: var(--app-ink-muted);
+  --app-decoration: var(--app-line);
+  --app-control-bg: var(--app-inverse-bg);
+  --app-control-bg-hover: var(--app-inverse-hover);
+  --app-control-text: var(--app-inverse);
+  --app-accent: #34d399;
+  --app-accent-strong: var(--app-accent);
+  --app-accent-bg: rgb(52 211 153 / 0.14);
+  --app-accent-bg-soft: var(--app-accent-bg);
+  --app-accent-border: rgb(52 211 153 / 0.38);
+  --app-accent-border-soft: var(--app-accent-border);
+  --app-accent-text: var(--app-accent);
+  --app-warning-bg: rgb(245 158 11 / 0.14);
+  --app-warning-border: rgb(245 158 11 / 0.38);
+  --app-warning-text: #fcd34d;
+  --app-danger-bg: rgb(239 68 68 / 0.14);
+  --app-danger-border: rgb(239 68 68 / 0.38);
+  --app-danger-text: #fecaca;
+  --app-focus: var(--app-line);
+  --app-range-track: var(--app-line);
+  --app-range-tick: var(--app-line);
+  --app-range-thumb-bg: var(--app-surface);
+  --app-range-thumb-border: var(--app-ink);
   color-scheme: dark;
 }
 
 :root[data-theme="light"] {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --app-canvas: #f8fafc;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f1f5f9;
+  --app-surface-hover: #e2e8f0;
+  --app-line: #cbd5e1;
+  --app-ink: #0f172a;
+  --app-ink-muted: #64748b;
+  --app-inverse: #f8fafc;
+  --app-inverse-bg: #0f172a;
+  --app-inverse-hover: #1e293b;
+
+  --background: var(--app-canvas);
+  --foreground: var(--app-ink);
+  --app-overlay: rgb(15 23 42 / 0.45);
+  --app-overlay-soft: rgb(248 250 252 / 0.86);
+  --app-accent: #10b981;
+  --app-accent-bg: rgb(16 185 129 / 0.14);
+  --app-accent-border: rgb(16 185 129 / 0.36);
+  --app-accent-text: #166534;
+  --app-warning-bg: rgb(245 158 11 / 0.16);
+  --app-warning-border: rgb(245 158 11 / 0.38);
+  --app-warning-text: #92400e;
+  --app-danger-bg: rgb(239 68 68 / 0.14);
+  --app-danger-border: rgb(239 68 68 / 0.36);
+  --app-danger-text: #991b1b;
   color-scheme: light;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-app-bg: var(--app-bg);
+  --color-app-overlay: var(--app-overlay);
+  --color-app-overlay-soft: var(--app-overlay-soft);
+  --color-app-panel: var(--app-panel);
+  --color-app-panel-muted: var(--app-panel-muted);
+  --color-app-panel-soft: var(--app-panel-soft);
+  --color-app-panel-hover: var(--app-panel-hover);
+  --color-app-panel-hover-soft: var(--app-panel-hover-soft);
+  --color-app-border: var(--app-border);
+  --color-app-border-strong: var(--app-border-strong);
+  --color-app-text: var(--app-text);
+  --color-app-text-strong: var(--app-text-strong);
+  --color-app-text-muted: var(--app-text-muted);
+  --color-app-text-subtle: var(--app-text-subtle);
+  --color-app-placeholder: var(--app-placeholder);
+  --color-app-control-bg: var(--app-control-bg);
+  --color-app-control-bg-hover: var(--app-control-bg-hover);
+  --color-app-control-text: var(--app-control-text);
+  --color-app-accent: var(--app-accent);
+  --color-app-accent-strong: var(--app-accent-strong);
+  --color-app-accent-bg: var(--app-accent-bg);
+  --color-app-accent-bg-soft: var(--app-accent-bg-soft);
+  --color-app-accent-border: var(--app-accent-border);
+  --color-app-accent-border-soft: var(--app-accent-border-soft);
+  --color-app-accent-text: var(--app-accent-text);
+  --color-app-warning-bg: var(--app-warning-bg);
+  --color-app-warning-border: var(--app-warning-border);
+  --color-app-warning-text: var(--app-warning-text);
+  --color-app-danger-bg: var(--app-danger-bg);
+  --color-app-danger-border: var(--app-danger-border);
+  --color-app-danger-text: var(--app-danger-text);
+  --color-app-focus: var(--app-focus);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -52,19 +156,19 @@ body {
 }
 
 .clean-map-popup .maplibregl-popup-content {
-  background: rgb(15 23 42 / 0.96);
-  border: 1px solid rgb(51 65 85);
+  background: var(--app-panel);
+  border: 1px solid var(--app-border-strong);
   border-radius: 6px;
   box-shadow: 0 12px 24px rgb(2 6 23 / 0.35);
-  color: #f8fafc;
+  color: var(--app-text);
   font-size: 12px;
   font-weight: 700;
   padding: 6px 8px;
 }
 
 .clean-map-popup .maplibregl-popup-tip {
-  border-top-color: rgb(15 23 42 / 0.96);
-  border-bottom-color: rgb(15 23 42 / 0.96);
+  border-top-color: var(--app-panel);
+  border-bottom-color: var(--app-panel);
 }
 
 .range-filter input[type="range"] {
@@ -89,7 +193,7 @@ body {
   top: 12px;
   height: 4px;
   border-radius: 999px;
-  background: #334155;
+  background: var(--app-range-track);
   z-index: 1;
 }
 
@@ -98,7 +202,7 @@ body {
   top: 12px;
   height: 4px;
   border-radius: 999px;
-  background: #34d399;
+  background: var(--app-accent);
   z-index: 2;
 }
 
@@ -116,7 +220,7 @@ body {
   width: 1px;
   height: 8px;
   border-radius: 999px;
-  background: #64748b;
+  background: var(--app-range-tick);
   opacity: 0.55;
 }
 
@@ -130,9 +234,9 @@ body {
   height: 16px;
   margin-top: -6px;
   appearance: none;
-  border: 2px solid #f8fafc;
+  border: 2px solid var(--app-range-thumb-border);
   border-radius: 999px;
-  background: #0f172a;
+  background: var(--app-range-thumb-bg);
   cursor: pointer;
   pointer-events: auto;
   position: relative;
@@ -147,143 +251,128 @@ body {
 .range-filter input[type="range"]::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  border: 2px solid #f8fafc;
+  border: 2px solid var(--app-range-thumb-border);
   border-radius: 999px;
-  background: #0f172a;
+  background: var(--app-range-thumb-bg);
   cursor: pointer;
   pointer-events: auto;
 }
 
-:root[data-theme="light"] .range-filter-track {
-  background: #cbd5e1;
+/* Legacy Tailwind color bridge. New code should prefer app-* tokens. */
+:root [class~="bg-slate-950"],
+:root [class~="bg-slate-950/95"] {
+  background-color: var(--app-bg) !important;
 }
 
-:root[data-theme="light"] .range-filter-tick {
-  background: #94a3b8;
-  opacity: 0.65;
+:root [class*="bg-slate-950/"],
+:root [class*="bg-slate-900/"] {
+  background-color: var(--app-panel-soft) !important;
 }
 
-:root[data-theme="light"] .range-filter input[type="range"]::-webkit-slider-thumb {
-  border-color: #cbd5e1;
-  background: #0f172a;
+:root [class~="bg-slate-900"] {
+  background-color: var(--app-panel) !important;
 }
 
-:root[data-theme="light"] .range-filter input[type="range"]::-moz-range-thumb {
-  border-color: #cbd5e1;
-  background: #0f172a;
+:root [class~="bg-slate-800"],
+:root [class*="bg-slate-800/"],
+:root [class~="hover:bg-slate-800"]:hover,
+:root [class*="hover:bg-slate-800/"]:hover,
+:root [class~="hover:bg-slate-900"]:hover,
+:root [class*="hover:bg-slate-900/"]:hover {
+  background-color: var(--app-panel-hover) !important;
 }
 
-:root[data-theme="light"] [class~="bg-slate-950"],
-:root[data-theme="light"] [class~="bg-slate-950/95"] {
-  background-color: #f8fafc !important;
+:root [class~="bg-slate-100"],
+:root [class~="hover:bg-slate-100"]:hover {
+  background-color: var(--app-control-bg) !important;
 }
 
-:root[data-theme="light"] [class~="bg-slate-950/70"],
-:root[data-theme="light"] [class~="bg-slate-950/60"],
-:root[data-theme="light"] [class~="bg-slate-950/50"],
-:root[data-theme="light"] [class~="bg-slate-950/45"],
-:root[data-theme="light"] [class~="bg-slate-950/40"],
-:root[data-theme="light"] [class~="bg-slate-950/30"] {
-  background-color: rgb(241 245 249 / 0.8) !important;
+:root [class~="bg-slate-200"],
+:root [class~="hover:bg-slate-200"]:hover {
+  background-color: var(--app-control-bg-hover) !important;
 }
 
-:root[data-theme="light"] [class~="bg-slate-900"],
-:root[data-theme="light"] [class~="bg-slate-900/80"],
-:root[data-theme="light"] [class~="bg-slate-900/70"],
-:root[data-theme="light"] [class~="bg-slate-900/60"] {
-  background-color: #ffffff !important;
+:root [class~="border-slate-800"],
+:root [class~="border-slate-700"],
+:root [class~="border-slate-600"],
+:root [class~="border-slate-500"] {
+  border-color: var(--app-border) !important;
 }
 
-:root[data-theme="light"] [class~="bg-slate-800"] {
-  background-color: #e2e8f0 !important;
+:root [class~="text-slate-50"],
+:root [class~="text-slate-100"],
+:root [class~="text-slate-200"],
+:root [class~="text-slate-300"],
+:root [class~="text-white"],
+:root [class~="hover:text-white"]:hover,
+:root [class~="hover:text-slate-50"]:hover,
+:root [class~="hover:text-slate-100"]:hover,
+:root [class~="hover:text-slate-200"]:hover {
+  color: var(--app-text) !important;
 }
 
-:root[data-theme="light"] [class~="bg-slate-200"] {
-  background-color: #e2e8f0 !important;
+:root [class~="text-slate-400"],
+:root [class~="text-slate-500"],
+:root [class~="text-slate-600"],
+:root [class~="text-slate-700"] {
+  color: var(--app-text-muted) !important;
 }
 
-:root[data-theme="light"] [class~="hover:bg-slate-800"]:hover,
-:root[data-theme="light"] [class~="hover:bg-slate-800/40"]:hover {
-  background-color: #f1f5f9 !important;
+:root [class~="text-slate-900"],
+:root [class~="text-slate-950"] {
+  color: var(--app-control-text) !important;
 }
 
-:root[data-theme="light"] [class~="hover:bg-slate-900"]:hover,
-:root[data-theme="light"] [class~="hover:bg-slate-900/60"]:hover {
-  background-color: #e2e8f0 !important;
+:root [class~="placeholder:text-slate-500"]::placeholder {
+  color: var(--app-placeholder) !important;
 }
 
-:root[data-theme="light"] [class~="border-slate-800"],
-:root[data-theme="light"] [class~="border-slate-700"] {
-  border-color: #cbd5e1 !important;
+:root [class~="decoration-slate-600"] {
+  text-decoration-color: var(--app-decoration) !important;
 }
 
-:root[data-theme="light"] [class~="border-slate-600"],
-:root[data-theme="light"] [class~="border-slate-500"] {
-  border-color: #94a3b8 !important;
+:root [class*="bg-emerald-500/"] {
+  background-color: var(--app-accent-bg) !important;
 }
 
-:root[data-theme="light"] [class~="text-slate-50"],
-:root[data-theme="light"] [class~="text-slate-100"],
-:root[data-theme="light"] [class~="text-slate-200"],
-:root[data-theme="light"] [class~="text-slate-300"],
-:root[data-theme="light"] [class~="text-white"] {
-  color: #0f172a !important;
+:root [class*="border-emerald-500/"] {
+  border-color: var(--app-accent-border) !important;
 }
 
-:root[data-theme="light"] [class~="text-slate-400"],
-:root[data-theme="light"] [class~="text-slate-500"],
-:root[data-theme="light"] [class~="text-slate-600"],
-:root[data-theme="light"] [class~="text-slate-700"] {
-  color: #475569 !important;
+:root [class~="text-emerald-100"],
+:root [class~="text-emerald-200"],
+:root [class~="text-emerald-300"],
+:root [class~="text-emerald-700"] {
+  color: var(--app-accent-text) !important;
 }
 
-:root[data-theme="light"] [class~="hover:text-white"]:hover,
-:root[data-theme="light"] [class~="hover:text-slate-200"]:hover {
-  color: #020617 !important;
+:root [class~="bg-emerald-300"],
+:root [class~="bg-emerald-400"],
+:root [class*="bg-emerald-400/"] {
+  background-color: var(--app-accent) !important;
 }
 
-:root[data-theme="light"] [class~="placeholder:text-slate-500"]::placeholder {
-  color: #64748b !important;
+:root [class*="bg-amber-500/"] {
+  background-color: var(--app-warning-bg) !important;
 }
 
-:root[data-theme="light"] [class~="decoration-slate-600"] {
-  text-decoration-color: #94a3b8 !important;
+:root [class*="border-amber-500/"] {
+  border-color: var(--app-warning-border) !important;
 }
 
-:root[data-theme="light"] [class~="bg-emerald-500/10"] {
-  background-color: #dcfce7 !important;
+:root [class~="text-amber-100"],
+:root [class~="text-amber-200"] {
+  color: var(--app-warning-text) !important;
 }
 
-:root[data-theme="light"] [class~="border-emerald-500/30"] {
-  border-color: #86efac !important;
+:root [class*="bg-red-500/"] {
+  background-color: var(--app-danger-bg) !important;
 }
 
-:root[data-theme="light"] [class~="text-emerald-100"],
-:root[data-theme="light"] [class~="text-emerald-200"] {
-  color: #166534 !important;
+:root [class*="border-red-500/"] {
+  border-color: var(--app-danger-border) !important;
 }
 
-:root[data-theme="light"] [class~="bg-amber-500/10"] {
-  background-color: #fef3c7 !important;
-}
-
-:root[data-theme="light"] [class~="border-amber-500/30"] {
-  border-color: #fcd34d !important;
-}
-
-:root[data-theme="light"] [class~="text-amber-100"],
-:root[data-theme="light"] [class~="text-amber-200"] {
-  color: #92400e !important;
-}
-
-:root[data-theme="light"] [class~="bg-red-500/10"] {
-  background-color: #fee2e2 !important;
-}
-
-:root[data-theme="light"] [class~="border-red-500/30"] {
-  border-color: #fca5a5 !important;
-}
-
-:root[data-theme="light"] [class~="text-red-200"] {
-  color: #991b1b !important;
+:root [class~="text-red-200"] {
+  color: var(--app-danger-text) !important;
 }

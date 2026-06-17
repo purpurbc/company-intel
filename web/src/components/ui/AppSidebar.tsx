@@ -3,41 +3,73 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { buttonClassName } from "@/src/components/ui/Button";
+import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
+import type { AppUserProfile } from "@/src/lib/types";
 
 type NavItem = {
   label: string;
   href?: string;
   badge?: string;
   icon: string;
+  fallback?: string;
   rail?: boolean;
 };
 
-const profileItem: NavItem = {
-  label: "Vium Företagen AB",
+const defaultProfileItem: NavItem = {
+  label: "",
   href: "/profile",
-  icon: "VF",
+  icon: "/icons/menu/image-user-svgrepo-com.svg",
+  fallback: "P",
   rail: true,
 };
 
 const primaryItems: NavItem[] = [
-  { label: "Dashboard", href: "/", icon: "H", rail: true },
+  {
+    label: "Dashboard",
+    href: "/",
+    icon: "/icons/menu/house-chimney-blank-svgrepo-com.svg",
+    fallback: "H",
+    rail: true,
+  },
+  {
+    label: "Sök företag",
+    href: "/companies",
+    icon: "/icons/menu/user-search-svgrepo-com.svg",
+    fallback: "SF",
+    rail: true,
+  },
   { label: "Överblick", href: "/sweden", icon: "S", rail: true },
-  { label: "Karta", href: "/map", icon: "K", rail: true },
+  {
+    label: "Karta",
+    href: "/map",
+    icon: "/icons/menu/map-svgrepo-com.svg",
+    fallback: "K",
+    rail: true,
+  },
   { label: "Alla län", href: "/counties", icon: "L" },
   { label: "Alla kommuner", href: "/municipalities", icon: "M" },
 ];
 
 const futureItems: NavItem[] = [
-  { label: "Sparade segment", badge: "Senare", icon: "SG" },
-  { label: "Opportunity Feed", badge: "Senare", icon: "OF" },
+  { label: "Möjligheter", badge: "Senare", icon: "OF" },
   { label: "Kundbas", badge: "Senare", icon: "KB" },
-  { label: "Lead Lists", badge: "Senare", icon: "LL" },
+  { label: "Leads", badge: "Senare", icon: "LL" },
 ];
 
-const railItems: NavItem[] = [
-  profileItem,
-  ...primaryItems.filter((item) => item.rail),
-];
+const iconByFallback: Record<string, string> = {
+  H: "/icons/menu/house-chimney-blank-svgrepo-com.svg",
+  SF: "/icons/menu/user-search-svgrepo-com.svg",
+  S: "/icons/menu/globe-svgrepo-com.svg",
+  K: "/icons/menu/map-svgrepo-com.svg",
+  L: "/icons/menu/landmark-svgrepo-com.svg",
+  M: "/icons/menu/map-location-pin-svgrepo-com.svg",
+  SG: "/icons/menu/user-search-svgrepo-com.svg",
+  OF: "/icons/menu/globe-svgrepo-com.svg",
+  KB: "/icons/menu/house-turret-svgrepo-com.svg",
+  LL: "/icons/menu/user-search-svgrepo-com.svg",
+  P: "/icons/menu/image-user-svgrepo-com.svg",
+};
 
 function isActive(pathname: string, href?: string) {
   if (!href) return false;
@@ -45,17 +77,47 @@ function isActive(pathname: string, href?: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function profileDisplayName(userProfile: AppUserProfile | null) {
+  return (
+    userProfile?.display_name?.trim() ||
+    userProfile?.company_name?.trim() ||
+    "" // or Profil
+  );
+}
+
+function profileFallback(name: string) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+
+  return initials || "P";
+}
+
 function NavIcon({ item, active = false }: { item: NavItem; active?: boolean }) {
+  const fallback = item.fallback ?? item.icon;
+  const iconSrc = item.icon.startsWith("/")
+    ? item.icon
+    : iconByFallback[item.icon];
+
   return (
     <span
       className={[
         "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border text-xs font-semibold transition",
         active
-          ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
-          : "border-slate-800 bg-slate-900 text-slate-400",
+          ? "border-app-accent-border bg-app-accent-bg text-app-accent-text"
+          : "border-app-border bg-app-panel text-app-text-muted",
       ].join(" ")}
     >
-      {item.icon}
+      {iconSrc ? (
+        <MaskedIcon src={iconSrc} />
+      ) : (
+        <span aria-hidden="true">{fallback}</span>
+      )}
+      <span className="sr-only">{fallback}</span>
     </span>
   );
 }
@@ -63,10 +125,10 @@ function NavIcon({ item, active = false }: { item: NavItem; active?: boolean }) 
 function BrandLogo({ compact = false }: { compact?: boolean }) {
   const darkLogoSrc = compact
     ? "/icons/logo/cintela_logo_wht.svg"
-    : "/icons/logo/cintela_wide_text_logo_wht_color.svg";
+    : "/icons/logo/cintela_wide_text_logo_wht.svg";
   const lightLogoSrc = compact
     ? "/icons/logo/cintela_logo_blk.svg"
-    : "/icons/logo/cintela_wide_text_logo_blk_color.svg";
+    : "/icons/logo/cintela_wide_text_logo_blk.svg";
 
   return (
     <span
@@ -115,7 +177,7 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
         <span className="min-w-0 truncate">{item.label}</span>
       </span>
       {item.badge ? (
-        <span className="rounded-sm border border-slate-800 px-1.5 py-0.5 text-[10px] font-medium uppercase text-slate-500">
+        <span className="rounded-sm border border-app-border px-1.5 py-0.5 text-[10px] font-medium uppercase text-app-text-subtle">
           {item.badge}
         </span>
       ) : null}
@@ -125,8 +187,8 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
   const className = [
     "flex h-10 min-w-0 items-center justify-between gap-2 rounded-md py-0 pl-0 pr-3 text-sm transition",
     active
-      ? "bg-slate-900 text-slate-50"
-      : "text-slate-300 hover:bg-slate-900 hover:text-slate-50",
+      ? "bg-app-panel text-app-text"
+      : "text-app-text-muted hover:bg-app-panel hover:text-app-text",
   ].join(" ");
 
   if (!item.href) {
@@ -154,7 +216,7 @@ function RailLink({ item, pathname }: { item: NavItem; pathname: string }) {
       href={item.href}
       aria-label={item.label}
       title={item.label}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-md transition hover:bg-slate-900"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-md transition hover:bg-app-panel"
     >
       <NavIcon item={item} active={active} />
     </Link>
@@ -164,19 +226,29 @@ function RailLink({ item, pathname }: { item: NavItem; pathname: string }) {
 function SidebarRail({
   pathname,
   onOpen,
+  profileItem,
 }: {
   pathname: string;
   onOpen: () => void;
+  profileItem: NavItem;
 }) {
+  const railItems: NavItem[] = [
+    profileItem,
+    ...primaryItems.filter((item) => item.rail),
+  ];
+
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-14 border-r border-slate-800 bg-slate-950 px-2 py-3 md:block">
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-14 border-r border-app-border bg-app-bg px-2 py-3 md:block">
       <div className="flex h-full flex-col">
         <button
           type="button"
           onClick={onOpen}
           aria-label="Öppna sidomeny"
           title="Öppna sidomeny"
-          className="group relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-800 bg-slate-900 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-slate-50"
+          className={[
+            buttonClassName({ variant: "secondary", size: "icon" }),
+            "group relative h-10 w-10 p-0",
+          ].join(" ")}
         >
           <span className="absolute inset-0 flex items-center justify-center transition-opacity group-hover:opacity-0">
             <BrandLogo compact />
@@ -203,15 +275,29 @@ export function AppSidebar({
   open,
   onOpen,
   onClose,
+  userProfile,
 }: {
   open: boolean;
   onOpen: () => void;
   onClose: () => void;
+  userProfile: AppUserProfile | null;
 }) {
   const pathname = usePathname();
+  const profileName = profileDisplayName(userProfile);
+  const profileItem: NavItem = {
+    ...defaultProfileItem,
+    label: profileName,
+    fallback: profileFallback(profileName),
+  };
 
   if (!open) {
-    return <SidebarRail pathname={pathname} onOpen={onOpen} />;
+    return (
+      <SidebarRail
+        pathname={pathname}
+        onOpen={onOpen}
+        profileItem={profileItem}
+      />
+    );
   }
 
   return (
@@ -219,17 +305,17 @@ export function AppSidebar({
       <button
         type="button"
         aria-label="Stäng sidomeny"
-        className="fixed inset-0 z-40 bg-slate-950/70 md:hidden"
+        className="fixed inset-0 z-40 bg-app-overlay md:hidden"
         onClick={onClose}
       />
-      <aside className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-slate-800 bg-slate-950 px-2 py-3 shadow-2xl md:w-64 md:max-w-none md:shadow-none">
+      <aside className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-app-border bg-app-bg px-2 py-3 shadow-2xl md:w-64 md:max-w-none md:shadow-none">
         <div className="flex h-full flex-col">
           <div className="flex h-10 items-center gap-2">
             <Link
               href="/"
               aria-label="Cintela dashboard"
               title="Cintela"
-              className="flex h-10 min-w-0 flex-1 items-center rounded-md px-2 text-slate-100 transition hover:bg-slate-900"
+              className="flex h-10 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel"
             >
               <BrandLogo />
             </Link>
@@ -239,7 +325,11 @@ export function AppSidebar({
               onClick={onClose}
               aria-label="Stäng sidomeny"
               title="Stäng sidomeny"
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-800 bg-slate-900 text-sm text-slate-300 hover:bg-slate-800"
+              className={buttonClassName({
+                variant: "secondary",
+                size: "icon",
+                className: "h-10 w-10 shrink-0 p-0",
+              })}
             >
               {"<"}
             </button>
@@ -253,7 +343,7 @@ export function AppSidebar({
           </nav>
 
           <div className="mt-6">
-            <div className="px-3 text-xs font-medium uppercase tracking-wide text-slate-600">
+            <div className="px-3 text-xs font-medium uppercase tracking-wide text-app-text-subtle">
               Kommande
             </div>
             <nav className="mt-2 flex flex-col gap-2" aria-label="Kommande vyer">
@@ -263,9 +353,9 @@ export function AppSidebar({
             </nav>
           </div>
 
-          <div className="mt-auto rounded-md border border-slate-800 bg-slate-900/60 p-3">
-            <div className="text-xs font-medium text-slate-300">MVP focus</div>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+          <div className="mt-auto rounded-md border border-app-border bg-app-panel-muted p-3">
+            <div className="text-xs font-medium text-app-text-muted">MVP focus</div>
+            <p className="mt-1 text-xs leading-5 text-app-text-subtle">
               Stabil sök, tydliga företagssidor och regionala vyer först.
             </p>
           </div>
@@ -274,3 +364,4 @@ export function AppSidebar({
     </>
   );
 }
+

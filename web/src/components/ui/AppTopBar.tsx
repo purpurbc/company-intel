@@ -1,80 +1,22 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { ActionControl } from "@/src/components/ui/Button";
+import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
 
 type Theme = "dark" | "light";
+
+const ICONS = {
+  dashboard: "/icons/menu/house-chimney-blank-svgrepo-com.svg",
+  profile: "/icons/menu/image-user-svgrepo-com.svg",
+  themeLight: "/icons/menu/sun-svgrepo-com.svg",
+  themeDark: "/icons/menu/moon-svgrepo-com.svg",
+  logout: "/icons/menu/logout-svgrepo-com.svg",
+};
 
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("company-intel-theme", theme);
-}
-
-function TopBarButton({
-  label,
-  icon,
-  disabled = false,
-  href,
-  onClick,
-  pressed,
-}: {
-  label: string;
-  icon: ReactNode;
-  disabled?: boolean;
-  href?: string;
-  onClick?: () => void;
-  pressed?: boolean;
-}) {
-  const className =
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-slate-800 bg-slate-900 px-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50";
-
-  if (href && !disabled) {
-    return (
-      <Link href={href} aria-label={label} title={label} className={className}>
-        {icon}
-      </Link>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      aria-label={label}
-      aria-pressed={pressed}
-      title={label}
-      onClick={onClick}
-      className={className}
-    >
-      {icon}
-    </button>
-  );
-}
-
-function DashboardHomeIcon() {
-  const [loaded, setLoaded] = useState(false);
-
-  return (
-    <span className="relative inline-flex h-4 min-w-4 items-center justify-center">
-      <Image
-        src="/icons/home.svg"
-        alt=""
-        aria-hidden="true"
-        width={16}
-        height={16}
-        unoptimized
-        className={[
-          "absolute h-4 w-4 object-contain transition-opacity",
-          loaded ? "opacity-100" : "opacity-0",
-        ].join(" ")}
-        onLoad={() => setLoaded(true)}
-        onError={() => setLoaded(false)}
-      />
-      <span className={loaded ? "opacity-0" : "opacity-100"}>&amp;!</span>
-    </span>
-  );
 }
 
 export function AppTopBar({
@@ -107,47 +49,56 @@ export function AppTopBar({
   }, [mounted, theme]);
 
   function toggleTheme() {
-    const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
+    setTheme((current) => (current === "dark" ? "light" : "dark"));
   }
 
   const themeLabel =
     !mounted || theme === "dark" ? "Byt till ljust tema" : "Byt till mörkt tema";
-  const themeIcon = !mounted || theme === "dark" ? "LJ" : "MR";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-app-border bg-app-bg/95 backdrop-blur">
       <div className="relative mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div className="md:hidden">
-            <TopBarButton
+            <ActionControl
               label={sidebarOpen ? "Stäng sidomeny" : "Öppna sidomeny"}
-              icon={sidebarOpen ? "<" : ">"}
               onClick={onToggleSidebar}
               pressed={sidebarOpen}
-            />
+              variant="secondary"
+              size="icon"
+            >
+              {sidebarOpen ? "<" : ">"}
+            </ActionControl>
           </div>
-
         </div>
 
         <nav className="flex items-center gap-2" aria-label="Snabbmeny">
-          <TopBarButton
-            label="ICP-inställningar"
-            icon="ICP"
-            href="/profile#icp"
-          />
-          <TopBarButton
+          {/* <ActionControl
+            label="Profil"
+            icon={<MaskedIcon src={ICONS.profile} />}
+            href="/profile"
+          /> */}
+          <ActionControl
             label={themeLabel}
-            icon={themeIcon}
+            icon={
+              <MaskedIcon
+                src={theme === "dark" ? ICONS.themeLight : ICONS.themeDark}
+              />
+            }
             onClick={toggleTheme}
             pressed={mounted ? theme === "light" : false}
           />
-          <TopBarButton
+          {/* <ActionControl
             label="Dashboard"
-            icon={<DashboardHomeIcon />}
+            icon={<MaskedIcon src={ICONS.dashboard} />}
             href="/"
+          /> */}
+          <ActionControl 
+            label="Logga ut" 
+            icon={<MaskedIcon src={ICONS.logout} />}
+            href="/"
+            disabled
           />
-          <TopBarButton label="Logga ut" icon="UT" disabled />
         </nav>
       </div>
     </header>

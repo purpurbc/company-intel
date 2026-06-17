@@ -1,5 +1,6 @@
 import type { CompaniesResponse } from "@/src/lib/types";
 import { CompanyListItem } from "@/src/components/company/CompanyListItem";
+import { List } from "@/src/components/ui/List";
 
 type CompanyListProps = {
   items: CompaniesResponse["items"];
@@ -13,7 +14,7 @@ export function CompanyList({
   startIndex = 1,
 }: CompanyListProps) {
   return (
-    <ul className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900">
+    <List contentClassName="overflow-hidden">
       {items.map((company, index) => (
         <CompanyListItem
           key={company.org_nr}
@@ -22,6 +23,6 @@ export function CompanyList({
           position={startIndex + index}
         />
       ))}
-    </ul>
+    </List>
   );
 }

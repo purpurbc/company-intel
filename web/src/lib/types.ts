@@ -285,3 +285,146 @@ export type SwedenOverview = {
   by_f_tax_status: CountByName[];
   by_marketing: CountByName[];
 };
+
+// ------------------------------------------------------------
+// Saved segments
+// ------------------------------------------------------------
+
+export type SavedSegment = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  filters: Record<string, unknown>;
+  sort: Record<string, unknown>;
+  visibility: string;
+  intent: string | null;
+  notes: string | null;
+  match_profile_id: string | null;
+  source: string;
+  result_count: number | null;
+  last_result_count_at: string | null;
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SavedSegmentPayload = {
+  name: string;
+  description?: string | null;
+  filters?: Record<string, unknown>;
+  sort?: Record<string, unknown>;
+  visibility?: string;
+  intent?: string | null;
+  notes?: string | null;
+  match_profile_id?: string | null;
+  source?: string;
+  result_count?: number | null;
+};
+
+export type SavedSegmentsResponse = {
+  items: SavedSegment[];
+};
+
+// ------------------------------------------------------------
+// Profile workspace: offers and existing customers
+// ------------------------------------------------------------
+
+export type AppUserProfile = {
+  id: string;
+  auth_provider: string | null;
+  auth_subject: string | null;
+  email: string | null;
+  display_name: string | null;
+  role: string;
+  company_org_nr: string | null;
+  company_name: string | null;
+  post_ort: string | null;
+  seat_county_code: string | null;
+  seat_county_name: string | null;
+  seat_municipality_code: string | null;
+  seat_municipality_name: string | null;
+  company_description: string | null;
+  ideal_customer_description: string | null;
+  settings: Record<string, unknown>;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type AppUserProfilePayload = {
+  auth_provider?: string | null;
+  auth_subject?: string | null;
+  email?: string | null;
+  display_name?: string | null;
+  role?: string;
+  company_org_nr?: string | null;
+  company_description?: string | null;
+  ideal_customer_description?: string | null;
+  settings?: Record<string, unknown>;
+};
+
+export type SalesOffer = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  target: string | null;
+  saved_segment_id: string | null;
+  saved_segment_name: string | null;
+  customer_ids: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type SalesOfferPayload = {
+  name: string;
+  description?: string | null;
+  target?: string | null;
+  saved_segment_id?: string | null;
+  customer_ids?: string[];
+};
+
+export type SalesOffersResponse = {
+  items: SalesOffer[];
+};
+
+export type CustomerAccount = {
+  id: string;
+  user_id: string;
+  org_nr: string;
+  company_name: string;
+  post_ort: string | null;
+  seat_county_code: string | null;
+  seat_county_name: string | null;
+  seat_municipality_code: string | null;
+  seat_municipality_name: string | null;
+  customer_labels: string[];
+  connection_text: string | null;
+  why_fit: string | null;
+  pain_points: string | null;
+  buying_trigger: string | null;
+  outcome: string | null;
+  tags: string[];
+  fit_score: number;
+  offer_ids: string[];
+  offer_names: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type CustomerAccountPayload = {
+  org_nr: string;
+  customer_labels?: string[];
+  offer_ids?: string[];
+  connection_text?: string | null;
+  why_fit?: string | null;
+  pain_points?: string | null;
+  buying_trigger?: string | null;
+  outcome?: string | null;
+  tags?: string[];
+  fit_score: number;
+};
+
+export type CustomerAccountsResponse = {
+  items: CustomerAccount[];
+};

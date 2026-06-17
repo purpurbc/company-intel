@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { CompaniesResponse } from "@/src/lib/types";
+import { buttonClassName } from "@/src/components/ui/Button";
+import { ListItem } from "@/src/components/ui/List";
 import {
   companyStatusLabel,
   companyStatusTone,
@@ -23,19 +25,12 @@ function Badge({
 }) {
   return (
     <span
-      className={["rounded-md border px-2 py-1 text-xs", statusToneClass(tone)].join(" ")}
+      className={[
+        "rounded-md border px-2 py-1 text-xs",
+        statusToneClass(tone),
+      ].join(" ")}
     >
       {children}
-    </span>
-  );
-}
-
-function Position({ value }: { value?: number }) {
-  if (typeof value !== "number") return null;
-
-  return (
-    <span className="shrink-0 tabular-nums text-slate-600">
-      {value.toLocaleString("sv-SE")}
     </span>
   );
 }
@@ -65,10 +60,8 @@ export function CompanyListItem({
 
   if (compact) {
     return (
-      <li className="border-b border-slate-800 px-4 py-2.5 transition last:border-b-0 hover:bg-slate-800/40">
-        <div className="grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] gap-3 text-sm md:grid-cols-[2.5rem_minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center">
-          <Position value={position} />
-
+      <ListItem as="div" compact numbered index={position}>
+        <div className="grid min-w-0 gap-1 text-sm md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:items-center md:gap-3">
           <Link
             href={companyHref}
             className="min-w-0 truncate font-medium text-slate-50 hover:text-white"
@@ -76,7 +69,7 @@ export function CompanyListItem({
             {company.company_name}
           </Link>
 
-          <div className="col-start-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-slate-400 md:col-start-auto md:justify-end">
+          <div className="flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-slate-400 md:justify-end">
             <span>{company.org_nr}</span>
             <span className="truncate">
               {municipalityHref ? (
@@ -104,17 +97,13 @@ export function CompanyListItem({
             <span>{company.post_ort ?? "-"}</span>
           </div>
         </div>
-      </li>
+      </ListItem>
     );
   }
 
   return (
-    <li className="border-b border-slate-800 p-4 transition last:border-b-0 hover:bg-slate-800/40">
-      <div className="grid min-w-0 grid-cols-[2.5rem_minmax(0,1fr)] gap-3 md:grid-cols-[2.5rem_minmax(0,1fr)_auto] md:items-start">
-        <div className="pt-1 text-xs">
-          <Position value={position} />
-        </div>
-
+    <ListItem as="div" numbered index={position}>
+      <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
         <div className="min-w-0 space-y-2">
           <Link
             href={companyHref}
@@ -164,11 +153,15 @@ export function CompanyListItem({
 
         <Link
           href={companyHref}
-          className="col-start-2 rounded-md border border-slate-700 px-3 py-2 text-center text-sm font-medium text-slate-200 hover:bg-slate-800 md:col-start-auto"
+          className={buttonClassName({
+            variant: "secondary",
+            size: "sm",
+            className: "md:col-start-auto",
+          })}
         >
           Öppna
         </Link>
       </div>
-    </li>
+    </ListItem>
   );
 }

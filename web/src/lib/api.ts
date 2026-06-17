@@ -1,18 +1,43 @@
 // src/lib/api.ts
 import type {
+  AppUserProfile,
+  AppUserProfilePayload,
   CompaniesResponse,
   CountyOverviewResponse,
   MunicipalityOverviewResponse,
   SwedenOverview,
   CompanyResponse,
   CompanyTurnoverHistoryResponse,
+  CustomerAccount,
+  CustomerAccountPayload,
+  CustomerAccountsResponse,
   ListCompaniesParams,
+  SalesOffer,
+  SalesOfferPayload,
+  SalesOffersResponse,
+  SavedSegment,
+  SavedSegmentPayload,
+  SavedSegmentsResponse,
 } from "@/src/lib/types";
 
 export const API = process.env.NEXT_PUBLIC_API_BASE;
 
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
+  if (!res.ok) throw new Error(`API error: ${res.status} (${url})`);
+  return res.json() as Promise<T>;
+}
+
+async function sendJson<T>(
+  url: string,
+  method: "POST" | "PUT" | "DELETE",
+  body?: unknown,
+): Promise<T> {
+  const res = await fetch(url, {
+    method,
+    headers: body ? { "Content-Type": "application/json" } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
   if (!res.ok) throw new Error(`API error: ${res.status} (${url})`);
   return res.json() as Promise<T>;
 }
@@ -158,4 +183,120 @@ export async function getMunicipalityOverview(
 
 export async function getSwedenOverview(): Promise<SwedenOverview> {
   return fetchJson<SwedenOverview>(`${API}/sweden`);
+}
+
+export async function listSavedSegments(): Promise<SavedSegmentsResponse> {
+  return fetchJson<SavedSegmentsResponse>(`${API}/saved-segments`);
+}
+
+export async function createSavedSegment(
+  payload: SavedSegmentPayload,
+): Promise<SavedSegment> {
+  return sendJson<SavedSegment>(`${API}/saved-segments`, "POST", payload);
+}
+
+export async function updateSavedSegment(
+  id: string,
+  payload: SavedSegmentPayload,
+): Promise<SavedSegment> {
+  return sendJson<SavedSegment>(
+    `${API}/saved-segments/${encodeURIComponent(id)}`,
+    "PUT",
+    payload,
+  );
+}
+
+export async function deleteSavedSegment(
+  id: string,
+): Promise<{ ok: boolean; id: string }> {
+  return sendJson<{ ok: boolean; id: string }>(
+    `${API}/saved-segments/${encodeURIComponent(id)}`,
+    "DELETE",
+  );
+}
+
+export async function refreshSavedSegmentCount(
+  id: string,
+): Promise<SavedSegment> {
+  return sendJson<SavedSegment>(
+    `${API}/saved-segments/${encodeURIComponent(id)}/refresh-count`,
+    "POST",
+  );
+}
+
+export async function touchSavedSegment(id: string): Promise<SavedSegment> {
+  return sendJson<SavedSegment>(
+    `${API}/saved-segments/${encodeURIComponent(id)}/touch`,
+    "POST",
+  );
+}
+
+export async function getUserProfile(): Promise<AppUserProfile> {
+  return fetchJson<AppUserProfile>(`${API}/user-profile`);
+}
+
+export async function updateUserProfile(
+  payload: AppUserProfilePayload,
+): Promise<AppUserProfile> {
+  return sendJson<AppUserProfile>(`${API}/user-profile`, "PUT", payload);
+}
+
+export async function listSalesOffers(): Promise<SalesOffersResponse> {
+  return fetchJson<SalesOffersResponse>(`${API}/sales-offers`);
+}
+
+export async function createSalesOffer(
+  payload: SalesOfferPayload,
+): Promise<SalesOffer> {
+  return sendJson<SalesOffer>(`${API}/sales-offers`, "POST", payload);
+}
+
+export async function updateSalesOffer(
+  id: string,
+  payload: SalesOfferPayload,
+): Promise<SalesOffer> {
+  return sendJson<SalesOffer>(
+    `${API}/sales-offers/${encodeURIComponent(id)}`,
+    "PUT",
+    payload,
+  );
+}
+
+export async function deleteSalesOffer(
+  id: string,
+): Promise<{ ok: boolean; id: string }> {
+  return sendJson<{ ok: boolean; id: string }>(
+    `${API}/sales-offers/${encodeURIComponent(id)}`,
+    "DELETE",
+  );
+}
+
+export async function listCustomerAccounts(): Promise<CustomerAccountsResponse> {
+  return fetchJson<CustomerAccountsResponse>(`${API}/customers`);
+}
+
+export async function createCustomerAccount(
+  payload: CustomerAccountPayload,
+): Promise<CustomerAccount> {
+  return sendJson<CustomerAccount>(`${API}/customers`, "POST", payload);
+}
+
+export async function updateCustomerAccount(
+  id: string,
+  payload: CustomerAccountPayload,
+): Promise<CustomerAccount> {
+  return sendJson<CustomerAccount>(
+    `${API}/customers/${encodeURIComponent(id)}`,
+    "PUT",
+    payload,
+  );
+}
+
+export async function deleteCustomerAccount(
+  id: string,
+): Promise<{ ok: boolean; id: string }> {
+  return sendJson<{ ok: boolean; id: string }>(
+    `${API}/customers/${encodeURIComponent(id)}`,
+    "DELETE",
+  );
 }

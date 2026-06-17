@@ -1,7 +1,10 @@
+"use client";
+
 import type { CompanySearchBy } from "@/src/lib/types";
 import type { ReactNode } from "react";
 import { ui } from "@/src/lib/uiStyles";
 import { Button } from "@/src/components/ui/Button";
+import { SelectMenu } from "@/src/components/ui/SelectMenu";
 
 type SearchBarProps = {
   value: string;
@@ -11,15 +14,16 @@ type SearchBarProps = {
   searchBy: CompanySearchBy;
   onSearchByChange: (value: CompanySearchBy) => void;
 
-  limit: number;
-  onLimitChange: (value: number) => void;
-
   loading?: boolean;
   placeholder?: string;
   children?: ReactNode;
 };
 
-const LIMIT_OPTIONS = [10, 25, 50, 100, 200, 500];
+const SEARCH_BY_OPTIONS: { value: CompanySearchBy; label: string }[] = [
+  { value: "all", label: "Sök i alla" },
+  { value: "company_name", label: "Företagsnamn" },
+  { value: "org_nr", label: "Org.nr" },
+];
 
 export function SearchBar({
   value,
@@ -27,8 +31,6 @@ export function SearchBar({
   onSearch,
   searchBy,
   onSearchByChange,
-  limit,
-  onLimitChange,
   loading = false,
   placeholder,
   children,
@@ -49,7 +51,18 @@ export function SearchBar({
             />
           </div>
 
+          <div className="lg:w-56">
+            <SelectMenu
+              label=""
+              options={SEARCH_BY_OPTIONS}
+              value={searchBy}
+              onChange={onSearchByChange}
+              align="left"
+            />
+          </div>
+
           <select
+            hidden
             value={searchBy}
             onChange={(e) => onSearchByChange(e.target.value as CompanySearchBy)}
             className={ui.select}
@@ -69,22 +82,6 @@ export function SearchBar({
           </Button>
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <label className={ui.label}>Rader per sida</label>
-
-          <select
-            value={limit}
-            onChange={(e) => onLimitChange(Number(e.target.value))}
-            className={[ui.select, "sm:w-36"].join(" ")}
-          >
-            {LIMIT_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-
         {children ? (
           <div className="border-t border-slate-800 pt-4">{children}</div>
         ) : null}
@@ -92,3 +89,5 @@ export function SearchBar({
     </div>
   );
 }
+
+export const LIMIT_OPTIONS = [10, 25, 50, 100, 200, 500];

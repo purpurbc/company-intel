@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import maplibregl, { type Map as MapLibreMap } from "maplibre-gl";
+import { buttonClassName } from "@/src/components/ui/Button";
 
 type BoundaryLayer = "regions" | "municipalities";
 
@@ -85,10 +86,12 @@ function LayerToggleButton({
       aria-pressed={active}
       onClick={onClick}
       className={[
-        "inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition",
-        active
-          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-100 shadow-[inset_0_0_0_1px_rgba(52,211,153,.18)]"
-          : "border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500 hover:bg-slate-800",
+        buttonClassName({
+          variant: active ? "accent" : "toggle",
+          size: "sm",
+          className: "gap-2",
+        }),
+        active ? "shadow-[inset_0_0_0_1px_rgba(52,211,153,.18)]" : "",
       ].join(" ")}
     >
       <span
@@ -186,9 +189,9 @@ export function SwedenBoundaryMap() {
   const mapRef = useRef<MapLibreMap | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const regionsVisibleRef = useRef(false);
-  const municipalitiesVisibleRef = useRef(false);
+  const municipalitiesVisibleRef = useRef(true);
   const [regionsVisible, setRegionsVisible] = useState(false);
-  const [municipalitiesVisible, setMunicipalitiesVisible] = useState(false);
+  const [municipalitiesVisible, setMunicipalitiesVisible] = useState(true);
   const [regions, setRegions] = useState<RegionOption[]>([]);
   const [municipalities, setMunicipalities] = useState<MunicipalityOption[]>([]);
   const [regionSearch, setRegionSearch] = useState("");

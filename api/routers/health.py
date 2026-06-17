@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from ..database import get_db_connection
+from ..config import APP_ENV
 
 router = APIRouter()
 
@@ -40,9 +41,14 @@ def database_health():
                 )
                 missing = [row["object_name"] for row in cur.fetchall()]
     except Exception as exc:
+        detail = {"ok": False, "database": "connection_failed"}
+        if APP_ENV != "production":
+            detail["error_type"] = exc.__class__.__name__
+            detail["error"] = str(exc)
+
         raise HTTPException(
             status_code=503,
-            detail={"ok": False, "database": "connection_failed"},
+            detail=detail,
         ) from exc
 
     if missing:

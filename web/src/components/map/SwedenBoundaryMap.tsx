@@ -54,6 +54,18 @@ type MapContextMenu = {
 
 const REGION_SOURCE = "sweden-regions";
 const MUNICIPALITY_SOURCE = "sweden-municipalities";
+const MAP_COLORS = {
+  background: "#111315",
+  silhouette: "#6f7975",
+  regionFill: "#0f8f7a",
+  regionHover: "#2dd4bf",
+  regionSelected: "#f4f5f5",
+  municipalityFill: "#2dd4bf",
+  municipalityHover: "#5eead4",
+  municipalitySelected: "#f4f5f5",
+  municipalityLine: "#8fd8cc",
+  regionLine: "#2dd4bf",
+};
 
 const SWEDEN_BOUNDS: [[number, number], [number, number]] = [
   [10.2, 55.0],
@@ -91,13 +103,13 @@ function LayerToggleButton({
           size: "sm",
           className: "gap-2",
         }),
-        active ? "shadow-[inset_0_0_0_1px_rgba(52,211,153,.18)]" : "",
+        active ? "shadow-[inset_0_0_0_1px_rgba(45,212,191,.18)]" : "",
       ].join(" ")}
     >
       <span
         className={[
           "h-2 w-2 rounded-full",
-          active ? "bg-emerald-300" : "bg-slate-500",
+          active ? "bg-app-accent" : "bg-app-text-muted",
         ].join(" ")}
       />
       {label}
@@ -241,7 +253,7 @@ export function SwedenBoundaryMap() {
             id: "background",
             type: "background",
             paint: {
-              "background-color": "#020617",
+              "background-color": MAP_COLORS.background,
             },
           },
         ],
@@ -303,8 +315,8 @@ export function SwedenBoundaryMap() {
           type: "fill",
           source: REGION_SOURCE,
           paint: {
-            "fill-color": "#94a3b8",
-            "fill-opacity": 0.26,
+            "fill-color": MAP_COLORS.silhouette,
+            "fill-opacity": 0.24,
           },
         });
 
@@ -314,8 +326,8 @@ export function SwedenBoundaryMap() {
           source: REGION_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "fill-color": "#2dd4bf",
-            "fill-opacity": 0.03,
+            "fill-color": MAP_COLORS.regionFill,
+            "fill-opacity": 0.05,
           },
         });
 
@@ -326,8 +338,8 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_REGION_FILTER,
           paint: {
-            "fill-color": "#5eead4",
-            "fill-opacity": 0.2,
+            "fill-color": MAP_COLORS.regionHover,
+            "fill-opacity": 0.18,
           },
         });
 
@@ -338,8 +350,8 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_REGION_FILTER,
           paint: {
-            "fill-color": "#34d399",
-            "fill-opacity": 0.26,
+            "fill-color": MAP_COLORS.regionSelected,
+            "fill-opacity": 0.2,
           },
         });
 
@@ -349,8 +361,8 @@ export function SwedenBoundaryMap() {
           source: MUNICIPALITY_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "fill-color": "#14b8a6",
-            "fill-opacity": 0.1,
+            "fill-color": MAP_COLORS.municipalityFill,
+            "fill-opacity": 0.08,
           },
         });
 
@@ -361,8 +373,8 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_MUNICIPALITY_FILTER,
           paint: {
-            "fill-color": "#34d399",
-            "fill-opacity": 0.2,
+            "fill-color": MAP_COLORS.municipalityHover,
+            "fill-opacity": 0.18,
           },
         });
 
@@ -373,8 +385,8 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_MUNICIPALITY_FILTER,
           paint: {
-            "fill-color": "#22c55e",
-            "fill-opacity": 0.28,
+            "fill-color": MAP_COLORS.municipalitySelected,
+            "fill-opacity": 0.22,
           },
         });
 
@@ -384,8 +396,8 @@ export function SwedenBoundaryMap() {
           source: MUNICIPALITY_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "line-color": "#67e8f9",
-            "line-opacity": 0.35,
+            "line-color": MAP_COLORS.municipalityLine,
+            "line-opacity": 0.34,
             "line-width": [
               "interpolate",
               ["linear"],
@@ -406,8 +418,8 @@ export function SwedenBoundaryMap() {
           source: REGION_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "line-color": "#34d399",
-            "line-opacity": 0.9,
+            "line-color": MAP_COLORS.regionLine,
+            "line-opacity": 0.82,
             "line-width": [
               "interpolate",
               ["linear"],
@@ -574,7 +586,7 @@ export function SwedenBoundaryMap() {
       map.setPaintProperty(
         "region-fill",
         "fill-opacity",
-        municipalitiesVisible ? 0.03 : 0.13,
+        municipalitiesVisible ? 0.05 : 0.14,
       );
     }
   }, [mapReady, municipalitiesVisible, regionsVisible]);
@@ -599,7 +611,7 @@ export function SwedenBoundaryMap() {
       municipalitiesVisible,
     );
     if (map.getLayer("municipality-fill")) {
-      map.setPaintProperty("municipality-fill", "fill-opacity", 0.1);
+      map.setPaintProperty("municipality-fill", "fill-opacity", 0.08);
     }
   }, [mapReady, municipalitiesVisible, regionsVisible]);
 
@@ -784,7 +796,7 @@ export function SwedenBoundaryMap() {
                     setRegionDropdownOpen(true);
                   }}
                   placeholder="Sök region"
-                  className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-500/50"
+                  className="w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
                 />
 
                 {regionDropdownOpen ? (
@@ -799,8 +811,8 @@ export function SwedenBoundaryMap() {
                           className={[
                             "block w-full px-3 py-2 text-left text-sm transition",
                             selectedRegion?.id === region.id
-                              ? "bg-emerald-500/15 text-emerald-100"
-                              : "text-slate-300 hover:bg-slate-800 hover:text-slate-50",
+                              ? "bg-app-accent-bg text-app-accent-text"
+                              : "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
                           ].join(" ")}
                         >
                           {region.name}
@@ -849,7 +861,7 @@ export function SwedenBoundaryMap() {
                     setMunicipalityDropdownOpen(true);
                   }}
                   placeholder="Sök kommun"
-                  className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-emerald-500/50"
+                  className="w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
                 />
 
                 {municipalityDropdownOpen ? (
@@ -864,8 +876,8 @@ export function SwedenBoundaryMap() {
                           className={[
                             "block w-full px-3 py-2 text-left text-sm transition",
                             selectedMunicipality?.id === municipality.id
-                              ? "bg-emerald-500/15 text-emerald-100"
-                              : "text-slate-300 hover:bg-slate-800 hover:text-slate-50",
+                              ? "bg-app-accent-bg text-app-accent-text"
+                              : "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
                           ].join(" ")}
                         >
                           {municipality.name}

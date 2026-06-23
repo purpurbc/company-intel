@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, IBM_Plex_Sans } from "next/font/google";
 import { AppShell } from "@/src/components/ui/AppShell";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const appSans = IBM_Plex_Sans({
+  variable: "--font-app-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -40,7 +41,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${appSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppShell>
           {children}

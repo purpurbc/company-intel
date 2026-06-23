@@ -88,13 +88,13 @@ export function marketingTone(code?: string | null): StatusTone {
 
 export function statusToneClass(tone: StatusTone) {
   if (tone === "positive") {
-    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-200";
+    return "border-app-accent-border bg-app-accent-bg text-app-accent-text";
   }
   if (tone === "warning") {
-    return "border-amber-500/30 bg-amber-500/10 text-amber-200";
+    return "border-app-warning-border bg-app-warning-bg text-app-warning-text";
   }
   if (tone === "danger") {
-    return "border-red-500/30 bg-red-500/10 text-red-200";
+    return "border-app-danger-border bg-app-danger-bg text-app-danger-text";
   }
-  return "border-slate-700 bg-slate-950/60 text-slate-300";
+  return "border-app-border-strong bg-app-panel-soft text-app-text-muted";
 }

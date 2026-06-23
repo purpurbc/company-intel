@@ -683,7 +683,7 @@ export function CompanySearch() {
     <div className="flex flex-wrap gap-3">
       <button
         onClick={() => setConfirmResetOpen(true)}
-        className="rounded-md border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="rounded-md border border-app-border-strong bg-app-panel px-4 py-2 text-sm font-medium text-app-text transition hover:bg-app-panel-hover disabled:cursor-not-allowed disabled:opacity-60"
         disabled={loading}
       >
         Rensa
@@ -909,7 +909,7 @@ export function CompanySearch() {
                 {activeSegment ? (
                   <a
                     href="/profile"
-                    className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+                    className="rounded-md border border-app-accent-border bg-app-accent-bg px-2 py-1 text-xs font-medium text-app-accent-text transition hover:bg-app-panel-hover"
                   >
                     Aktivt segment: {activeSegment.name}
                   </a>
@@ -977,7 +977,7 @@ export function CompanySearch() {
       </SearchWorkspace>
 
       {err && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="rounded-md border border-app-danger-border bg-app-danger-bg px-4 py-3 text-sm text-app-danger-text">
           {err}
         </div>
       )}

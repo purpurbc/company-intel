@@ -33,15 +33,15 @@ type ListItemProps = {
 };
 
 const surfaceClass: Record<ListSurface, string> = {
-  panel: "border border-app-border bg-app-panel",
-  soft: "border border-app-border bg-app-panel-soft",
+  panel: "border border-app-border bg-app-panel shadow-[var(--app-shadow-panel)]",
+  soft: "border border-app-border bg-app-panel-soft shadow-[var(--app-shadow-panel)]",
   none: "",
 };
 
 const itemPadding: Record<ListDensity, string> = {
-  compact: "px-4 py-2.5",
-  comfortable: "p-4",
-  spacious: "p-5",
+  compact: "px-4 py-2",
+  comfortable: "p-3.5",
+  spacious: "p-4",
 };
 
 const itemTone: Record<ListTone, string> = {
@@ -71,7 +71,7 @@ export function List({
       className={["overflow-hidden rounded-md", surfaceClass[surface], className].join(" ")}
     >
       {hasHeader ? (
-        <div className="border-b border-app-border p-4">
+        <div className="border-b border-app-border p-3.5">
           {header ?? (
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">

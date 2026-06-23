@@ -56,8 +56,8 @@ export function AppTopBar({
     !mounted || theme === "dark" ? "Byt till ljust tema" : "Byt till mörkt tema";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-app-border bg-app-bg/95 backdrop-blur">
-      <div className="relative mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-app-border bg-app-bg/90 backdrop-blur">
+      <div className="relative mx-auto flex h-12 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div className="md:hidden">
             <ActionControl
@@ -72,7 +72,7 @@ export function AppTopBar({
           </div>
         </div>
 
-        <nav className="flex items-center gap-2" aria-label="Snabbmeny">
+        <nav className="flex items-center gap-1.5" aria-label="Snabbmeny">
           {/* <ActionControl
             label="Profil"
             icon={<MaskedIcon src={ICONS.profile} />}

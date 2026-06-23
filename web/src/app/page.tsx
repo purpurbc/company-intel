@@ -1,18 +1,14 @@
+import { DashboardPromptBar } from "./DashboardPromptBar";
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-app-bg p-4 text-app-text sm:p-6">
-      <div className="mx-auto max-w-7xl">
-        <section className="rounded-md border border-app-border bg-app-panel p-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-            Dashboard
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-app-text">
-            Cintela
+      <div className="mx-auto flex min-h-[calc(100vh-7rem)] max-w-4xl flex-col items-center pt-[28vh]">
+        <section className="w-full text-center">
+          <h1 className="text-xl font-semibold text-app-text">
+            Cintela - hitta rätt bolag
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-app-text-muted">
-            En ren startsida för daglig överblick. Sök och filtrering ligger nu
-            på en separat företagssida.
-          </p>
+          <DashboardPromptBar />
         </section>
       </div>
     </main>

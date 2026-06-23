@@ -19,7 +19,7 @@ function statusBadge(label: string, tone: StatusTone) {
   return (
     <span
       className={[
-        "rounded-full border px-3 py-1 text-xs font-medium",
+        "rounded-md border px-2.5 py-1 text-xs font-medium",
         statusToneClass(tone),
       ].join(" ")}
     >

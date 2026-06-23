@@ -7,7 +7,7 @@ import { getUserProfile } from "@/src/lib/api";
 import type { AppUserProfile } from "@/src/lib/types";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<AppUserProfile | null>(null);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       />
       <div
         className={[
-          "min-h-screen transition-[padding]",
+          "min-h-screen transition-[padding] duration-150 ease-out",
           sidebarOpen ? "md:pl-64" : "md:pl-14",
         ].join(" ")}
       >

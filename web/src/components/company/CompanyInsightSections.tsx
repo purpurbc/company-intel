@@ -411,7 +411,7 @@ function Signal({
 }) {
   const toneClass =
     tone === "neutral"
-      ? "border-slate-800 bg-slate-950/50 text-slate-300"
+      ? statusToneClass("neutral")
       : statusToneClass(tone);
 
   return (
@@ -530,7 +530,7 @@ function ActionButton({ children }: { children: ReactNode }) {
     <button
       type="button"
       disabled
-      className="rounded-md border border-slate-800 bg-slate-950/50 px-3 py-2 text-sm font-medium text-slate-500"
+      className="rounded-md border border-app-border bg-app-panel-soft px-3 py-2 text-sm font-medium text-app-text-muted"
     >
       {children}
     </button>

@@ -25,7 +25,7 @@ import {
   filterValueLabel,
 } from "@/src/lib/companyFilterLabels";
 
-const DASHBOARD_SESSION_KEY = "company-intel-dashboard-search";
+const COMPANY_SEARCH_SESSION_KEY = "company-intel-company-search";
 
 const UTILITY_ICONS = {
   edit: "/icons/utility/edit.svg",
@@ -101,7 +101,7 @@ function applySegmentFilters(segment: SavedSegment) {
   const ageMax = asNumber(filters.age_max);
 
   sessionStorage.setItem(
-    DASHBOARD_SESSION_KEY,
+    COMPANY_SEARCH_SESSION_KEY,
     JSON.stringify({
       q: asString(filters.q),
       searchBy: asSearchBy(filters.search_by),
@@ -140,14 +140,14 @@ function applySegmentFilters(segment: SavedSegment) {
   );
 
   void touchSavedSegment(segment.id).catch(() => undefined);
-  window.location.href = "/";
+  window.location.href = "/companies";
 }
 
 function clearActiveSegmentIfMatches(segmentId: string) {
   let parsed: Record<string, unknown>;
 
   try {
-    const raw = sessionStorage.getItem(DASHBOARD_SESSION_KEY);
+    const raw = sessionStorage.getItem(COMPANY_SEARCH_SESSION_KEY);
     if (!raw) return;
     parsed = JSON.parse(raw) as Record<string, unknown>;
   } catch {
@@ -162,7 +162,7 @@ function clearActiveSegmentIfMatches(segmentId: string) {
     (activeSegment as { id?: unknown }).id === segmentId
   ) {
     sessionStorage.setItem(
-      DASHBOARD_SESSION_KEY,
+      COMPANY_SEARCH_SESSION_KEY,
       JSON.stringify({ ...parsed, activeSegment: null }),
     );
   }
@@ -172,7 +172,7 @@ function syncActiveSegmentIfMatches(segment: SavedSegment) {
   let parsed: Record<string, unknown>;
 
   try {
-    const raw = sessionStorage.getItem(DASHBOARD_SESSION_KEY);
+    const raw = sessionStorage.getItem(COMPANY_SEARCH_SESSION_KEY);
     if (!raw) return;
     parsed = JSON.parse(raw) as Record<string, unknown>;
   } catch {
@@ -187,7 +187,7 @@ function syncActiveSegmentIfMatches(segment: SavedSegment) {
     (activeSegment as { id?: unknown }).id === segment.id
   ) {
     sessionStorage.setItem(
-      DASHBOARD_SESSION_KEY,
+      COMPANY_SEARCH_SESSION_KEY,
       JSON.stringify({
         ...parsed,
         activeSegment: {

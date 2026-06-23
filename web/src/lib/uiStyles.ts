@@ -43,14 +43,14 @@ export const uiRadius = {
 } as const;
 
 export const ui = {
-  card: "rounded-md border border-app-border bg-app-panel",
-  cardMuted: "rounded-md border border-app-border bg-app-panel-muted",
+  card: "rounded-md border border-app-border bg-app-panel shadow-[var(--app-shadow-panel)]",
+  cardMuted: "rounded-md border border-app-border bg-app-panel-muted shadow-[var(--app-shadow-panel)]",
 
   input:
-    "w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2.5 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+    "w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
 
   select:
-    "rounded-md border border-app-border-strong bg-app-panel px-3 py-2.5 text-sm text-app-text outline-none transition focus:border-app-focus",
+    "rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition focus:border-app-focus",
 
   buttonBase:
     "inline-flex items-center justify-center gap-2 font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
@@ -65,10 +65,10 @@ export const ui = {
     "border border-app-accent-border bg-app-accent-bg text-app-accent-text hover:bg-app-accent-bg-soft",
 
   buttonDark:
-    "border border-slate-700 bg-slate-950 text-slate-100 hover:bg-slate-900",
+    "border border-app-border-strong bg-app-bg text-app-text hover:bg-app-panel",
 
   buttonLight:
-    "border border-slate-200 bg-white text-slate-950 hover:bg-slate-100",
+    "border border-app-border bg-app-panel-soft text-app-text hover:bg-app-panel-hover",
 
   buttonDelete:
     "border border-app-danger-border bg-app-danger-bg text-app-danger-text hover:opacity-80",
@@ -86,7 +86,7 @@ export const ui = {
     "inline-flex w-full items-center justify-between gap-2 border border-app-border-strong bg-app-panel font-medium text-app-text transition hover:bg-app-panel-hover",
 
   selectMenuPanel:
-    "absolute z-30 mt-2 max-h-72 min-w-full overflow-auto rounded-md border border-app-border bg-app-panel py-1 shadow-xl",
+    "absolute z-30 mt-2 max-h-72 min-w-full overflow-auto rounded-md border border-app-border bg-app-panel py-1 shadow-[var(--app-shadow-panel)]",
 
   selectMenuOption:
     "block w-full px-3 py-2 text-left text-sm transition",
@@ -98,28 +98,34 @@ export const ui = {
     "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
 
   toggleGroup:
-    "inline-flex rounded-md border border-app-border bg-app-panel-soft p-0.5",
+    "inline-flex rounded-md border border-app-border-strong bg-app-panel-soft p-0.5",
 
   toggleOption:
-    "rounded font-medium transition",
+    "rounded-sm border border-transparent font-medium transition",
 
   toggleOptionActive:
-    "bg-app-panel-hover text-app-text shadow-sm",
+    "!border-app-border-strong bg-app-control-bg text-app-control-text ring-1 ring-app-border-strong shadow-sm",
 
   toggleOptionIdle:
-    "text-app-text-subtle hover:text-app-text",
+    "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
 
   label: "text-sm font-medium text-app-text-muted",
   helpText: "text-sm text-app-text-subtle",
 
   chip:
-    "rounded-md border px-3 py-2 text-sm transition border-app-border-strong bg-app-panel text-app-text-muted hover:bg-app-panel-hover",
+    "rounded-md border px-3 py-1.5 text-sm transition border-app-border-strong bg-app-panel text-app-text hover:bg-app-panel-hover",
 
   chipSelected:
     "!border-app-border-strong !bg-app-control-bg !text-app-control-text hover:!bg-app-control-bg-hover hover:!text-app-control-text focus:!text-app-control-text active:!text-app-control-text visited:!text-app-control-text",
 
   countChip:
     "rounded-md border border-app-border-strong bg-app-panel-soft px-2.5 py-1 text-xs font-medium text-app-text-muted",
+
+  badge:
+    "rounded-md border border-app-border-strong bg-app-panel-soft px-2 py-1 text-xs font-medium text-app-text",
+
+  badgeSelected:
+    "rounded-md border border-app-border-strong bg-app-control-bg px-2 py-1 text-xs font-medium text-app-control-text",
 
   divider: "border-app-border",
 };

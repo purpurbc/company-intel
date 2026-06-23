@@ -65,12 +65,12 @@ export function buttonClassName({
 }) {
   const sizeClass =
     size === "icon"
-      ? "h-9 min-w-9 px-2 text-sm"
+      ? "h-8 min-w-8 px-2 text-sm"
       : size === "xs"
-        ? "px-2.5 py-1.5 text-xs"
+        ? "px-2.5 py-1 text-xs"
       : size === "sm"
-        ? "px-3 py-2 text-xs"
-        : "px-4 py-2.5 text-sm";
+        ? "px-3 py-1.5 text-xs"
+        : "px-3.5 py-2 text-sm";
 
   return [
     ui.buttonBase,

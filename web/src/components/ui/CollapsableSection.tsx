@@ -20,7 +20,7 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-md border border-app-border bg-app-panel">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -28,24 +28,29 @@ export function CollapsibleSection({
       >
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-900">{title}</span>
+            <span className="text-sm font-semibold text-app-text">{title}</span>
             {badge ? (
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+              <span className="rounded-md border border-app-border bg-app-panel-soft px-2 py-0.5 text-xs text-app-text-muted">
                 {badge}
               </span>
             ) : null}
           </div>
           {subtitle ? (
-            <p className="mt-1 text-xs text-slate-500">{subtitle}</p>
+            <p className="mt-1 text-xs text-app-text-muted">{subtitle}</p>
           ) : null}
         </div>
 
-        <span className={open ? "rotate-180 transition-transform" : "transition-transform"}>
+        <span
+          className={[
+            "text-xs text-app-text-muted transition-transform",
+            open ? "rotate-180" : "",
+          ].join(" ")}
+        >
           ▼
         </span>
       </button>
 
-      {open ? <div className="border-t border-slate-200 px-4 py-4">{children}</div> : null}
+      {open ? <div className="border-t border-app-border px-4 py-4">{children}</div> : null}
     </div>
   );
 }

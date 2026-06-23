@@ -106,10 +106,10 @@ function NavIcon({ item, active = false }: { item: NavItem; active?: boolean }) 
   return (
     <span
       className={[
-        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border text-xs font-semibold transition",
+        "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-xs font-semibold transition",
         active
-          ? "border-app-accent-border bg-app-accent-bg text-app-accent-text"
-          : "border-app-border bg-app-panel text-app-text-muted",
+          ? "border-transparent bg-transparent text-app-accent-text"
+          : "border-transparent bg-transparent text-app-text-muted",
       ].join(" ")}
     >
       {iconSrc ? (
@@ -134,7 +134,7 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
     <span
       className={[
         "relative inline-flex items-center justify-center",
-        compact ? "h-10 w-10" : "h-6 w-32",
+        compact ? "h-8 w-8" : "h-6 w-32",
       ].join(" ")}
     >
       <Image
@@ -146,8 +146,8 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
         unoptimized
         className={[
           "theme-logo-dark absolute object-contain",
-          compact ? "w-6" : "w-32",
-          compact ? "h-6" : "h-6",
+          compact ? "w-5" : "w-32",
+          compact ? "h-5" : "h-6",
         ].join(" ")}
       />
       <Image
@@ -159,8 +159,8 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
         unoptimized
         className={[
           "theme-logo-light absolute object-contain",
-          compact ? "w-6" : "w-32",
-          compact ? "h-6" : "h-6",
+          compact ? "w-5" : "w-32",
+          compact ? "h-5" : "h-6",
         ].join(" ")}
       />
 
@@ -168,16 +168,35 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
+function SidebarLink({
+  item,
+  pathname,
+  compact = false,
+}: {
+  item: NavItem;
+  pathname: string;
+  compact?: boolean;
+}) {
   const active = isActive(pathname, item.href);
   const content = (
     <>
-      <span className="flex min-w-0 items-center gap-3">
-        <NavIcon item={item} active={active} />
-        <span className="min-w-0 truncate">{item.label}</span>
+      <span className="flex min-w-0 flex-1 items-center gap-2.5">
+        <span className="flex w-10 shrink-0 justify-center">
+          <NavIcon item={item} active={active} />
+        </span>
+        <span
+          className={[
+            "min-w-0 truncate whitespace-nowrap transition-[opacity,transform]",
+            compact
+              ? "pointer-events-none -translate-x-1 opacity-0"
+              : "translate-x-0 opacity-100 delay-75",
+          ].join(" ")}
+        >
+          {item.label}
+        </span>
       </span>
-      {item.badge ? (
-        <span className="rounded-sm border border-app-border px-1.5 py-0.5 text-[10px] font-medium uppercase text-app-text-subtle">
+      {item.badge && !compact ? (
+        <span className="rounded-sm border border-app-border px-1.5 py-0.5 text-[10px] font-medium uppercase text-app-text-subtle transition-opacity delay-75">
           {item.badge}
         </span>
       ) : null}
@@ -185,10 +204,11 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
   );
 
   const className = [
-    "flex h-10 min-w-0 items-center justify-between gap-2 rounded-md py-0 pl-0 pr-3 text-sm transition",
+    "flex h-9 min-w-0 items-center justify-between gap-2 rounded-md py-0 pl-0 text-sm transition",
+    compact ? "w-10 pr-0" : "w-full pr-2.5",
     active
-      ? "bg-app-panel text-app-text"
-      : "text-app-text-muted hover:bg-app-panel hover:text-app-text",
+      ? "bg-app-panel-muted text-app-text"
+      : "text-app-text-muted hover:bg-app-panel-muted hover:text-app-text",
   ].join(" ");
 
   if (!item.href) {
@@ -203,71 +223,6 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
     <Link href={item.href} className={className}>
       {content}
     </Link>
-  );
-}
-
-function RailLink({ item, pathname }: { item: NavItem; pathname: string }) {
-  if (!item.href) return null;
-
-  const active = isActive(pathname, item.href);
-
-  return (
-    <Link
-      href={item.href}
-      aria-label={item.label}
-      title={item.label}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-md transition hover:bg-app-panel"
-    >
-      <NavIcon item={item} active={active} />
-    </Link>
-  );
-}
-
-function SidebarRail({
-  pathname,
-  onOpen,
-  profileItem,
-}: {
-  pathname: string;
-  onOpen: () => void;
-  profileItem: NavItem;
-}) {
-  const railItems: NavItem[] = [
-    profileItem,
-    ...primaryItems.filter((item) => item.rail),
-  ];
-
-  return (
-    <aside className="fixed inset-y-0 left-0 z-50 hidden w-14 border-r border-app-border bg-app-bg px-2 py-3 md:block">
-      <div className="flex h-full flex-col">
-        <button
-          type="button"
-          onClick={onOpen}
-          aria-label="Öppna sidomeny"
-          title="Öppna sidomeny"
-          className={[
-            buttonClassName({ variant: "secondary", size: "icon" }),
-            "group relative h-10 w-10 p-0",
-          ].join(" ")}
-        >
-          <span className="absolute inset-0 flex items-center justify-center transition-opacity group-hover:opacity-0">
-            <BrandLogo compact />
-          </span>
-          <span className="absolute opacity-0 transition-opacity group-hover:opacity-100">
-            {">"}
-          </span>
-        </button>
-
-        <nav
-          className="mt-4 flex flex-col gap-2"
-          aria-label="Snabbmeny"
-        >
-          {railItems.map((item) => (
-            <RailLink key={item.label} item={item} pathname={pathname} />
-          ))}
-        </nav>
-      </div>
-    </aside>
   );
 }
 
@@ -289,33 +244,43 @@ export function AppSidebar({
     label: profileName,
     fallback: profileFallback(profileName),
   };
-
-  if (!open) {
-    return (
-      <SidebarRail
-        pathname={pathname}
-        onOpen={onOpen}
-        profileItem={profileItem}
-      />
-    );
-  }
+  const dashboardItem = primaryItems[0]!;
+  const secondaryPrimaryItems = primaryItems.slice(1);
+  const orderedPrimaryItems: NavItem[] = [
+    dashboardItem,
+    profileItem,
+    ...secondaryPrimaryItems,
+  ];
+  const railItems: NavItem[] = [
+    dashboardItem,
+    profileItem,
+    ...secondaryPrimaryItems.filter((item) => item.rail),
+  ];
 
   return (
     <>
       <button
         type="button"
         aria-label="Stäng sidomeny"
-        className="fixed inset-0 z-40 bg-app-overlay md:hidden"
+        className={[
+          "fixed inset-0 z-40 bg-app-overlay transition-opacity duration-150 ease-out md:hidden",
+          open ? "opacity-100" : "pointer-events-none opacity-0",
+        ].join(" ")}
         onClick={onClose}
       />
-      <aside className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-app-border bg-app-bg px-2 py-3 shadow-2xl md:w-64 md:max-w-none md:shadow-none">
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-app-border bg-app-panel px-2 py-3 shadow-[var(--app-shadow-panel)] transition-transform duration-150 ease-out md:hidden",
+          open ? "translate-x-0" : "-translate-x-full",
+        ].join(" ")}
+      >
         <div className="flex h-full flex-col">
           <div className="flex h-10 items-center gap-2">
             <Link
               href="/"
               aria-label="Cintela dashboard"
               title="Cintela"
-              className="flex h-10 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel"
+              className="flex h-9 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel-muted"
             >
               <BrandLogo />
             </Link>
@@ -328,17 +293,20 @@ export function AppSidebar({
               className={buttonClassName({
                 variant: "secondary",
                 size: "icon",
-                className: "h-10 w-10 shrink-0 p-0",
+                className: "h-9 w-9 shrink-0 p-0",
               })}
             >
               {"<"}
             </button>
           </div>
 
-          <nav className="mt-4 flex flex-col gap-2" aria-label="Huvudmeny">
-            <SidebarLink item={profileItem} pathname={pathname} />
-            {primaryItems.map((item) => (
-              <SidebarLink key={item.label} item={item} pathname={pathname} />
+          <nav className="mt-4 flex flex-col gap-1.5" aria-label="Huvudmeny">
+            {orderedPrimaryItems.map((item) => (
+              <SidebarLink
+                key={item.label || item.href}
+                item={item}
+                pathname={pathname}
+              />
             ))}
           </nav>
 
@@ -346,7 +314,7 @@ export function AppSidebar({
             <div className="px-3 text-xs font-medium uppercase tracking-wide text-app-text-subtle">
               Kommande
             </div>
-            <nav className="mt-2 flex flex-col gap-2" aria-label="Kommande vyer">
+            <nav className="mt-2 flex flex-col gap-1.5" aria-label="Kommande vyer">
               {futureItems.map((item) => (
                 <SidebarLink key={item.label} item={item} pathname={pathname} />
               ))}
@@ -354,6 +322,116 @@ export function AppSidebar({
           </div>
 
           <div className="mt-auto rounded-md border border-app-border bg-app-panel-muted p-3">
+            <div className="text-xs font-medium text-app-text-muted">MVP focus</div>
+            <p className="mt-1 text-xs leading-5 text-app-text-subtle">
+              Stabil sök, tydliga företagssidor och regionala vyer först.
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-50 hidden overflow-hidden border-r border-app-border bg-app-panel px-2 py-3 shadow-[var(--app-shadow-panel)] transition-[width] duration-150 ease-out md:block",
+          open ? "w-64" : "w-14",
+        ].join(" ")}
+      >
+        <div className="flex h-full flex-col">
+          <div className="relative h-10">
+            <button
+              type="button"
+              onClick={onOpen}
+              aria-label="Öppna sidomeny"
+              title="Öppna sidomeny"
+              tabIndex={open ? -1 : 0}
+              className={[
+                buttonClassName({ variant: "secondary", size: "icon" }),
+                "group absolute left-0 top-0 h-10 w-10 p-0 transition-[opacity,transform] duration-100",
+                open
+                  ? "pointer-events-none -translate-x-1 opacity-0"
+                  : "translate-x-0 opacity-100 delay-75",
+              ].join(" ")}
+            >
+              <span className="absolute inset-0 flex items-center justify-center transition-opacity group-hover:opacity-0">
+                <BrandLogo compact />
+              </span>
+              <span className="absolute opacity-0 transition-opacity group-hover:opacity-100">
+                {">"}
+              </span>
+            </button>
+
+            <div
+              className={[
+                "absolute inset-y-0 left-0 right-0 flex items-center gap-2 transition-[opacity,transform] duration-100",
+                open
+                  ? "translate-x-0 opacity-100 delay-75"
+                  : "pointer-events-none -translate-x-1 opacity-0",
+              ].join(" ")}
+            >
+              <Link
+                href="/"
+                aria-label="Cintela dashboard"
+                title="Cintela"
+                tabIndex={open ? 0 : -1}
+                className="flex h-9 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel-muted"
+              >
+                <BrandLogo />
+              </Link>
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Stäng sidomeny"
+                title="Stäng sidomeny"
+                tabIndex={open ? 0 : -1}
+                className={buttonClassName({
+                  variant: "secondary",
+                  size: "icon",
+                  className: "h-9 w-9 shrink-0 p-0",
+                })}
+              >
+                {"<"}
+              </button>
+            </div>
+          </div>
+
+          <nav className="mt-4 flex flex-col gap-1.5" aria-label={open ? "Huvudmeny" : "Snabbmeny"}>
+            {(open ? orderedPrimaryItems : railItems).map((item) => (
+              <SidebarLink
+                key={item.label || item.href}
+                item={item}
+                pathname={pathname}
+                compact={!open}
+              />
+            ))}
+          </nav>
+
+          <div
+            className={[
+              "mt-6 transition-[opacity,transform] duration-100",
+              open
+                ? "translate-x-0 opacity-100 delay-75"
+                : "pointer-events-none -translate-x-1 opacity-0",
+            ].join(" ")}
+          >
+            <div className="px-3 text-xs font-medium uppercase tracking-wide text-app-text-subtle">
+              Kommande
+            </div>
+            <nav className="mt-2 flex flex-col gap-1.5" aria-label="Kommande vyer">
+              {futureItems.map((item) => (
+                <SidebarLink key={item.label} item={item} pathname={pathname} />
+              ))}
+            </nav>
+          </div>
+
+          <div
+            className={[
+              "mt-auto rounded-md border border-app-border bg-app-panel-muted p-3 transition-[opacity,transform] duration-100",
+              open
+                ? "translate-x-0 opacity-100 delay-75"
+                : "pointer-events-none translate-y-1 opacity-0",
+            ].join(" ")}
+          >
             <div className="text-xs font-medium text-app-text-muted">MVP focus</div>
             <p className="mt-1 text-xs leading-5 text-app-text-subtle">
               Stabil sök, tydliga företagssidor och regionala vyer först.

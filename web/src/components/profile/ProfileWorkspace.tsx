@@ -28,6 +28,7 @@ import { ConfirmDialog } from "@/src/components/ui/ConfirmDialog";
 import { List, ListItem } from "@/src/components/ui/List";
 import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
 import { ToggleButton } from "@/src/components/ui/ToggleButton";
+import { ui } from "@/src/lib/uiStyles";
 
 type ProfileState = {
   displayName: string;
@@ -48,37 +49,30 @@ const CUSTOMER_LABELS = [
   {
     value: "ideal_customer",
     label: "Idealkund",
-    className: "border-emerald-500/40 bg-emerald-500/12 text-emerald-200",
   },
   {
     value: "bad_match",
     label: "Dålig match",
-    className: "border-amber-500/40 bg-amber-500/12 text-amber-200",
   },
   {
     value: "good_customer",
     label: "Bra kund",
-    className: "border-sky-500/40 bg-sky-500/12 text-sky-200",
   },
   {
     value: "strategic",
     label: "Strategisk",
-    className: "border-violet-500/40 bg-violet-500/12 text-violet-200",
   },
   {
     value: "partnership",
     label: "Partnerskap",
-    className: "border-cyan-500/40 bg-cyan-500/12 text-cyan-200",
   },
   {
     value: "reference",
     label: "Referenskund",
-    className: "border-lime-500/40 bg-lime-500/12 text-lime-200",
   },
   {
     value: "very_bad_customer",
     label: "Extremt dålig kund",
-    className: "border-red-500/40 bg-red-500/12 text-red-200",
   },
 ] as const;
 
@@ -196,9 +190,8 @@ function CustomerLabelChip({ value }: { value: string }) {
   return (
     <span
       className={[
-        "rounded-md border px-2 py-1 text-xs font-medium",
-        meta?.className ??
-          "border-app-border bg-app-panel-soft text-app-text-muted",
+        ui.badge,
+        meta ? "border-app-border-strong" : "",
       ].join(" ")}
     >
       {meta?.label ?? value}
@@ -569,10 +562,10 @@ function CustomerDialog({
                       });
                     }}
                     className={[
-                      "rounded-md border px-2.5 py-1.5 text-xs font-medium transition",
+                      "transition",
                       active
-                        ? label.className
-                        : "border-app-border bg-app-panel text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
+                        ? ui.badgeSelected
+                        : `${ui.badge} hover:bg-app-panel-hover hover:text-app-text`,
                     ].join(" ")}
                   >
                     {label.label}

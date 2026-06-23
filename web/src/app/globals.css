@@ -2,29 +2,55 @@
 
 :root {
   /* Core palette: most UI colors below intentionally alias these roles. */
-  --app-canvas: #020617;
-  --app-surface: #0f172a;
-  --app-surface-soft: rgb(15 23 42 / 0.62);
-  --app-surface-hover: #1e293b;
-  --app-line: #334155;
-  --app-ink: #f8fafc;
-  --app-ink-muted: #94a3b8;
-  --app-inverse: #020617;
-  --app-inverse-bg: #f8fafc;
-  --app-inverse-hover: #e2e8f0;
+  --app-canvas: #111315;
+  --app-surface: #171a1d;
+  --app-surface-soft: rgb(255 255 255 / 0.035);
+  --app-surface-hover: #202428;
+  --app-line: #2c3237;
+  --app-line-strong: #394148;
+  --app-ink: #f4f5f5;
+  --app-ink-muted: #a1aaa8;
+  --app-inverse: #111315;
+  --app-inverse-bg: #f4f5f5;
+  --app-inverse-hover: #e4e8e6;
+
+  --app-font-family: var(--font-app-sans), "IBM Plex Sans", "Aptos",
+    "Segoe UI Variable", "Segoe UI", sans-serif;
+  --app-font-mono: var(--font-geist-mono), "SFMono-Regular", Consolas,
+    "Liberation Mono", monospace;
+
+  --app-text-xs: 0.71875rem;
+  --app-text-sm: 0.8125rem;
+  --app-text-md: 0.875rem;
+  --app-text-lg: 1rem;
+  --app-text-xl: 1.125rem;
+  --app-text-2xl: 1.25rem;
+  --app-text-3xl: 1.5rem;
+  --app-leading-xs: 1.35;
+  --app-leading-sm: 1.45;
+  --app-leading-md: 1.55;
+  --app-leading-heading: 1.2;
+
+  --app-radius-sm: 0.125rem;
+  --app-radius-md: 0.25rem;
+  --app-radius-lg: 0.375rem;
+  --app-radius-xl: 0.5rem;
+  --app-radius-2xl: 0.625rem;
+  --app-shadow-panel: 0 1px 2px rgb(0 0 0 / 0.18);
+  --app-shadow-float: 0 12px 32px rgb(0 0 0 / 0.32);
 
   --background: var(--app-canvas);
   --foreground: var(--app-ink);
   --app-bg: var(--app-canvas);
-  --app-overlay: rgb(2 6 23 / 0.7);
-  --app-overlay-soft: rgb(15 23 42 / 0.8);
+  --app-overlay: rgb(17 19 21 / 0.68);
+  --app-overlay-soft: rgb(23 26 29 / 0.84);
   --app-panel: var(--app-surface);
   --app-panel-muted: var(--app-surface-soft);
   --app-panel-soft: var(--app-surface-soft);
   --app-panel-hover: var(--app-surface-hover);
   --app-panel-hover-soft: var(--app-surface-hover);
   --app-border: var(--app-line);
-  --app-border-strong: var(--app-line);
+  --app-border-strong: var(--app-line-strong);
   --app-text: var(--app-ink);
   --app-text-strong: var(--app-ink);
   --app-text-muted: var(--app-ink-muted);
@@ -34,11 +60,11 @@
   --app-control-bg: var(--app-inverse-bg);
   --app-control-bg-hover: var(--app-inverse-hover);
   --app-control-text: var(--app-inverse);
-  --app-accent: #34d399;
+  --app-accent: #2dd4bf;
   --app-accent-strong: var(--app-accent);
-  --app-accent-bg: rgb(52 211 153 / 0.14);
+  --app-accent-bg: rgb(45 212 191 / 0.12);
   --app-accent-bg-soft: var(--app-accent-bg);
-  --app-accent-border: rgb(52 211 153 / 0.38);
+  --app-accent-border: rgb(45 212 191 / 0.32);
   --app-accent-border-soft: var(--app-accent-border);
   --app-accent-text: var(--app-accent);
   --app-warning-bg: rgb(245 158 11 / 0.14);
@@ -56,25 +82,28 @@
 }
 
 :root[data-theme="light"] {
-  --app-canvas: #f8fafc;
+  --app-canvas: #f6f7f6;
   --app-surface: #ffffff;
-  --app-surface-soft: #f1f5f9;
-  --app-surface-hover: #e2e8f0;
-  --app-line: #cbd5e1;
-  --app-ink: #0f172a;
-  --app-ink-muted: #64748b;
-  --app-inverse: #f8fafc;
-  --app-inverse-bg: #0f172a;
-  --app-inverse-hover: #1e293b;
+  --app-surface-soft: #eef1ef;
+  --app-surface-hover: #e5e9e7;
+  --app-line: #d7ddda;
+  --app-line-strong: #c3ccc8;
+  --app-ink: #17201d;
+  --app-ink-muted: #68736f;
+  --app-inverse: #f7faf8;
+  --app-inverse-bg: #16211d;
+  --app-inverse-hover: #24322d;
+  --app-shadow-panel: 0 1px 2px rgb(23 32 29 / 0.06);
+  --app-shadow-float: 0 18px 42px rgb(23 32 29 / 0.12);
 
   --background: var(--app-canvas);
   --foreground: var(--app-ink);
-  --app-overlay: rgb(15 23 42 / 0.45);
-  --app-overlay-soft: rgb(248 250 252 / 0.86);
-  --app-accent: #10b981;
-  --app-accent-bg: rgb(16 185 129 / 0.14);
-  --app-accent-border: rgb(16 185 129 / 0.36);
-  --app-accent-text: #166534;
+  --app-overlay: rgb(23 32 29 / 0.36);
+  --app-overlay-soft: rgb(246 247 246 / 0.9);
+  --app-accent: #0f8f7a;
+  --app-accent-bg: rgb(15 143 122 / 0.1);
+  --app-accent-border: rgb(15 143 122 / 0.28);
+  --app-accent-text: #0f6f5f;
   --app-warning-bg: rgb(245 158 11 / 0.16);
   --app-warning-border: rgb(245 158 11 / 0.38);
   --app-warning-text: #92400e;
@@ -119,14 +148,66 @@
   --color-app-danger-border: var(--app-danger-border);
   --color-app-danger-text: var(--app-danger-text);
   --color-app-focus: var(--app-focus);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--app-font-family);
+  --font-mono: var(--app-font-mono);
+  --text-xs: var(--app-text-xs);
+  --text-xs--line-height: var(--app-leading-xs);
+  --text-sm: var(--app-text-sm);
+  --text-sm--line-height: var(--app-leading-sm);
+  --text-base: var(--app-text-md);
+  --text-base--line-height: var(--app-leading-md);
+  --text-lg: var(--app-text-lg);
+  --text-lg--line-height: var(--app-leading-heading);
+  --text-xl: var(--app-text-xl);
+  --text-xl--line-height: var(--app-leading-heading);
+  --text-2xl: var(--app-text-2xl);
+  --text-2xl--line-height: var(--app-leading-heading);
+  --text-3xl: var(--app-text-3xl);
+  --text-3xl--line-height: var(--app-leading-heading);
+  --radius-sm: var(--app-radius-sm);
+  --radius-md: var(--app-radius-md);
+  --radius-lg: var(--app-radius-lg);
+  --radius-xl: var(--app-radius-xl);
+  --radius-2xl: var(--app-radius-2xl);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--app-font-family);
+  font-size: var(--app-text-md);
+  line-height: var(--app-leading-md);
+  letter-spacing: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: 0;
+}
+
+:root [class~="tracking-tight"],
+:root [class~="tracking-wide"],
+:root [class~="tracking-wider"],
+:root [class~="tracking-widest"] {
+  letter-spacing: 0 !important;
+}
+
+:root [class~="shadow-sm"] {
+  box-shadow: var(--app-shadow-panel) !important;
+}
+
+:root [class~="shadow-lg"],
+:root [class~="shadow-xl"],
+:root [class~="shadow-2xl"] {
+  box-shadow: var(--app-shadow-float) !important;
 }
 
 .theme-logo-light {
@@ -158,10 +239,10 @@ body {
 .clean-map-popup .maplibregl-popup-content {
   background: var(--app-panel);
   border: 1px solid var(--app-border-strong);
-  border-radius: 6px;
-  box-shadow: 0 12px 24px rgb(2 6 23 / 0.35);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-panel);
   color: var(--app-text);
-  font-size: 12px;
+  font-size: var(--app-text-xs);
   font-weight: 700;
   padding: 6px 8px;
 }
@@ -282,16 +363,15 @@ body {
   background-color: var(--app-panel-hover) !important;
 }
 
+:root [class~="bg-white"],
 :root [class~="bg-slate-100"],
-:root [class~="hover:bg-slate-100"]:hover {
-  background-color: var(--app-control-bg) !important;
-}
-
+:root [class~="hover:bg-slate-100"]:hover,
 :root [class~="bg-slate-200"],
 :root [class~="hover:bg-slate-200"]:hover {
-  background-color: var(--app-control-bg-hover) !important;
+  background-color: var(--app-panel-soft) !important;
 }
 
+:root [class~="border-slate-200"],
 :root [class~="border-slate-800"],
 :root [class~="border-slate-700"],
 :root [class~="border-slate-600"],
@@ -318,9 +398,10 @@ body {
   color: var(--app-text-muted) !important;
 }
 
+:root [class~="text-slate-800"],
 :root [class~="text-slate-900"],
 :root [class~="text-slate-950"] {
-  color: var(--app-control-text) !important;
+  color: var(--app-text) !important;
 }
 
 :root [class~="placeholder:text-slate-500"]::placeholder {

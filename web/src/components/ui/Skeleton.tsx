@@ -26,10 +26,6 @@ export function SkeletonLine({ className = "" }: SkeletonProps) {
   );
 }
 
-function BackPlaceholder() {
-  return <div className="text-sm font-medium text-slate-400">Tillbaka</div>;
-}
-
 function HeaderSkeleton({ variant }: { variant: PageSkeletonVariant }) {
   const copy = {
     dashboard: {
@@ -258,7 +254,6 @@ export function PageSkeleton({
   return (
     <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-5">
-        <BackPlaceholder />
         <HeaderSkeleton variant={variant} />
 
         {variant !== "company" && variant !== "region" && variant !== "sweden" ? (

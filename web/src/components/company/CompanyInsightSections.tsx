@@ -5,26 +5,26 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import type { Company, CompanyTurnoverHistoryItem } from "@/src/lib/types";
 import { INDUSTRY_OPTIONS } from "@/src/lib/companyFilterOptions";
-import {
-  companyStateTone,
-  companyStatusTone,
-  marketingTone,
-  statusToneClass,
-  type StatusTone,
-} from "@/src/lib/companyStatus";
 
 type CompanyInsightSectionsProps = {
   company: Company;
   turnoverHistory?: CompanyTurnoverHistoryItem[];
 };
 
-type SignalTone = StatusTone;
+type TabKey = "overview" | "insights" | "contact" | "raw";
 
 type TurnoverRange = {
   min: number;
   max: number;
   label: string;
 };
+
+const tabs: { key: TabKey; label: string }[] = [
+  { key: "overview", label: "Översikt" },
+  { key: "insights", label: "Insikter" },
+  { key: "contact", label: "Kontakt" },
+  { key: "raw", label: "Raw payload" },
+];
 
 const TURNOVER_GROSS_RANGES: Record<string, TurnoverRange> = {
   "0": { min: 0, max: 1, label: "< 1 tkr" },
@@ -105,56 +105,77 @@ function companyAge(startDate: string | null) {
   return `${years} år`;
 }
 
-function SectionCard({
+function formatTkr(value: number) {
+  return `${value.toLocaleString("sv-SE")} tkr`;
+}
+
+function countyHref(company: Company) {
+  const countyCode = text(company, "seat_county_code");
+  return countyCode ? `/county/${encodeURIComponent(countyCode)}` : null;
+}
+
+function municipalityHref(company: Company) {
+  const municipalityCode = text(company, "seat_municipality_code");
+  return municipalityCode
+    ? `/municipality/${encodeURIComponent(municipalityCode)}`
+    : null;
+}
+
+function municipalityMapHref(company: Company) {
+  const municipalityCode = text(company, "seat_municipality_code");
+  return municipalityCode
+    ? `/map?municipality=${encodeURIComponent(municipalityCode)}`
+    : "/map";
+}
+
+function industryGroup(company: Company) {
+  const code = text(company, "bransch_1_code")?.slice(0, 2);
+  if (!code) return null;
+
+  const option = INDUSTRY_OPTIONS.find((item) => item.value === code);
+  return option ? `${code} ${option.label}` : code;
+}
+
+function LinkedValue({
+  href,
+  children,
+}: {
+  href: string | null;
+  children: ReactNode;
+}) {
+  if (!href || !children) return children;
+
+  return (
+    <Link
+      href={href}
+      className="font-medium text-app-text underline decoration-app-border-strong underline-offset-4 hover:text-app-accent-text"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function SectionBlock({
   title,
-  eyebrow,
   children,
   className = "",
+  bodyClassName = "",
 }: {
   title: string;
-  eyebrow?: string;
   children: ReactNode;
   className?: string;
+  bodyClassName?: string;
 }) {
   return (
     <section
       className={[
-        "rounded-lg border border-slate-800 bg-slate-900 p-5 shadow-sm",
+        "rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3",
         className,
       ].join(" ")}
     >
-      <div className="mb-4">
-        {eyebrow ? (
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            {eyebrow}
-          </p>
-        ) : null}
-        <h2 className="text-base font-semibold text-slate-100">{title}</h2>
-      </div>
-      {children}
+      <h2 className="text-sm font-semibold text-app-text">{title}</h2>
+      <div className={["mt-2", bodyClassName].join(" ")}>{children}</div>
     </section>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string | number | null;
-  sub?: string | null;
-}) {
-  return (
-    <div className="rounded-md border border-slate-800 bg-slate-950/60 p-4">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-        {label}
-      </div>
-      <div className="mt-2 text-lg font-semibold text-slate-50">
-        {value ?? "-"}
-      </div>
-      {sub ? <div className="mt-1 text-xs text-slate-500">{sub}</div> : null}
-    </div>
   );
 }
 
@@ -164,24 +185,22 @@ function DataGrid({
   rows: { label: string; value: ReactNode | null }[];
 }) {
   return (
-    <dl className="grid gap-3 sm:grid-cols-2">
+    <dl className="divide-y divide-app-border/70">
       {rows.map((row) => (
         <div
           key={row.label}
-          className="rounded-md border border-slate-800 bg-slate-950/40 p-3"
+          className="grid grid-cols-[7rem_minmax(0,1fr)] gap-3 py-2 text-xs sm:grid-cols-[9.5rem_minmax(0,1fr)]"
         >
-          <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          <dt className="min-w-0 truncate text-[11px] font-medium uppercase text-app-text-subtle">
             {row.label}
           </dt>
-          <dd className="mt-1 text-sm text-slate-200">{row.value ?? "-"}</dd>
+          <dd className="min-w-0 text-left font-medium text-app-text">
+            {row.value ?? "-"}
+          </dd>
         </div>
       ))}
     </dl>
   );
-}
-
-function formatTkr(value: number) {
-  return `${value.toLocaleString("sv-SE")} tkr`;
 }
 
 function TurnoverHistoryChart({
@@ -210,7 +229,7 @@ function TurnoverHistoryChart({
 
   if (chartItems.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-slate-700 bg-slate-950/30 p-4 text-sm text-slate-500">
+      <div className="rounded-sm border border-dashed border-app-border bg-app-panel-muted p-3 text-sm text-app-text-muted">
         Ingen omsättningshistorik finns ännu.
       </div>
     );
@@ -231,7 +250,7 @@ function TurnoverHistoryChart({
           finRange?.min,
           finRange?.max,
           grossRange?.max,
-        ].filter((value): value is number => typeof value === "number");
+        ].filter((item): item is number => typeof item === "number");
       }),
     ),
   ).sort((a, b) => a - b);
@@ -252,45 +271,45 @@ function TurnoverHistoryChart({
   }, []);
 
   return (
-    <div className="rounded-md border border-slate-800 bg-slate-950/40 p-4">
+    <div className="border border-app-border bg-app-panel-muted p-3">
       <div className="flex items-center justify-between gap-3">
-        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        <div className="text-xs font-medium uppercase text-app-text-subtle">
           Omsättningshistorik
         </div>
         <button
           type="button"
           onClick={() => setNewestFirst((current) => !current)}
-          className="rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-slate-800"
+          className="rounded-sm border border-app-border bg-app-panel px-2 py-1 text-xs font-medium text-app-text-muted transition hover:text-app-text"
           aria-pressed={newestFirst}
         >
           {newestFirst ? "Senast vänster" : "Senast höger"}
         </button>
       </div>
 
-      <div className="mt-6 grid grid-cols-[4.75rem_minmax(0,1fr)]">
-        <div className="relative h-40 border-b border-slate-800">
+      <div className="mt-5 grid grid-cols-[4.75rem_minmax(0,1fr)]">
+        <div className="relative h-40 border-b border-app-border">
           <div className="absolute inset-x-0 bottom-0 top-4">
-          {axisLabelGroups.map((group) => (
-            <span
-              key={group.join("-")}
-              className="absolute right-3 text-right text-[10px] tabular-nums leading-none text-slate-500"
-              style={{
-                bottom: `${(group[group.length - 1] / chartMax) * 100}%`,
-              }}
-            >
-              {formatTkr(group[group.length - 1])}
-            </span>
-          ))}
+            {axisLabelGroups.map((group) => (
+              <span
+                key={group.join("-")}
+                className="absolute right-3 text-right text-[10px] tabular-nums leading-none text-app-text-subtle"
+                style={{
+                  bottom: `${(group[group.length - 1] / chartMax) * 100}%`,
+                }}
+              >
+                {formatTkr(group[group.length - 1])}
+              </span>
+            ))}
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <div className="relative h-40 w-max min-w-full border-b border-slate-800">
+          <div className="relative h-40 w-max min-w-full border-b border-app-border">
             <div className="absolute inset-x-0 bottom-0 top-4 flex items-end justify-center gap-8 px-4">
               {axisTicks.map((tickValue) => (
                 <span
                   key={tickValue}
-                  className="pointer-events-none absolute left-0 right-0 h-px bg-slate-800/80"
+                  className="pointer-events-none absolute left-0 right-0 h-px bg-app-border"
                   style={{ bottom: `${(tickValue / chartMax) * 100}%` }}
                 />
               ))}
@@ -313,14 +332,14 @@ function TurnoverHistoryChart({
                     className="relative z-10 flex h-full w-16 shrink-0 items-end justify-center"
                     title={`${item.year}: ${item.turnover_size ?? grossRange?.label ?? "-"} / ${item.turnover_fin_size ?? finRange?.label ?? "-"}`}
                   >
-                    <div className="relative h-full w-10">
+                    <div className="relative h-full w-9">
                       <div
-                        className="absolute bottom-0 left-0 right-0 rounded-t-md border border-slate-700 bg-slate-800/80"
+                        className="absolute bottom-0 left-0 right-0 border border-app-border-strong bg-app-panel"
                         style={{ height: `${grossHeight}%` }}
                       />
                       {finRange ? (
                         <div
-                          className="absolute left-1 right-1 rounded-sm bg-emerald-400/85"
+                          className="absolute left-1 right-1 bg-app-accent-text"
                           style={{
                             bottom: `${finBottom}%`,
                             height: `${finHeight}%`,
@@ -334,11 +353,11 @@ function TurnoverHistoryChart({
             </div>
           </div>
 
-          <div className="flex w-max min-w-full justify-center gap-8 px-4 pt-3">
+          <div className="flex w-max min-w-full justify-center gap-8 px-4 pt-2">
             {chartItems.map((item) => (
               <div
                 key={item.year}
-                className="w-16 shrink-0 text-center text-sm font-medium text-slate-100"
+                className="w-16 shrink-0 text-center text-xs font-medium text-app-text-muted"
               >
                 {item.year}
               </div>
@@ -347,13 +366,13 @@ function TurnoverHistoryChart({
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs text-slate-500">
+      <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs text-app-text-subtle">
         <span className="inline-flex items-center gap-2">
-          <span className="h-2 w-4 rounded-sm bg-slate-800 ring-1 ring-slate-700" />
+          <span className="h-2 w-4 bg-app-panel ring-1 ring-app-border-strong" />
           Grov omsättningsklass
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="h-2 w-4 rounded-sm bg-emerald-400/85" />
+          <span className="h-2 w-4 bg-app-accent-text" />
           Fin omsättningsklass
         </span>
       </div>
@@ -361,179 +380,233 @@ function TurnoverHistoryChart({
   );
 }
 
-function countyHref(company: Company) {
-  const countyCode = text(company, "seat_county_code");
-  return countyCode ? `/county/${encodeURIComponent(countyCode)}` : null;
-}
-
-function municipalityHref(company: Company) {
-  const municipalityCode = text(company, "seat_municipality_code");
-  return municipalityCode
-    ? `/municipality/${encodeURIComponent(municipalityCode)}`
-    : null;
-}
-
-function industryGroup(company: Company) {
-  const code = text(company, "bransch_1_code")?.slice(0, 2);
-  if (!code) return null;
-
-  const option = INDUSTRY_OPTIONS.find((item) => item.value === code);
-  return option ? `${code} ${option.label}` : code;
-}
-
-function CountyOverviewLink({
-  href,
-  children,
-}: {
-  href: string | null;
-  children: ReactNode;
-}) {
-  if (!href || !children) return children;
+function OverviewTab({
+  company,
+  turnoverHistory,
+}: CompanyInsightSectionsProps) {
+  const startDate = text(company, "start_date", "registration_date");
+  const countyOverviewHref = countyHref(company);
+  const municipalityOverviewHref = municipalityHref(company);
+  const mapHref = municipalityMapHref(company);
+  const industryGroupName = industryGroup(company);
 
   return (
-    <Link
-      href={href}
-      className="font-medium text-slate-100 underline decoration-slate-600 underline-offset-4 hover:text-white"
-    >
-      {children}
-    </Link>
-  );
-}
+    <div className="space-y-3">
+      <div className="grid gap-3 xl:grid-cols-2">
+        <SectionBlock title="Företagsinformation">
+          <DataGrid
+            rows={[
+              { label: "Juridisk form", value: text(company, "legal_form", "legal_form_name_dim") },
+              { label: "Registrerat", value: formatDate(text(company, "registration_date")) },
+              { label: "Ålder", value: companyAge(startDate) },
+              { label: "Status", value: text(company, "company_status", "company_status_name_dim") },
+              { label: "Bolagsläge", value: text(company, "company_state", "company_state_name_dim") },
+              { label: "Arbetsställen", value: text(company, "num_workplaces") },
+              { label: "Privat/offentligt", value: text(company, "private_public") },
+              { label: "Sektor", value: text(company, "sector", "sector_name_dim") },
+            ]}
+          />
+        </SectionBlock>
 
-function Signal({
-  label,
-  detail,
-  tone = "neutral",
-}: {
-  label: string;
-  detail?: string | null;
-  tone?: SignalTone;
-}) {
-  const toneClass =
-    tone === "neutral"
-      ? statusToneClass("neutral")
-      : statusToneClass(tone);
+        <SectionBlock title="Verksamhet">
+          <DataGrid
+            rows={[
+              { label: "Bransch", value: text(company, "bransch_1", "industry_5_name", "bransch_1_name_dim") },
+              { label: "SNI-kod", value: text(company, "bransch_1_code") },
+              { label: "SNI-grupp", value: industryGroupName },
+              { label: "Avdelning", value: text(company, "avdelning_1", "avdelning_1_name_dim") },
+              { label: "Segment", value: text(company, "industry_2_name") },
+              { label: "Anställda", value: text(company, "size_class", "size_class_name_dim") },
+            ]}
+          />
+        </SectionBlock>
+      </div>
 
-  return (
-    <div className={["rounded-md border p-3", toneClass].join(" ")}>
-      <div className="text-sm font-medium">{label}</div>
-      {detail ? <div className="mt-1 text-xs opacity-75">{detail}</div> : null}
-    </div>
-  );
-}
-
-function registrationTone(code: string | null): SignalTone {
-  if (!code) return "neutral";
-  return code === "1" ? "positive" : "warning";
-}
-
-function PlaceholderList({ items }: { items: string[] }) {
-  return (
-    <div className="space-y-2">
-      {items.map((item) => (
-        <div
-          key={item}
-          className="rounded-md border border-dashed border-slate-700 bg-slate-950/30 px-3 py-2 text-sm text-slate-400"
-        >
-          {item}
+      <SectionBlock title="Ekonomi">
+        <div className="space-y-3">
+          <TurnoverHistoryChart items={turnoverHistory} />
+          <DataGrid
+            rows={[
+              { label: "Omsättning", value: text(company, "turnover_size", "turnover_gross_name_dim") },
+              { label: "Fin omsättning", value: text(company, "turnover_fin_size", "turnover_fin_name_dim") },
+              { label: "Omsättningsår", value: text(company, "turnover_year") },
+              { label: "SME-klass", value: text(company, "sme_size") },
+              { label: "Import", value: text(company, "import_turnover", "export_import_mark") },
+              { label: "Export", value: text(company, "export_turnover", "export_import_mark") },
+            ]}
+          />
         </div>
-      ))}
+      </SectionBlock>
+
+      <SectionBlock title="Geografi">
+        <DataGrid
+          rows={[
+            {
+              label: "Kommun",
+              value: (
+                <LinkedValue href={municipalityOverviewHref}>
+                  {text(company, "seat_municipality_name", "seat_municipality")}
+                </LinkedValue>
+              ),
+            },
+            {
+              label: "Län",
+              value: (
+                <LinkedValue href={countyOverviewHref}>
+                  {text(company, "seat_county_name", "seat_county")}
+                </LinkedValue>
+              ),
+            },
+            { label: "A-region", value: text(company, "aregion_name", "aregion") },
+            { label: "Adress", value: text(company, "post_address", "co_address") },
+            { label: "Postnr", value: text(company, "post_nr") },
+            { label: "Postort", value: text(company, "post_ort") },
+          ]}
+        />
+        <div className="mt-3 border-t border-app-border pt-3">
+          <Link
+            href={mapHref}
+            className="inline-flex h-8 items-center rounded-sm border border-app-border bg-app-panel-muted px-3 text-xs font-medium text-app-text transition hover:border-app-border-strong hover:bg-app-panel-hover"
+          >
+            Visa kommun på karta
+          </Link>
+        </div>
+      </SectionBlock>
     </div>
   );
 }
 
-function QuickStats({ company }: CompanyInsightSectionsProps) {
-  const startDate = text(company, "start_date", "registration_date");
-
+function InsightPlaceholder({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-      <StatCard
-        label="Anställda"
-        value={text(company, "size_class", "size_class_name_dim")}
-      />
-      <StatCard
-        label="Omsättning"
-        value={text(company, "turnover_fin_size", "turnover_fin_name_dim", "turnover_size")}
-      />
-      <StatCard label="Arbetsställen" value={text(company, "num_workplaces")} />
-      <StatCard
-        label="Företagsålder"
-        value={companyAge(startDate)}
-        sub={formatDate(startDate)}
-      />
-      <StatCard
-        label="Företagsform"
-        value={text(company, "legal_form", "legal_form_name_dim")}
-      />
+    <div className="border-b border-app-border py-3 last:border-b-0">
+      <div className="text-sm font-semibold text-app-text">{title}</div>
+      <p className="mt-1 text-sm leading-6 text-app-text-muted">
+        {description}
+      </p>
     </div>
   );
 }
 
-function BusinessSignals({ company }: CompanyInsightSectionsProps) {
-  const startDate = text(company, "start_date", "registration_date");
-  const age = companyAge(startDate);
-  const fTaxCode = text(company, "f_tax_status_code");
-  const vatCode = text(company, "vat_status_code");
-  const employerCode = text(company, "employer_status_code");
-  const marketingCode = text(company, "reklam_code");
-  const companyStateCode = text(company, "company_state_code");
-  const exportImport = text(company, "export_import_mark");
+function InsightsTab() {
+  const insightItems = [
+    {
+      title: "Säljvinkel",
+      description:
+        "AI formulerar varför bolaget är relevant utifrån användarens profil, erbjudanden, befintliga kunder och valda segment.",
+    },
+    {
+      title: "Match mot erbjudanden",
+      description:
+        "Identifierar vilka erbjudanden som sannolikt passar bolaget och varför de kan vara kommersiellt relevanta.",
+    },
+    {
+      title: "Liknande bästa kunder",
+      description:
+        "Jämför bolaget med användarens kundbas och lyfter likheter i bransch, storlek, geografi, köpsignaler och behov.",
+    },
+    {
+      title: "Prospect-motiv",
+      description:
+        "Sammanfattar vad en säljare borde veta innan kontakt: möjlig trigger, tänkbart problem, timing och rekommenderad öppning.",
+    },
+    {
+      title: "Segmentförslag",
+      description:
+        "Föreslår om bolaget bör ingå i ett befintligt segment eller om det pekar mot ett nytt prospekteringssegment.",
+    },
+    {
+      title: "Nästa bästa handling",
+      description:
+        "Rekommenderar nästa steg: bevaka, kontakta, lägg i lista, hitta liknande bolag eller skapa outreach-underlag.",
+    },
+    {
+      title: "Prospect-expansion",
+      description:
+        "Använder bolaget som frö för att hitta fler företag med liknande profil, behov och sannolik säljpotential.",
+    },
+    {
+      title: "Risk och friktion",
+      description:
+        "Beräknar manuella och AI-baserade varningsflaggor som kan påverka prioritet, pitch eller sannolikhet till affär.",
+    },
+  ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      <Signal
-        label="Nystartat"
-        detail={age ?? "Startdatum saknas"}
-        tone={age === "Under 1 år" ? "positive" : "neutral"}
-      />
-      <Signal
-        label="F-skatt"
-        detail={text(company, "f_tax_status") ?? "Uppgift saknas"}
-        tone={registrationTone(fTaxCode)}
-      />
-      <Signal
-        label="Momsregistrerat"
-        detail={text(company, "vat_status") ?? "Uppgift saknas"}
-        tone={registrationTone(vatCode)}
-      />
-      <Signal
-        label="Arbetsgivare"
-        detail={text(company, "employer_status") ?? "Uppgift saknas"}
-        tone={registrationTone(employerCode)}
-      />
-      <Signal
-        label="Tar emot reklam"
-        detail={text(company, "reklam", "utskick") ?? "Uppgift saknas"}
-        tone={marketingTone(marketingCode)}
-      />
-      <Signal
-        label="Export/import"
-        detail={exportImport ?? "Ingen signal"}
-        tone={exportImport ? "positive" : "neutral"}
-      />
-      <Signal
-        label="Status"
-        detail={text(company, "company_status", "company_status_name_dim") ?? "Uppgift saknas"}
-        tone={companyStatusTone(text(company, "company_status_code"))}
-      />
-      <Signal
-        label="Risksignaler"
-        detail={text(company, "company_state", "company_state_name_dim") ?? "Inga tydliga signaler"}
-        tone={companyStateTone(companyStateCode)}
-      />
+    <div className="max-w-3xl">
+      <SectionBlock title="Säljinsikter">
+        <div className="divide-y divide-app-border">
+          {insightItems.map((item) => (
+            <InsightPlaceholder
+              key={item.title}
+              title={item.title}
+              description={item.description}
+            />
+          ))}
+        </div>
+      </SectionBlock>
     </div>
   );
 }
 
-function ActionButton({ children }: { children: ReactNode }) {
+function ContactTab({ company }: CompanyInsightSectionsProps) {
+  const countyOverviewHref = countyHref(company);
+  const municipalityOverviewHref = municipalityHref(company);
+
   return (
-    <button
-      type="button"
-      disabled
-      className="rounded-md border border-app-border bg-app-panel-soft px-3 py-2 text-sm font-medium text-app-text-muted"
-    >
-      {children}
-    </button>
+    <div className="grid gap-3 xl:grid-cols-2">
+      <SectionBlock title="Kontakt">
+        <DataGrid
+          rows={[
+            { label: "Telefon", value: text(company, "phone", "telephone") },
+            { label: "Email", value: text(company, "email") },
+            { label: "Webb", value: text(company, "website", "url") },
+            { label: "Reklam", value: text(company, "reklam", "utskick") },
+          ]}
+        />
+      </SectionBlock>
+
+      <SectionBlock title="Adress">
+        <DataGrid
+          rows={[
+            { label: "Gata", value: text(company, "post_address", "co_address") },
+            { label: "Postnr", value: text(company, "post_nr") },
+            { label: "Postort", value: text(company, "post_ort") },
+            {
+              label: "Kommun",
+              value: (
+                <LinkedValue href={municipalityOverviewHref}>
+                  {text(company, "seat_municipality_name", "seat_municipality")}
+                </LinkedValue>
+              ),
+            },
+            {
+              label: "Län",
+              value: (
+                <LinkedValue href={countyOverviewHref}>
+                  {text(company, "seat_county_name", "seat_county")}
+                </LinkedValue>
+              ),
+            },
+          ]}
+        />
+      </SectionBlock>
+    </div>
+  );
+}
+
+function RawTab({ company }: CompanyInsightSectionsProps) {
+  return (
+    <SectionBlock title="Raw payload">
+      <pre className="max-h-[32rem] overflow-auto rounded-sm bg-app-panel-muted p-3 text-xs leading-5 text-app-text-muted">
+        {JSON.stringify(company, null, 2)}
+      </pre>
+    </SectionBlock>
   );
 }
 
@@ -541,160 +614,42 @@ export function CompanyInsightSections({
   company,
   turnoverHistory = [],
 }: CompanyInsightSectionsProps) {
-  const countyOverviewHref = countyHref(company);
-  const municipalityOverviewHref = municipalityHref(company);
-  const industryGroupName = industryGroup(company);
+  const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
   return (
-    <div className="space-y-5">
-      <QuickStats company={company} />
+    <div className="space-y-3">
+      <nav
+        className="flex gap-1 overflow-x-auto border-b border-app-border"
+        aria-label="Företagsvy"
+      >
+        {tabs.map((tab) => {
+          const active = tab.key === activeTab;
 
-      <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
-        <SectionCard title="AI Business Summary" eyebrow="Kommande insikt">
-          <PlaceholderList
-            items={[
-              "Kort sammanfattning av företaget",
-              "Typ av verksamhet och trolig mognad",
-              "Trolig situation, behov och köpläge",
-            ]}
-          />
-        </SectionCard>
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={[
+                "border-b-2 px-3 py-2 text-sm font-medium transition",
+                active
+                  ? "border-app-accent-border text-app-accent-text"
+                  : "border-transparent text-app-text-muted hover:text-app-text",
+              ].join(" ")}
+              aria-pressed={active}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </nav>
 
-        <SectionCard title="Lead & Match Scoring" eyebrow="User match">
-          <div className="grid grid-cols-2 gap-3">
-            <StatCard label="Potential" value="-" sub="Kräver scoringmodell" />
-            <StatCard label="Match" value="-" sub="Kräver användarprofil" />
-            <StatCard label="Prioritet" value="-" />
-            <StatCard label="Köpsignaler" value="-" />
-          </div>
-        </SectionCard>
-      </div>
-
-      <SectionCard title="AI Recommendations" eyebrow="Outreach">
-        <PlaceholderList
-          items={[
-            "Hur företaget bör kontaktas",
-            "Vad de sannolikt bryr sig om",
-            "Vad man kan sälja till dem",
-            "Rekommenderad pitch",
-          ]}
-        />
-      </SectionCard>
-
-      <SectionCard title="Business Signals">
-        <BusinessSignals company={company} />
-      </SectionCard>
-
-      <div className="grid gap-5 xl:grid-cols-2">
-        <SectionCard title="Företagsinformation">
-          <DataGrid
-            rows={[
-              { label: "Juridisk form", value: text(company, "legal_form", "legal_form_name_dim") },
-              { label: "Registreringsdatum", value: formatDate(text(company, "registration_date")) },
-              { label: "Företagsstatus", value: text(company, "company_status", "company_status_name_dim") },
-              { label: "Ägarstruktur", value: text(company, "owner_category", "owner_name") },
-              { label: "Privat/offentligt", value: text(company, "private_public") },
-              { label: "Sektor", value: text(company, "sector", "sector_name_dim") },
-            ]}
-          />
-        </SectionCard>
-
-        <SectionCard title="Geografi">
-          <DataGrid
-            rows={[
-              {
-                label: "Län",
-                value: (
-                  <CountyOverviewLink href={countyOverviewHref}>
-                    {text(company, "seat_county_name", "seat_county")}
-                  </CountyOverviewLink>
-                ),
-              },
-              {
-                label: "Kommun",
-                value: (
-                  <CountyOverviewLink href={municipalityOverviewHref}>
-                    {text(company, "seat_municipality_name", "seat_municipality")}
-                  </CountyOverviewLink>
-                ),
-              },
-              { label: "A-region", value: text(company, "aregion_name", "aregion") },
-              { label: "Adress", value: text(company, "post_address", "co_address") },
-              { label: "Postort", value: text(company, "post_ort") },
-              { label: "Postnummer", value: text(company, "post_nr") },
-            ]}
-          />
-        </SectionCard>
-
-        <SectionCard title="Verksamhet">
-          <DataGrid
-            rows={[
-              { label: "Bransch / SNI", value: text(company, "bransch_1", "industry_5_name", "bransch_1_name_dim") },
-              { label: "SNI-kod", value: text(company, "bransch_1_code") },
-              { label: "SNI-grupp", value: industryGroupName },
-              { label: "Avdelning", value: text(company, "avdelning_1", "avdelning_1_name_dim") },
-              { label: "Segment", value: text(company, "industry_2_name") },
-              { label: "Storleksklass", value: text(company, "size_class", "size_class_name_dim") },
-              { label: "Antal firmor", value: text(company, "num_firms") },
-            ]}
-          />
-        </SectionCard>
-
-        <SectionCard title="Ekonomi">
-          <div className="space-y-4">
-            <TurnoverHistoryChart items={turnoverHistory} />
-            <DataGrid
-              rows={[
-                { label: "Omsättningsintervall", value: text(company, "turnover_size", "turnover_gross_name_dim") },
-                { label: "Fin omsättning", value: text(company, "turnover_fin_size", "turnover_fin_name_dim") },
-                { label: "Omsättningsår", value: text(company, "turnover_year") },
-                { label: "SME-klass", value: text(company, "sme_size") },
-                { label: "Import", value: text(company, "import_turnover", "export_import_mark") },
-                { label: "Export", value: text(company, "export_turnover", "export_import_mark") },
-              ]}
-            />
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Kontakt & Outreach">
-          <DataGrid
-            rows={[
-              { label: "Telefon", value: text(company, "phone") },
-              { label: "Email", value: text(company, "email") },
-              { label: "Reklamspärr", value: text(company, "reklam", "utskick") },
-              { label: "Kontaktrekommendation", value: null },
-            ]}
-          />
-        </SectionCard>
-
-        <SectionCard title="Similar Companies" eyebrow="Kommande analys">
-          <PlaceholderList
-            items={["Liknande företag", "Konkurrenter", "Närliggande segment"]}
-          />
-        </SectionCard>
-
-        <SectionCard title="Market Insights" eyebrow="Kommande analys">
-          <PlaceholderList
-            items={[
-              "Antal liknande företag",
-              "Regional statistik",
-              "Tillväxt i segmentet",
-              "Marknadstrender",
-            ]}
-          />
-        </SectionCard>
-
-        <SectionCard title="User Actions">
-          <div className="flex flex-wrap gap-2">
-            <ActionButton>Lägg i lista</ActionButton>
-            <ActionButton>Exportera</ActionButton>
-            <ActionButton>Jämför</ActionButton>
-            <ActionButton>AI-analysera</ActionButton>
-            <ActionButton>Skapa outreach</ActionButton>
-            <ActionButton>CRM-sync</ActionButton>
-          </div>
-        </SectionCard>
-      </div>
+      {activeTab === "overview" ? (
+        <OverviewTab company={company} turnoverHistory={turnoverHistory} />
+      ) : null}
+      {activeTab === "insights" ? <InsightsTab /> : null}
+      {activeTab === "contact" ? <ContactTab company={company} /> : null}
+      {activeTab === "raw" ? <RawTab company={company} /> : null}
     </div>
   );
 }

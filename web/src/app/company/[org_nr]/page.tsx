@@ -1,10 +1,8 @@
 import { getCompany, getCompanyTurnoverHistory } from "@/src/lib/api";
 import type { Company, CompanyNotFound, CompanyResponse } from "@/src/lib/types";
 
-import { BackLink } from "@/src/components/ui/BackLink";
 import { CompanyHeaderCard } from "@/src/components/company/CompanyHeaderCard";
 import { CompanyInsightSections } from "@/src/components/company/CompanyInsightSections";
-import { RawPayload } from "@/src/components/company/RawPayload";
 
 function isCompanyNotFound(company: CompanyResponse): company is CompanyNotFound {
   return "error" in company && company.error === "not_found";
@@ -25,12 +23,11 @@ export default async function CompanyPage({
 
   if (isCompanyNotFound(data)) {
     return (
-      <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
+      <main className="min-h-screen bg-app-bg p-6 text-app-text">
         <div className="mx-auto max-w-7xl space-y-4">
-          <BackLink href="/">Tillbaka</BackLink>
-          <div className="rounded-lg border border-slate-800 bg-slate-900 p-5">
+          <div className="border-b border-app-border pb-5">
             <h1 className="text-2xl font-semibold">Bolag hittades inte</h1>
-            <p className="mt-2 text-sm text-slate-400">
+            <p className="mt-2 text-sm text-app-text-muted">
               Ingen företagsinformation kunde hämtas för organisationsnumret.
             </p>
           </div>
@@ -42,16 +39,13 @@ export default async function CompanyPage({
   const company: Company = data;
 
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
+    <main className="min-h-screen bg-app-bg px-5 py-4 text-app-text sm:p-6">
       <div className="mx-auto max-w-7xl space-y-5">
-        <BackLink href="/">Tillbaka</BackLink>
-
         <CompanyHeaderCard company={company} />
         <CompanyInsightSections
           company={company}
           turnoverHistory={turnoverHistory.items}
         />
-        <RawPayload data={company} />
       </div>
     </main>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import maplibregl, { type Map as MapLibreMap } from "maplibre-gl";
 import { buttonClassName } from "@/src/components/ui/Button";
 
@@ -197,11 +197,14 @@ function focusFeature(map: MapLibreMap, feature: MunicipalityFeature | RegionFea
 
 export function SwedenBoundaryMap() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedMunicipalityId = searchParams.get("municipality");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const regionsVisibleRef = useRef(false);
   const municipalitiesVisibleRef = useRef(true);
+  const appliedMunicipalityParamRef = useRef<string | null>(null);
   const [regionsVisible, setRegionsVisible] = useState(false);
   const [municipalitiesVisible, setMunicipalitiesVisible] = useState(true);
   const [regions, setRegions] = useState<RegionOption[]>([]);
@@ -614,6 +617,43 @@ export function SwedenBoundaryMap() {
       map.setPaintProperty("municipality-fill", "fill-opacity", 0.08);
     }
   }, [mapReady, municipalitiesVisible, regionsVisible]);
+
+  useEffect(() => {
+    if (!mapReady || !requestedMunicipalityId || municipalities.length === 0) {
+      return;
+    }
+    if (appliedMunicipalityParamRef.current === requestedMunicipalityId) {
+      return;
+    }
+
+    const map = mapRef.current;
+    if (!map) return;
+
+    const municipality = municipalities.find(
+      (item) => item.id === requestedMunicipalityId,
+    );
+    if (!municipality) return;
+
+    const applyMunicipalityFocus = () => {
+      if (!map.isStyleLoaded() || !map.getLayer("municipality-selected")) {
+        return;
+      }
+
+      selectMunicipality(municipality);
+      appliedMunicipalityParamRef.current = requestedMunicipalityId;
+    };
+
+    if (map.isStyleLoaded() && map.getLayer("municipality-selected")) {
+      window.requestAnimationFrame(applyMunicipalityFocus);
+      return;
+    }
+
+    map.once("idle", applyMunicipalityFocus);
+
+    return () => {
+      map.off("idle", applyMunicipalityFocus);
+    };
+  }, [mapReady, municipalities, requestedMunicipalityId]);
 
   function selectMunicipality(municipality: MunicipalityOption) {
     const map = mapRef.current;

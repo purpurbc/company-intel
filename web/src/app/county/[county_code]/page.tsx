@@ -8,13 +8,9 @@ import type {
   CountyOverviewResponse,
 } from "@/src/lib/types";
 
-import { BackLink } from "@/src/components/ui/BackLink";
 import { RegionDataSkeleton } from "@/src/components/ui/Skeleton";
 import { CountyHeader } from "@/src/components/county/CountyHeader";
-import { CountyKpis } from "@/src/components/county/CountyKpis";
-import { CountyGeography } from "@/src/components/county/CountyGeography";
 import { CountyInsightSections } from "@/src/components/county/CountyInsightSections";
-import { CountyBusinessMix } from "@/src/components/county/CountyBusinessMix";
 
 function isCountyNotFound(
   data: CountyOverviewResponse,
@@ -34,9 +30,11 @@ async function CountyData({ countyCode }: { countyCode: string }) {
 
   if (isCountyNotFound(data)) {
     return (
-      <div className="rounded-lg border border-slate-800 bg-slate-900 p-5">
-        <h2 className="text-2xl font-semibold">Län hittades inte</h2>
-        <p className="mt-2 text-sm text-slate-400">
+      <div className="rounded-sm border border-app-border bg-app-panel p-4">
+        <h2 className="text-base font-semibold text-app-text">
+          Län hittades inte
+        </h2>
+        <p className="mt-2 text-sm text-app-text-muted">
           Ingen länsöversikt kunde hämtas för koden {countyCode}.
         </p>
       </div>
@@ -45,21 +43,7 @@ async function CountyData({ countyCode }: { countyCode: string }) {
 
   const county: CountyOverview = data;
 
-  return (
-    <>
-      <CountyKpis totals={county.totals} />
-      <CountyInsightSections county={county} />
-      <CountyGeography
-        byMunicipality={county.by_municipality}
-        byAregion={county.by_aregion}
-      />
-      <CountyBusinessMix
-        byIndustry={county.by_industry}
-        bySize={county.by_size}
-        byTurnover={county.by_turnover}
-      />
-    </>
-  );
+  return <CountyInsightSections county={county} />;
 }
 
 export default async function CountyPage({
@@ -71,9 +55,9 @@ export default async function CountyPage({
   const countyName = getCountyName(county_code);
 
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
+    <main className="min-h-screen bg-app-bg px-5 py-4 text-app-text sm:p-6">
       <div className="mx-auto max-w-7xl space-y-5">
-        <CountyHeader countyName={countyName} />
+        <CountyHeader countyName={countyName} countyCode={county_code} />
         <Suspense fallback={<RegionDataSkeleton />}>
           <CountyData countyCode={county_code} />
         </Suspense>

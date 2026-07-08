@@ -12,12 +12,9 @@ import type {
   MunicipalityOverviewResponse,
 } from "@/src/lib/types";
 
-import { BackLink } from "@/src/components/ui/BackLink";
 import { RegionDataSkeleton } from "@/src/components/ui/Skeleton";
 import { MunicipalityHeader } from "@/src/components/municipality/MunicipalityHeader";
-import { MunicipalityKpis } from "@/src/components/municipality/MunicipalityKpis";
 import { MunicipalityInsightSections } from "@/src/components/municipality/MunicipalityInsightSections";
-import { MunicipalityBreakdown } from "@/src/components/municipality/MunicipalityBreakdown";
 
 function isMunicipalityNotFound(
   data: MunicipalityOverviewResponse,
@@ -49,9 +46,11 @@ async function MunicipalityData({
 
   if (isMunicipalityNotFound(data)) {
     return (
-      <div className="rounded-lg border border-slate-800 bg-slate-900 p-5">
-        <h2 className="text-2xl font-semibold">Kommun hittades inte</h2>
-        <p className="mt-2 text-sm text-slate-400">
+      <div className="rounded-sm border border-app-border bg-app-panel p-4">
+        <h2 className="text-base font-semibold text-app-text">
+          Kommun hittades inte
+        </h2>
+        <p className="mt-2 text-sm text-app-text-muted">
           Ingen kommunöversikt kunde hämtas för koden {municipalityCode}.
         </p>
       </div>
@@ -60,17 +59,7 @@ async function MunicipalityData({
 
   const municipality: MunicipalityOverview = data;
 
-  return (
-    <>
-      <MunicipalityKpis totals={municipality.totals} />
-      <MunicipalityInsightSections municipality={municipality} />
-      <MunicipalityBreakdown
-        byIndustry={municipality.by_industry}
-        bySize={municipality.by_size}
-        byTurnover={municipality.by_turnover}
-      />
-    </>
-  );
+  return <MunicipalityInsightSections municipality={municipality} />;
 }
 
 export default async function MunicipalityPage({
@@ -84,10 +73,11 @@ export default async function MunicipalityPage({
   const countyName = getCountyName(countyCode);
 
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
+    <main className="min-h-screen bg-app-bg px-5 py-4 text-app-text sm:p-6">
       <div className="mx-auto max-w-7xl space-y-5">
         <MunicipalityHeader
           municipalityName={municipalityName}
+          municipalityCode={municipality_code}
           countyName={countyName}
           countyCode={countyCode}
         />

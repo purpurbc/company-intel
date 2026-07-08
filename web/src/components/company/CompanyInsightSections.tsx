@@ -173,7 +173,7 @@ function SectionBlock({
         className,
       ].join(" ")}
     >
-      <h2 className="text-sm font-semibold text-app-text">{title}</h2>
+      <h2 className="text-base font-bold text-app-text">{title}</h2>
       <div className={["mt-2", bodyClassName].join(" ")}>{children}</div>
     </section>
   );

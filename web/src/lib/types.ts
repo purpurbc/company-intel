@@ -211,6 +211,8 @@ export type CountyOverview = {
   by_industry: CountByName[];
   by_size: CountByName[];
   by_turnover: CountByName[];
+  by_status: CountByName[];
+  by_state: CountByName[];
 };
 
 export type CountyOverviewNotFound = {
@@ -241,6 +243,8 @@ export type MunicipalityOverview = {
   by_size: CountByName[];
   by_turnover: CountByName[];
   by_aregion: CountByName[];
+  by_status: CountByName[];
+  by_state: CountByName[];
 };
 
 export type MunicipalityOverviewNotFound = {

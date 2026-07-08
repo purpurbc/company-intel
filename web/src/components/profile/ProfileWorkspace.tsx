@@ -1,7 +1,15 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Background,
+  Controls,
+  MarkerType,
+  ReactFlow,
+  type Edge,
+  type Node,
+} from "@xyflow/react";
 import {
   createCustomerAccount,
   createSalesOffer,
@@ -75,6 +83,47 @@ const CUSTOMER_LABELS = [
     label: "Extremt dålig kund",
   },
 ] as const;
+
+type ProfileTabKey = "profile" | "map" | "offers" | "customers" | "segments";
+type EditableProfileSection =
+  | "identity"
+  | "company"
+  | "companyDescription"
+  | "idealCustomer";
+
+const PROFILE_TABS: { key: ProfileTabKey; label: string }[] = [
+  { key: "profile", label: "Profil & ICP" },
+  { key: "map", label: "Kundkarta" },
+  { key: "offers", label: "Erbjudanden" },
+  { key: "customers", label: "Kunder" },
+  { key: "segments", label: "Segment" },
+];
+
+const EDIT_SECTION_COPY: Record<
+  EditableProfileSection,
+  { title: string; description: string }
+> = {
+  identity: {
+    title: "Redigera användare?",
+    description:
+      "Du går in i redigeringsläge för displaynamn och email. Ändringarna sparas först när du klickar Spara.",
+  },
+  company: {
+    title: "Redigera valt företag?",
+    description:
+      "Du kan välja ett annat företag. Ändringen sparas först när du klickar Spara.",
+  },
+  companyDescription: {
+    title: "Redigera företagsbeskrivning?",
+    description:
+      "Du går in i redigeringsläge för företagets beskrivning. Ändringen sparas först när du klickar Spara.",
+  },
+  idealCustomer: {
+    title: "Redigera idealkund?",
+    description:
+      "Du går in i redigeringsläge för idealkundsprofilen. Ändringen sparas först när du klickar Spara.",
+  },
+};
 
 const UTILITY_ICONS = {
   addOffer: "/icons/utility/add_offer.svg",
@@ -196,6 +245,28 @@ function CustomerLabelChip({ value }: { value: string }) {
     >
       {meta?.label ?? value}
     </span>
+  );
+}
+
+function EditIconButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      type="button"
+      onClick={onClick}
+      variant="secondary"
+      size="icon"
+      className="h-8 min-w-8 px-2 py-0"
+      aria-label={label}
+      title={label}
+    >
+      <MaskedIcon src={UTILITY_ICONS.edit} />
+    </Button>
   );
 }
 
@@ -787,6 +858,124 @@ function CustomerDialog({
   );
 }
 
+function CustomerMapView({
+  company,
+  customers,
+}: {
+  company: CompanyListItem | null;
+  customers: CustomerAccount[];
+}) {
+  const nodes = useMemo<Node[]>(() => {
+    const customerCount = Math.max(customers.length, 1);
+    const radius = customers.length <= 4 ? 260 : 340;
+    const customerNodes = customers.map((customer, index) => {
+      const angle = (index / customerCount) * Math.PI * 2 - Math.PI / 2;
+
+      return {
+        id: customer.id,
+        position: {
+          x: Math.cos(angle) * radius,
+          y: Math.sin(angle) * radius,
+        },
+        data: {
+          label: (
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold">
+                {customer.company_name}
+              </div>
+              <div className="mt-1 truncate text-xs opacity-70">
+                {customer.org_nr}
+              </div>
+            </div>
+          ),
+        },
+        style: {
+          width: 220,
+          border: "1px solid var(--app-border)",
+          borderRadius: "var(--app-radius-sm)",
+          background: "var(--app-panel)",
+          color: "var(--app-text)",
+          padding: 10,
+          boxShadow: "none",
+        },
+      };
+    });
+
+    return [
+      {
+        id: "origin",
+        position: { x: 0, y: 0 },
+        data: {
+          label: (
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold">
+                {company?.company_name ?? "Vårt företag"}
+              </div>
+              <div className="mt-1 truncate text-xs opacity-70">
+                {company?.org_nr ?? "Org.nr saknas"}
+              </div>
+            </div>
+          ),
+        },
+        style: {
+          width: 240,
+          border: "1px solid var(--app-border-strong)",
+          borderRadius: "var(--app-radius-sm)",
+          background: "var(--app-panel)",
+          color: "var(--app-text)",
+          padding: 12,
+          boxShadow: "none",
+        },
+      },
+      ...customerNodes,
+    ];
+  }, [company, customers]);
+
+  const edges = useMemo<Edge[]>(
+    () =>
+      customers.map((customer) => ({
+        id: `origin-${customer.id}`,
+        source: "origin",
+        target: customer.id,
+        type: "smoothstep",
+        markerEnd: { type: MarkerType.ArrowClosed },
+        style: {
+          stroke: "var(--app-border-strong)",
+          strokeWidth: 1.4,
+        },
+      })),
+    [customers],
+  );
+
+  return (
+    <section className="rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3">
+      <h2 className="text-base font-bold text-app-text">Kundkarta</h2>
+      <div className="mt-3 h-[32rem] overflow-hidden border border-app-border bg-app-bg">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          fitView
+          fitViewOptions={{ padding: 0.28 }}
+          minZoom={0.25}
+          maxZoom={1.3}
+          nodesDraggable
+          nodesConnectable={true}
+          elementsSelectable={true}
+          proOptions={{ hideAttribution: false }}
+        >
+          <Background color="var(--app-border)" gap={24} size={1} />
+          <Controls showInteractive={true} />
+        </ReactFlow>
+      </div>
+      {customers.length === 0 ? (
+        <p className="mt-3 text-sm text-app-text-muted">
+          Lägg till kunder för att visa kopplingar från ert företag.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 function OffersList({
   offers,
   customersById,
@@ -1293,6 +1482,9 @@ export function ProfileWorkspace({
   const [profile, setProfile] = useState<ProfileState>(() =>
     profileFromUserProfile(userProfile),
   );
+  const [savedProfile, setSavedProfile] = useState<ProfileState>(() =>
+    profileFromUserProfile(userProfile),
+  );
   const [offerItems, setOfferItems] = useState(offers);
   const [customerItems, setCustomerItems] = useState(customers);
   const [editingOffer, setEditingOffer] = useState<SalesOffer | null>(null);
@@ -1305,8 +1497,15 @@ export function ProfileWorkspace({
   const [deletingCustomer, setDeletingCustomer] =
     useState<CustomerAccount | null>(null);
   const [companyChangeMode, setCompanyChangeMode] = useState(false);
-  const [confirmCompanyChangeOpen, setConfirmCompanyChangeOpen] =
+  const [editingIdentity, setEditingIdentity] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(false);
+  const [editingCompanyDescription, setEditingCompanyDescription] =
     useState(false);
+  const [editingIdealCustomer, setEditingIdealCustomer] = useState(false);
+  const [pendingEditSection, setPendingEditSection] =
+    useState<EditableProfileSection | null>(null);
+  const [activeProfileTab, setActiveProfileTab] =
+    useState<ProfileTabKey>("profile");
   const [saving, setSaving] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -1326,7 +1525,80 @@ export function ProfileWorkspace({
         .join(" · ")
     : "Inget företag valt";
 
-  const showCompanySearch = !profile.company || companyChangeMode;
+  const showCompanySearch = editingCompany && companyChangeMode;
+  const identityDirty =
+    profile.displayName !== savedProfile.displayName ||
+    profile.email !== savedProfile.email;
+  const companyDirty =
+    (profile.company?.org_nr ?? "") !== (savedProfile.company?.org_nr ?? "");
+  const companyDescriptionDirty =
+    profile.companyDescription !== savedProfile.companyDescription;
+  const idealCustomerDirty =
+    profile.idealCustomer !== savedProfile.idealCustomer;
+  const hasUnsavedProfileChanges =
+    identityDirty ||
+    companyDirty ||
+    companyDescriptionDirty ||
+    idealCustomerDirty;
+
+  function discardProfileDraft() {
+    setProfile(savedProfile);
+    setEditingIdentity(false);
+    setEditingCompany(false);
+    setEditingCompanyDescription(false);
+    setEditingIdealCustomer(false);
+    setCompanyChangeMode(false);
+  }
+
+  useEffect(() => {
+    if (!hasUnsavedProfileChanges) return;
+
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    function handleDocumentClick(event: MouseEvent) {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const link = target.closest("a[href]");
+      if (!(link instanceof HTMLAnchorElement)) return;
+      if (link.target === "_blank" || link.hasAttribute("download")) return;
+
+      const nextUrl = new URL(link.href, window.location.href);
+      if (nextUrl.href === window.location.href) return;
+
+      const shouldLeave = window.confirm(
+        "Du har osparade ändringar. Vill du lämna sidan utan att spara?",
+      );
+
+      if (!shouldLeave) {
+        event.preventDefault();
+        event.stopPropagation();
+      } else {
+        discardProfileDraft();
+      }
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleDocumentClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, [hasUnsavedProfileChanges, savedProfile]);
 
   function userPayloadFromProfile(nextProfile: ProfileState): AppUserProfilePayload {
     return {
@@ -1347,14 +1619,99 @@ export function ProfileWorkspace({
     setActionError(null);
     try {
       const saved = await updateUserProfile(userPayloadFromProfile(nextProfile));
-      setProfile(profileFromUserProfile(saved));
+      const nextSavedProfile = profileFromUserProfile(saved);
+      setProfile(nextSavedProfile);
+      setSavedProfile(nextSavedProfile);
+      return true;
     } catch (error) {
       setActionError(
         error instanceof Error ? error.message : "Kunde inte spara profilen.",
       );
+      return false;
     } finally {
       setProfileSaving(false);
     }
+  }
+
+  async function saveProfileSection(section: EditableProfileSection) {
+    const saved = await saveUserProfile();
+    if (!saved) return;
+
+    if (section === "identity") setEditingIdentity(false);
+    if (section === "company") {
+      setEditingCompany(false);
+      setCompanyChangeMode(false);
+    }
+    if (section === "companyDescription") setEditingCompanyDescription(false);
+    if (section === "idealCustomer") setEditingIdealCustomer(false);
+  }
+
+  function cancelProfileSection(section: EditableProfileSection) {
+    setProfile((current) => {
+      if (section === "identity") {
+        return {
+          ...current,
+          displayName: savedProfile.displayName,
+          email: savedProfile.email,
+        };
+      }
+
+      if (section === "company") {
+        return {
+          ...current,
+          company: savedProfile.company,
+        };
+      }
+
+      if (section === "companyDescription") {
+        return {
+          ...current,
+          companyDescription: savedProfile.companyDescription,
+        };
+      }
+
+      return {
+        ...current,
+        idealCustomer: savedProfile.idealCustomer,
+      };
+    });
+
+    if (section === "identity") setEditingIdentity(false);
+    if (section === "company") {
+      setEditingCompany(false);
+      setCompanyChangeMode(false);
+    }
+    if (section === "companyDescription") setEditingCompanyDescription(false);
+    if (section === "idealCustomer") setEditingIdealCustomer(false);
+  }
+
+  function confirmProfileEdit() {
+    if (!pendingEditSection) return;
+
+    if (pendingEditSection === "identity") setEditingIdentity(true);
+    if (pendingEditSection === "company") {
+      setEditingCompany(true);
+      setCompanyChangeMode(false);
+    }
+    if (pendingEditSection === "companyDescription") {
+      setEditingCompanyDescription(true);
+    }
+    if (pendingEditSection === "idealCustomer") setEditingIdealCustomer(true);
+    setPendingEditSection(null);
+  }
+
+  function setProfileTab(nextTab: ProfileTabKey) {
+    if (nextTab === activeProfileTab) return;
+
+    if (hasUnsavedProfileChanges) {
+      const shouldLeave = window.confirm(
+        "Du har osparade ändringar. Vill du lämna utan att spara?",
+      );
+      if (!shouldLeave) return;
+      discardProfileDraft();
+    }
+
+    setActiveProfileTab(nextTab);
   }
 
   async function saveOffer(payload: SalesOfferPayload) {
@@ -1452,192 +1809,366 @@ export function ProfileWorkspace({
   const customerDialogOpen = creatingCustomer || Boolean(editingCustomer);
 
   return (
-    <main className="min-h-screen bg-app-bg p-4 text-app-text sm:p-6">
+    <main className="min-h-screen bg-app-bg px-5 py-4 text-app-text sm:p-6">
       <div className="mx-auto max-w-7xl space-y-5">
-        <section className="rounded-md border border-app-border bg-app-panel p-5 sm:p-6">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <header className="border-b border-app-border pb-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-                Användarprofil
-              </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-app-text">
+              <h1 className="text-2xl font-semibold text-app-text">
                 Profil & ICP
               </h1>
-              <p className="mt-2 text-xs text-app-text-subtle">
-                User ID: {userProfile.id}
-              </p>
+              <div className="mt-2 text-sm leading-5 text-app-text-muted">
+                <span className="font-medium text-app-text-subtle">
+                  User ID:
+                </span>{" "}
+                {userProfile.id}
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {profileSaving ? (
-                <span className="rounded-md border border-app-border bg-app-panel-soft px-3 py-2.5 text-sm text-app-text-subtle">
+                <span className="inline-flex h-8 items-center rounded-sm border border-app-border bg-app-panel-muted px-3 text-xs font-medium text-app-text-muted">
                   Sparar profil...
                 </span>
               ) : null}
-              <Link
-                href="/"
-                className="rounded-md border border-app-border-strong bg-app-panel px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-panel-hover"
-              >
-                Dashboard
-              </Link>
               {selectedCompanyHref ? (
                 <Link
                   href={selectedCompanyHref}
-                  className="rounded-md bg-app-control-bg px-4 py-2.5 text-sm font-medium text-app-control-text transition hover:bg-app-control-bg-hover"
+                  className="inline-flex h-8 items-center rounded-sm border border-app-border bg-app-panel-muted px-3 text-xs font-medium text-app-text transition hover:border-app-border-strong hover:bg-app-panel-hover"
                 >
                   Företagssida
                 </Link>
               ) : null}
             </div>
           </div>
-        </section>
+        </header>
 
         {actionError ? (
-          <div className="rounded-md border border-app-danger-border bg-app-danger-bg px-4 py-3 text-sm text-app-danger-text">
+          <div className="rounded-sm border border-app-danger-border bg-app-danger-bg px-4 py-3 text-sm text-app-danger-text">
             {actionError}
           </div>
         ) : null}
 
-        <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-md border border-app-border bg-app-panel p-5">
-            <p className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-              Användare & eget företag
-            </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-                  Display name
-                </span>
-                <input
-                  value={profile.displayName}
-                  onChange={(event) =>
-                    setProfile((current) => ({
-                      ...current,
-                      displayName: event.target.value,
-                    }))
-                  }
-                  onBlur={() => void saveUserProfile()}
-                  className="mt-2 w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2.5 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
-                  placeholder="Ditt namn"
-                />
-              </label>
-              <label className="block">
-                <span className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-                  Email
-                </span>
-                <input
-                  value={profile.email}
-                  onChange={(event) =>
-                    setProfile((current) => ({
-                      ...current,
-                      email: event.target.value,
-                    }))
-                  }
-                  onBlur={() => void saveUserProfile()}
-                  className="mt-2 w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2.5 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
-                  placeholder="namn@foretag.se"
-                />
-              </label>
-            </div>
-            <div className="mt-5 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className="truncate text-lg font-semibold text-app-text">
-                  {profile.company?.company_name ?? "Välj företag"}
+        <nav
+          className="flex gap-1 overflow-x-auto border-b border-app-border"
+          aria-label="Profilvy"
+        >
+          {PROFILE_TABS.map((tab) => {
+            const active = tab.key === activeProfileTab;
+
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setProfileTab(tab.key)}
+                className={[
+                  "border-b-2 px-3 py-2 text-sm font-medium transition",
+                  active
+                    ? "border-app-accent-border text-app-accent-text"
+                    : "border-transparent text-app-text-muted hover:text-app-text",
+                ].join(" ")}
+                aria-pressed={active}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {activeProfileTab === "profile" ? (
+          <section className="grid gap-3 xl:grid-cols-2">
+            <div className="rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-base font-bold text-app-text">
+                  Användare & företag
                 </h2>
-                <p className="mt-1 text-sm text-app-text-subtle">{companyMeta}</p>
+                <div className="flex gap-2">
+                  {editingIdentity ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => void saveProfileSection("identity")}
+                        disabled={!identityDirty || profileSaving}
+                        className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Spara
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => cancelProfileSection("identity")}
+                        className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text"
+                      >
+                        Avbryt
+                      </button>
+                    </>
+                  ) : (
+                    <EditIconButton
+                      label="Redigera användare"
+                      onClick={() => setPendingEditSection("identity")}
+                    />
+                  )}
+                </div>
               </div>
-              {profile.company ? (
-                <button
-                  type="button"
-                  onClick={() => setConfirmCompanyChangeOpen(true)}
-                  className="shrink-0 rounded-md border border-app-border bg-app-panel px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text"
-                >
-                  Ändra
-                </button>
-              ) : null}
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <label className="block">
+                  <span className="text-[11px] font-medium uppercase text-app-text-subtle">
+                    Display name
+                  </span>
+                  <input
+                    readOnly={!editingIdentity}
+                    value={profile.displayName}
+                    onChange={(event) =>
+                      setProfile((current) => ({
+                        ...current,
+                        displayName: event.target.value,
+                      }))
+                    }
+                    className={[
+                      "mt-2 w-full rounded-sm border px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+                      editingIdentity
+                        ? "border-app-border bg-app-panel"
+                        : "border-app-border bg-app-panel-muted",
+                    ].join(" ")}
+                    placeholder="Ditt namn"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[11px] font-medium uppercase text-app-text-subtle">
+                    Email
+                  </span>
+                  <input
+                    readOnly={!editingIdentity}
+                    value={profile.email}
+                    onChange={(event) =>
+                      setProfile((current) => ({
+                        ...current,
+                        email: event.target.value,
+                      }))
+                    }
+                    className={[
+                      "mt-2 w-full rounded-sm border px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+                      editingIdentity
+                        ? "border-app-border bg-app-panel"
+                        : "border-app-border bg-app-panel-muted",
+                    ].join(" ")}
+                    placeholder="namn@foretag.se"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-4 border-t border-app-border pt-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-medium uppercase text-app-text-subtle">
+                      Valt företag
+                    </div>
+                    <h3 className="mt-1 truncate text-base font-semibold text-app-text">
+                      {profile.company?.company_name ?? "Välj företag"}
+                    </h3>
+                    <p className="mt-1 text-sm text-app-text-subtle">
+                      {companyMeta}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 flex-wrap justify-end gap-2">
+                    {editingCompany ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setCompanyChangeMode(true)}
+                          className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text"
+                        >
+                          Välj
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void saveProfileSection("company")}
+                          disabled={!companyDirty || profileSaving}
+                          className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Spara
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => cancelProfileSection("company")}
+                          className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text"
+                        >
+                          Avbryt
+                        </button>
+                      </>
+                    ) : (
+                      <EditIconButton
+                        label="Redigera valt företag"
+                        onClick={() => setPendingEditSection("company")}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {showCompanySearch ? (
+                  <div className="mt-3">
+                    <CompanySearchBox
+                      onSelect={(company) => {
+                        setProfile((current) => ({ ...current, company }));
+                        setCompanyChangeMode(false);
+                      }}
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
 
-            {showCompanySearch ? (
-              <div className="mt-4">
-                <CompanySearchBox
-                  onSelect={(company) => {
-                    const nextProfile = { ...profile, company };
-                    setProfile(nextProfile);
-                    setCompanyChangeMode(false);
-                    void saveUserProfile(nextProfile);
-                  }}
+            <div className="grid gap-3">
+              <section className="rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-base font-bold text-app-text">
+                    Företagsbeskrivning
+                  </h2>
+                  <div className="flex gap-2">
+                    {editingCompanyDescription ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void saveProfileSection("companyDescription")
+                          }
+                          disabled={!companyDescriptionDirty || profileSaving}
+                          className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Spara
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            cancelProfileSection("companyDescription")
+                          }
+                          className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text"
+                        >
+                          Avbryt
+                        </button>
+                      </>
+                    ) : (
+                      <EditIconButton
+                        label="Redigera företagsbeskrivning"
+                        onClick={() =>
+                          setPendingEditSection("companyDescription")
+                        }
+                      />
+                    )}
+                  </div>
+                </div>
+                <textarea
+                  readOnly={!editingCompanyDescription}
+                  value={profile.companyDescription}
+                  onChange={(event) =>
+                    setProfile((current) => ({
+                      ...current,
+                      companyDescription: event.target.value,
+                    }))
+                  }
+                  className={[
+                    "mt-3 min-h-32 w-full rounded-sm border px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+                    editingCompanyDescription
+                      ? "border-app-border bg-app-panel"
+                      : "border-app-border bg-app-panel-muted",
+                  ].join(" ")}
+                  placeholder="Beskriv företaget med era egna ord."
                 />
-              </div>
-            ) : null}
-          </div>
+              </section>
 
-          <div className="grid gap-5">
-            <label className="block rounded-md border border-app-border bg-app-panel p-5">
-              <span className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-                Företagsbeskrivning
-              </span>
-              <textarea
-                value={profile.companyDescription}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    companyDescription: event.target.value,
-                  }))
-                }
-                onBlur={() => void saveUserProfile()}
-                className="mt-3 min-h-32 w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2.5 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
-                placeholder="Beskriv företaget med era egna ord."
-              />
-            </label>
+              <section className="rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-base font-bold text-app-text">
+                    Idealkund
+                  </h2>
+                  <div className="flex gap-2">
+                    {editingIdealCustomer ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void saveProfileSection("idealCustomer")
+                          }
+                          disabled={!idealCustomerDirty || profileSaving}
+                          className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Spara
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => cancelProfileSection("idealCustomer")}
+                          className="rounded-sm border border-app-border bg-app-panel-muted px-2.5 py-1.5 text-xs font-medium text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text"
+                        >
+                          Avbryt
+                        </button>
+                      </>
+                    ) : (
+                      <EditIconButton
+                        label="Redigera idealkund"
+                        onClick={() => setPendingEditSection("idealCustomer")}
+                      />
+                    )}
+                  </div>
+                </div>
+                <textarea
+                  readOnly={!editingIdealCustomer}
+                  value={profile.idealCustomer}
+                  onChange={(event) =>
+                    setProfile((current) => ({
+                      ...current,
+                      idealCustomer: event.target.value,
+                    }))
+                  }
+                  className={[
+                    "mt-3 min-h-32 w-full rounded-sm border px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+                    editingIdealCustomer
+                      ? "border-app-border bg-app-panel"
+                      : "border-app-border bg-app-panel-muted",
+                  ].join(" ")}
+                  placeholder="Beskriv vilka kunder ni helst vill nå."
+                />
+              </section>
+            </div>
+          </section>
+        ) : null}
 
-            <label className="block rounded-md border border-app-border bg-app-panel p-5">
-              <span className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-                Idealkund
-              </span>
-              <textarea
-                value={profile.idealCustomer}
-                onChange={(event) =>
-                  setProfile((current) => ({
-                    ...current,
-                    idealCustomer: event.target.value,
-                  }))
-                }
-                onBlur={() => void saveUserProfile()}
-                className="mt-3 min-h-32 w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2.5 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
-                placeholder="Beskriv vilka kunder ni helst vill nå."
-              />
-            </label>
-          </div>
-        </section>
+        {activeProfileTab === "map" ? (
+          <CustomerMapView company={profile.company} customers={customerItems} />
+        ) : null}
 
-        <OffersList
-          offers={offerItems}
-          customersById={customersById}
-          onCreate={() => {
-            setActionError(null);
-            setCreatingOffer(true);
-          }}
-          onEdit={(offer) => {
-            setActionError(null);
-            setEditingOffer(offer);
-          }}
-          onDelete={setDeletingOffer}
-        />
+        {activeProfileTab === "offers" ? (
+          <OffersList
+            offers={offerItems}
+            customersById={customersById}
+            onCreate={() => {
+              setActionError(null);
+              setCreatingOffer(true);
+            }}
+            onEdit={(offer) => {
+              setActionError(null);
+              setEditingOffer(offer);
+            }}
+            onDelete={setDeletingOffer}
+          />
+        ) : null}
 
-        <CustomersList
-          customers={customerItems}
-          onCreate={() => {
-            setActionError(null);
-            setCreatingCustomer(true);
-          }}
-          onEdit={(customer) => {
-            setActionError(null);
-            setEditingCustomer(customer);
-          }}
-          onDelete={setDeletingCustomer}
-        />
+        {activeProfileTab === "customers" ? (
+          <CustomersList
+            customers={customerItems}
+            onCreate={() => {
+              setActionError(null);
+              setCreatingCustomer(true);
+            }}
+            onEdit={(customer) => {
+              setActionError(null);
+              setEditingCustomer(customer);
+            }}
+            onDelete={setDeletingCustomer}
+          />
+        ) : null}
 
-        <SavedSegmentsList segments={segments} />
+        {activeProfileTab === "segments" ? (
+          <SavedSegmentsList segments={segments} />
+        ) : null}
       </div>
 
       <OfferDialog
@@ -1673,23 +2204,21 @@ export function ProfileWorkspace({
       />
 
       <ConfirmDialog
-        open={confirmCompanyChangeOpen}
-        title="Ändra valt företag?"
+        open={pendingEditSection !== null}
+        title={
+          pendingEditSection
+            ? EDIT_SECTION_COPY[pendingEditSection].title
+            : "Redigera?"
+        }
         description={
-          profile.company
-            ? `Valet "${profile.company.company_name}" tas bort och du kan söka fram ett nytt företag.`
+          pendingEditSection
+            ? EDIT_SECTION_COPY[pendingEditSection].description
             : undefined
         }
-        confirmLabel="Ta bort val"
+        confirmLabel="Gå till redigering"
         cancelLabel="Avbryt"
-        onConfirm={() => {
-          const nextProfile = { ...profile, company: null };
-          setProfile(nextProfile);
-          setCompanyChangeMode(false);
-          setConfirmCompanyChangeOpen(false);
-          void saveUserProfile(nextProfile);
-        }}
-        onCancel={() => setConfirmCompanyChangeOpen(false)}
+        onConfirm={confirmProfileEdit}
+        onCancel={() => setPendingEditSection(null)}
       />
 
       <ConfirmDialog

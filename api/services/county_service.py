@@ -81,6 +81,28 @@ def get_county_overview(county_code: str):
     ORDER BY count DESC, name ASC;
     """
 
+    status_sql = """
+    SELECT
+        COALESCE(company_status_code, 'unknown') AS code,
+        COALESCE(MAX(company_status_name), 'Saknas') AS name,
+        COUNT(*) AS count
+    FROM v_company
+    WHERE seat_county_code = %(county_code)s
+    GROUP BY COALESCE(company_status_code, 'unknown')
+    ORDER BY count DESC, name ASC;
+    """
+
+    state_sql = """
+    SELECT
+        COALESCE(company_state_code, 'unknown') AS code,
+        COALESCE(MAX(company_state_name), 'Saknas') AS name,
+        COUNT(*) AS count
+    FROM v_company
+    WHERE seat_county_code = %(county_code)s
+    GROUP BY COALESCE(company_state_code, 'unknown')
+    ORDER BY count DESC, name ASC;
+    """
+
     params = {"county_code": county_code}
 
     with get_db_connection() as conn, conn.cursor() as cur:
@@ -108,6 +130,12 @@ def get_county_overview(county_code: str):
         cur.execute(turnover_sql, params)
         turnover_rows = cur.fetchall()
 
+        cur.execute(status_sql, params)
+        status_rows = cur.fetchall()
+
+        cur.execute(state_sql, params)
+        state_rows = cur.fetchall()
+
     return {
         "county_code": county_code,
         "county_name": county_row["county_name"],
@@ -123,6 +151,8 @@ def get_county_overview(county_code: str):
         "by_industry": industry_rows,
         "by_size": size_rows,
         "by_turnover": turnover_rows,
+        "by_status": status_rows,
+        "by_state": state_rows,
     }
 
 
@@ -197,6 +227,28 @@ def get_municipality_overview(municipality_code: str):
     ORDER BY count DESC, name ASC;
     """
 
+    status_sql = """
+    SELECT
+        COALESCE(company_status_code, 'unknown') AS code,
+        COALESCE(MAX(company_status_name), 'Saknas') AS name,
+        COUNT(*) AS count
+    FROM v_company
+    WHERE seat_municipality_code = %(municipality_code)s
+    GROUP BY COALESCE(company_status_code, 'unknown')
+    ORDER BY count DESC, name ASC;
+    """
+
+    state_sql = """
+    SELECT
+        COALESCE(company_state_code, 'unknown') AS code,
+        COALESCE(MAX(company_state_name), 'Saknas') AS name,
+        COUNT(*) AS count
+    FROM v_company
+    WHERE seat_municipality_code = %(municipality_code)s
+    GROUP BY COALESCE(company_state_code, 'unknown')
+    ORDER BY count DESC, name ASC;
+    """
+
     params = {"municipality_code": municipality_code}
 
     with get_db_connection() as conn, conn.cursor() as cur:
@@ -221,6 +273,12 @@ def get_municipality_overview(municipality_code: str):
         cur.execute(aregion_sql, params)
         aregion_rows = cur.fetchall()
 
+        cur.execute(status_sql, params)
+        status_rows = cur.fetchall()
+
+        cur.execute(state_sql, params)
+        state_rows = cur.fetchall()
+
     return {
         "municipality_code": municipality_code,
         "municipality_name": municipality_row["municipality_name"],
@@ -237,4 +295,6 @@ def get_municipality_overview(municipality_code: str):
         "by_size": size_rows,
         "by_turnover": turnover_rows,
         "by_aregion": aregion_rows,
+        "by_status": status_rows,
+        "by_state": state_rows,
     }

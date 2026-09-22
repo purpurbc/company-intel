@@ -3,15 +3,30 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import type { Company, CompanyTurnoverHistoryItem } from "@/src/lib/types";
+import { Button, buttonClassName } from "@/src/components/ui/Button";
+import { AnimatedContent } from "@/src/components/ui/AnimatedContent";
+import { Feedback } from "@/src/components/ui/Feedback";
+import { TextLink } from "@/src/components/ui/TextLink";
+import { Inset, Section } from "@/src/components/ui/Surface";
+import { Tabs } from "@/src/components/ui/Tabs";
+import type {
+  Company,
+  CompanyEventHistoryItem,
+  CompanyTurnoverHistoryItem,
+} from "@/src/lib/types";
 import { INDUSTRY_OPTIONS } from "@/src/lib/companyFilterOptions";
+import { ui } from "@/src/lib/uiStyles";
+import { formatDataSources } from "@/src/lib/dataSources";
+import { formatPostalAddress } from "@/src/lib/postalAddress";
+import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
 
 type CompanyInsightSectionsProps = {
   company: Company;
   turnoverHistory?: CompanyTurnoverHistoryItem[];
+  eventHistory?: CompanyEventHistoryItem[];
 };
 
-type TabKey = "overview" | "insights" | "contact" | "raw";
+type TabKey = "overview" | "events" | "contact" | "raw";
 
 type TurnoverRange = {
   min: number;
@@ -21,9 +36,9 @@ type TurnoverRange = {
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Översikt" },
-  { key: "insights", label: "Insikter" },
+  { key: "events", label: "Händelser" },
   { key: "contact", label: "Kontakt" },
-  { key: "raw", label: "Raw payload" },
+  { key: "raw", label: "Rådata" },
 ];
 
 const TURNOVER_GROSS_RANGES: Record<string, TurnoverRange> = {
@@ -66,11 +81,11 @@ const TURNOVER_FIN_RANGES: Record<string, TurnoverRange> = {
   "21": { min: 10000000, max: 10000000, label: "> 9 999 999 tkr" },
 };
 
-function value(company: Company, key: string): unknown {
+function value(company: Company, key: keyof Company): unknown {
   return company[key];
 }
 
-function text(company: Company, ...keys: string[]): string | null {
+function text(company: Company, ...keys: (keyof Company)[]): string | null {
   for (const key of keys) {
     const raw = value(company, key);
     if (typeof raw === "string" && raw.trim()) return raw;
@@ -93,47 +108,46 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
-function companyAge(startDate: string | null) {
-  if (!startDate) return null;
-
-  const date = new Date(startDate);
-  if (Number.isNaN(date.getTime())) return null;
-
-  const years = new Date().getFullYear() - date.getFullYear();
-  if (years <= 0) return "Under 1 år";
-  if (years === 1) return "1 år";
-  return `${years} år`;
-}
-
-function formatTkr(value: number) {
-  return `${value.toLocaleString("sv-SE")} tkr`;
-}
-
 function countyHref(company: Company) {
-  const countyCode = text(company, "seat_county_code");
+  const countyCode = text(company, "county_code");
   return countyCode ? `/county/${encodeURIComponent(countyCode)}` : null;
 }
 
 function municipalityHref(company: Company) {
-  const municipalityCode = text(company, "seat_municipality_code");
+  const municipalityCode = text(company, "municipality_code");
   return municipalityCode
     ? `/municipality/${encodeURIComponent(municipalityCode)}`
     : null;
 }
 
 function municipalityMapHref(company: Company) {
-  const municipalityCode = text(company, "seat_municipality_code");
+  const municipalityCode = text(company, "municipality_code");
   return municipalityCode
     ? `/map?municipality=${encodeURIComponent(municipalityCode)}`
     : "/map";
 }
 
 function industryGroup(company: Company) {
-  const code = text(company, "bransch_1_code")?.slice(0, 2);
+  const code = text(company, "primary_industry_code")?.slice(0, 2);
   if (!code) return null;
 
   const option = INDUSTRY_OPTIONS.find((item) => item.value === code);
   return option ? `${code} ${option.label}` : code;
+}
+
+function companySources(
+  company: Company,
+  fields: Array<keyof Company>,
+  fallback?: string,
+  additionalSources: string[] = [],
+) {
+  return formatDataSources(
+    [
+      ...fields.map((field) => company.provenance?.[field]?.source),
+      ...additionalSources,
+    ],
+    fallback,
+  );
 }
 
 function LinkedValue({
@@ -146,12 +160,9 @@ function LinkedValue({
   if (!href || !children) return children;
 
   return (
-    <Link
-      href={href}
-      className="font-medium text-app-text underline decoration-app-border-strong underline-offset-4 hover:text-app-accent-text"
-    >
+    <TextLink href={href}>
       {children}
-    </Link>
+    </TextLink>
   );
 }
 
@@ -160,22 +171,18 @@ function SectionBlock({
   children,
   className = "",
   bodyClassName = "",
+  source,
 }: {
   title: string;
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
+  source?: string;
 }) {
   return (
-    <section
-      className={[
-        "rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3",
-        className,
-      ].join(" ")}
-    >
-      <h2 className="text-base font-bold text-app-text">{title}</h2>
-      <div className={["mt-2", bodyClassName].join(" ")}>{children}</div>
-    </section>
+    <Section title={title} source={source} className={className} contentClassName={bodyClassName}>
+      {children}
+    </Section>
   );
 }
 
@@ -189,9 +196,9 @@ function DataGrid({
       {rows.map((row) => (
         <div
           key={row.label}
-          className="grid grid-cols-[7rem_minmax(0,1fr)] gap-3 py-2 text-xs sm:grid-cols-[9.5rem_minmax(0,1fr)]"
+          className="grid grid-cols-[7rem_minmax(0,1fr)] gap-3 py-2 text-xs sm:grid-cols-[11.5rem_minmax(0,1fr)]"
         >
-          <dt className="min-w-0 truncate text-[11px] font-medium uppercase text-app-text-subtle">
+          <dt className="min-w-0 break-words text-[11px] font-medium uppercase leading-4 text-app-text-subtle">
             {row.label}
           </dt>
           <dd className="min-w-0 text-left font-medium text-app-text">
@@ -203,7 +210,73 @@ function DataGrid({
   );
 }
 
-function TurnoverHistoryChart({
+function registrationStatus(
+  code: string | null,
+  registeredCodes: string[],
+): boolean | null {
+  if (!code) return null;
+  return registeredCodes.includes(code);
+}
+
+function RegistrySummary({ company }: { company: Company }) {
+  const entries = [
+    {
+      label: "Moms",
+      registered: registrationStatus(company.vat_status_code, ["1", "3"]),
+      detail: company.vat_status,
+    },
+    {
+      label: "F-skatt",
+      registered: registrationStatus(company.f_tax_status_code, ["1"]),
+      detail: company.f_tax_status,
+    },
+    {
+      label: "Arbetsgivare",
+      registered: registrationStatus(company.employer_status_code, ["1", "2", "3", "4"]),
+      detail: company.employer_status,
+    },
+  ];
+
+  return (
+    <span className="flex flex-wrap gap-x-4 gap-y-2">
+      {entries.map((entry) => {
+        const statusLabel =
+          entry.registered === null
+            ? "uppgift saknas"
+            : entry.registered
+              ? "registrerad"
+              : "inte registrerad";
+        const tone =
+          entry.registered === null
+            ? "text-app-text-subtle"
+            : entry.registered
+              ? "text-app-positive-bg"
+              : "text-app-danger-bg";
+
+        return (
+          <span
+            key={entry.label}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap"
+            title={`${entry.label}: ${entry.detail || statusLabel}`}
+            aria-label={`${entry.label}: ${statusLabel}`}
+          >
+            <MaskedIcon
+              src={
+                entry.registered === true
+                  ? "/icons/utility/check-circle.svg"
+                  : "/icons/utility/cross.svg"
+              }
+              className={`h-4 w-4 ${tone}`}
+            />
+            <span>{entry.label}</span>
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+function TurnoverHistory({
   items = [],
 }: {
   items?: CompanyTurnoverHistoryItem[];
@@ -214,8 +287,8 @@ function TurnoverHistoryChart({
       const grossRange = item.turnover_size_code
         ? TURNOVER_GROSS_RANGES[item.turnover_size_code]
         : null;
-      const finRange = item.turnover_fin_size_code
-        ? TURNOVER_FIN_RANGES[item.turnover_fin_size_code]
+      const finRange = item.turnover_financial_size_code
+        ? TURNOVER_FIN_RANGES[item.turnover_financial_size_code]
         : null;
 
       return {
@@ -229,154 +302,58 @@ function TurnoverHistoryChart({
 
   if (chartItems.length === 0) {
     return (
-      <div className="rounded-sm border border-dashed border-app-border bg-app-panel-muted p-3 text-sm text-app-text-muted">
+      <Feedback>
         Ingen omsättningshistorik finns ännu.
-      </div>
+      </Feedback>
     );
   }
 
-  const chartMax = Math.max(
-    1,
-    ...chartItems.map((item) =>
-      Math.max(item.grossRange?.max ?? 0, item.finRange?.max ?? 0),
-    ),
-  );
-  const axisTicks = Array.from(
-    new Set(
-      chartItems.flatMap((item) => {
-        const grossRange = item.grossRange ?? item.finRange;
-        const finRange = item.finRange;
-        return [
-          finRange?.min,
-          finRange?.max,
-          grossRange?.max,
-        ].filter((item): item is number => typeof item === "number");
-      }),
-    ),
-  ).sort((a, b) => a - b);
-  const axisLabelGroups = axisTicks.reduce<number[][]>((groups, tickValue) => {
-    const previousGroup = groups[groups.length - 1];
-    const previousValue = previousGroup?.[previousGroup.length - 1];
-    const isClose =
-      typeof previousValue === "number" &&
-      Math.abs((tickValue - previousValue) / chartMax) * 100 < 7;
-
-    if (previousGroup && isClose) {
-      previousGroup.push(tickValue);
-    } else {
-      groups.push([tickValue]);
-    }
-
-    return groups;
-  }, []);
-
   return (
-    <div className="border border-app-border bg-app-panel-muted p-3">
+    <Inset>
       <div className="flex items-center justify-between gap-3">
         <div className="text-xs font-medium uppercase text-app-text-subtle">
           Omsättningshistorik
         </div>
-        <button
+        <Button
           type="button"
           onClick={() => setNewestFirst((current) => !current)}
-          className="rounded-sm border border-app-border bg-app-panel px-2 py-1 text-xs font-medium text-app-text-muted transition hover:text-app-text"
+          variant="secondary"
+          size="xs"
           aria-pressed={newestFirst}
         >
-          {newestFirst ? "Senast vänster" : "Senast höger"}
-        </button>
+          {newestFirst ? "Äldst först" : "Nyast först"}
+        </Button>
       </div>
-
-      <div className="mt-5 grid grid-cols-[4.75rem_minmax(0,1fr)]">
-        <div className="relative h-40 border-b border-app-border">
-          <div className="absolute inset-x-0 bottom-0 top-4">
-            {axisLabelGroups.map((group) => (
-              <span
-                key={group.join("-")}
-                className="absolute right-3 text-right text-[10px] tabular-nums leading-none text-app-text-subtle"
-                style={{
-                  bottom: `${(group[group.length - 1] / chartMax) * 100}%`,
-                }}
-              >
-                {formatTkr(group[group.length - 1])}
+      <div className="mt-3 divide-y divide-app-border">
+        {chartItems.map((item) => (
+          <div
+            key={item.year}
+            className="grid gap-2 py-2 text-xs sm:grid-cols-[4rem_minmax(0,1fr)_minmax(0,1fr)] sm:items-center"
+          >
+            <div className="font-semibold tabular-nums text-app-text">
+              {item.year}
+            </div>
+            <div>
+              <span className="text-app-text-subtle">Grov klass: </span>
+              <span className="font-medium text-app-text">
+                {item.grossRange?.label ?? item.turnover_size ?? "Saknas"}
               </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <div className="relative h-40 w-max min-w-full border-b border-app-border">
-            <div className="absolute inset-x-0 bottom-0 top-4 flex items-end justify-center gap-8 px-4">
-              {axisTicks.map((tickValue) => (
-                <span
-                  key={tickValue}
-                  className="pointer-events-none absolute left-0 right-0 h-px bg-app-border"
-                  style={{ bottom: `${(tickValue / chartMax) * 100}%` }}
-                />
-              ))}
-
-              {chartItems.map((item) => {
-                const grossRange = item.grossRange ?? item.finRange;
-                const finRange = item.finRange;
-                const grossHeight = Math.max(
-                  4,
-                  ((grossRange?.max ?? 0) / chartMax) * 100,
-                );
-                const finBottom = finRange ? (finRange.min / chartMax) * 100 : 0;
-                const finHeight = finRange
-                  ? Math.max(3, ((finRange.max - finRange.min) / chartMax) * 100)
-                  : 0;
-
-                return (
-                  <div
-                    key={item.year}
-                    className="relative z-10 flex h-full w-16 shrink-0 items-end justify-center"
-                    title={`${item.year}: ${item.turnover_size ?? grossRange?.label ?? "-"} / ${item.turnover_fin_size ?? finRange?.label ?? "-"}`}
-                  >
-                    <div className="relative h-full w-9">
-                      <div
-                        className="absolute bottom-0 left-0 right-0 border border-app-border-strong bg-app-panel"
-                        style={{ height: `${grossHeight}%` }}
-                      />
-                      {finRange ? (
-                        <div
-                          className="absolute left-1 right-1 bg-app-accent-text"
-                          style={{
-                            bottom: `${finBottom}%`,
-                            height: `${finHeight}%`,
-                          }}
-                        />
-                      ) : null}
-                    </div>
-                  </div>
-                );
-              })}
+            </div>
+            <div>
+              <span className="text-app-text-subtle">Fin klass: </span>
+              <span className="font-medium text-app-text">
+                {item.finRange?.label ??
+                  item.turnover_financial_size ??
+                  "Saknas"}
+              </span>
             </div>
           </div>
-
-          <div className="flex w-max min-w-full justify-center gap-8 px-4 pt-2">
-            {chartItems.map((item) => (
-              <div
-                key={item.year}
-                className="w-16 shrink-0 text-center text-xs font-medium text-app-text-muted"
-              >
-                {item.year}
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
-
-      <div className="mt-3 flex flex-wrap justify-center gap-4 text-xs text-app-text-subtle">
-        <span className="inline-flex items-center gap-2">
-          <span className="h-2 w-4 bg-app-panel ring-1 ring-app-border-strong" />
-          Grov omsättningsklass
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <span className="h-2 w-4 bg-app-accent-text" />
-          Fin omsättningsklass
-        </span>
-      </div>
-    </div>
+      <p className="mt-3 text-xs text-app-text-subtle">
+        SCB redovisar intervall, inte exakta omsättningsbelopp.
+      </p>
+    </Inset>
   );
 }
 
@@ -384,68 +361,119 @@ function OverviewTab({
   company,
   turnoverHistory,
 }: CompanyInsightSectionsProps) {
-  const startDate = text(company, "start_date", "registration_date");
   const countyOverviewHref = countyHref(company);
   const municipalityOverviewHref = municipalityHref(company);
   const mapHref = municipalityMapHref(company);
   const industryGroupName = industryGroup(company);
-
+  const businessDescription = company.business_description?.trim() || null;
+  const postalAddress = formatPostalAddress({
+    careOf: company.care_of_address,
+    street: company.postal_address,
+    postalCode: company.postal_code,
+    city: company.postal_city,
+  });
   return (
     <div className="space-y-3">
-      <div className="grid gap-3 xl:grid-cols-2">
-        <SectionBlock title="Företagsinformation">
+      <div className={ui.detailGrid}>
+        <SectionBlock
+          title="Företagsinformation"
+          source={companySources(
+            company,
+            [
+              "organization_form_code", "legal_form_code", "activity_status_code",
+              "company_state_code", "workplace_count", "private_public_code",
+              "sector_code", "vat_status_code", "f_tax_status_code",
+              "employer_status_code",
+            ],
+            "SCB · Bolagsverket",
+            ["bolagsverket"],
+          )}
+        >
           <DataGrid
             rows={[
-              { label: "Juridisk form", value: text(company, "legal_form", "legal_form_name_dim") },
-              { label: "Registrerat", value: formatDate(text(company, "registration_date")) },
-              { label: "Ålder", value: companyAge(startDate) },
-              { label: "Status", value: text(company, "company_status", "company_status_name_dim") },
-              { label: "Bolagsläge", value: text(company, "company_state", "company_state_name_dim") },
-              { label: "Arbetsställen", value: text(company, "num_workplaces") },
+              { label: "Verksamhetsform", value: text(company, "organization_form") },
+              { label: "Juridisk form", value: text(company, "legal_form") },
+              {
+                label: "Registreringsdatum",
+                value: formatDate(company.bolagsverket_registration_date),
+              },
+              { label: "Verksamhetsstatus", value: text(company, "activity_status") },
+              { label: "Bolagsläge / riskläge", value: text(company, "company_state") },
+              { label: "Registrerat för", value: <RegistrySummary company={company} /> },
+              { label: "Arbetsställen", value: text(company, "workplace_count") },
               { label: "Privat/offentligt", value: text(company, "private_public") },
-              { label: "Sektor", value: text(company, "sector", "sector_name_dim") },
+              { label: "Sektor", value: text(company, "sector") },
             ]}
           />
         </SectionBlock>
 
-        <SectionBlock title="Verksamhet">
+        <SectionBlock
+          title="Verksamhet"
+          source={companySources(
+            company,
+            ["primary_industry_code", "industry_section_code", "employee_size_code"],
+            businessDescription ? "SCB · Bolagsverket" : "SCB",
+            businessDescription ? ["bolagsverket"] : [],
+          )}
+        >
           <DataGrid
             rows={[
-              { label: "Bransch", value: text(company, "bransch_1", "industry_5_name", "bransch_1_name_dim") },
-              { label: "SNI-kod", value: text(company, "bransch_1_code") },
+              { label: "Bransch", value: text(company, "primary_industry_name") },
+              { label: "SNI-kod", value: text(company, "primary_industry_code") },
               { label: "SNI-grupp", value: industryGroupName },
-              { label: "Avdelning", value: text(company, "avdelning_1", "avdelning_1_name_dim") },
-              { label: "Segment", value: text(company, "industry_2_name") },
-              { label: "Anställda", value: text(company, "size_class", "size_class_name_dim") },
+              { label: "Avdelning", value: text(company, "industry_section_name") },
+              { label: "Anställda", value: text(company, "employee_size") },
             ]}
           />
+          {businessDescription ? (
+            <div className="mt-3 border-t border-app-border pt-3">
+              <div className="text-[11px] font-medium uppercase text-app-text-subtle">
+                Verksamhetsbeskrivning
+              </div>
+              <p className="mt-2 text-sm leading-6 text-app-text">
+                {businessDescription}
+              </p>
+            </div>
+          ) : null}
         </SectionBlock>
       </div>
 
-      <SectionBlock title="Ekonomi">
+      <SectionBlock
+        title="Ekonomi"
+        source={companySources(
+          company,
+          ["turnover_size_code", "turnover_financial_size_code", "turnover_year", "sme_size_code", "trade_indicator"],
+          "SCB",
+        )}
+      >
         <div className="space-y-3">
-          <TurnoverHistoryChart items={turnoverHistory} />
+          <TurnoverHistory items={turnoverHistory} />
           <DataGrid
             rows={[
-              { label: "Omsättning", value: text(company, "turnover_size", "turnover_gross_name_dim") },
-              { label: "Fin omsättning", value: text(company, "turnover_fin_size", "turnover_fin_name_dim") },
+              { label: "Omsättning", value: text(company, "turnover_size") },
+              { label: "Fin omsättning", value: text(company, "turnover_financial_size") },
               { label: "Omsättningsår", value: text(company, "turnover_year") },
-              { label: "SME-klass", value: text(company, "sme_size") },
-              { label: "Import", value: text(company, "import_turnover", "export_import_mark") },
-              { label: "Export", value: text(company, "export_turnover", "export_import_mark") },
+              { label: "SMF-klass", value: text(company, "sme_size") },
+              { label: "Handel", value: text(company, "trade_indicator") },
             ]}
           />
         </div>
       </SectionBlock>
 
-      <SectionBlock title="Geografi">
+      <SectionBlock
+        title="Geografi"
+        source={companySources(
+          company,
+          ["municipality_code", "county_code", "region_code", "postal_address", "postal_code", "postal_city"],
+        )}
+      >
         <DataGrid
           rows={[
             {
               label: "Kommun",
               value: (
                 <LinkedValue href={municipalityOverviewHref}>
-                  {text(company, "seat_municipality_name", "seat_municipality")}
+                  {text(company, "municipality_name")}
                 </LinkedValue>
               ),
             },
@@ -453,20 +481,18 @@ function OverviewTab({
               label: "Län",
               value: (
                 <LinkedValue href={countyOverviewHref}>
-                  {text(company, "seat_county_name", "seat_county")}
+                  {text(company, "county_name")}
                 </LinkedValue>
               ),
             },
-            { label: "A-region", value: text(company, "aregion_name", "aregion") },
-            { label: "Adress", value: text(company, "post_address", "co_address") },
-            { label: "Postnr", value: text(company, "post_nr") },
-            { label: "Postort", value: text(company, "post_ort") },
+            { label: "Region", value: text(company, "region_name") },
+            { label: "Postadress", value: postalAddress || null },
           ]}
         />
         <div className="mt-3 border-t border-app-border pt-3">
           <Link
             href={mapHref}
-            className="inline-flex h-8 items-center rounded-sm border border-app-border bg-app-panel-muted px-3 text-xs font-medium text-app-text transition hover:border-app-border-strong hover:bg-app-panel-hover"
+            className={buttonClassName({ variant: "secondary", size: "sm" })}
           >
             Visa kommun på karta
           </Link>
@@ -476,112 +502,46 @@ function OverviewTab({
   );
 }
 
-function InsightPlaceholder({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="border-b border-app-border py-3 last:border-b-0">
-      <div className="text-sm font-semibold text-app-text">{title}</div>
-      <p className="mt-1 text-sm leading-6 text-app-text-muted">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function InsightsTab() {
-  const insightItems = [
-    {
-      title: "Säljvinkel",
-      description:
-        "AI formulerar varför bolaget är relevant utifrån användarens profil, erbjudanden, befintliga kunder och valda segment.",
-    },
-    {
-      title: "Match mot erbjudanden",
-      description:
-        "Identifierar vilka erbjudanden som sannolikt passar bolaget och varför de kan vara kommersiellt relevanta.",
-    },
-    {
-      title: "Liknande bästa kunder",
-      description:
-        "Jämför bolaget med användarens kundbas och lyfter likheter i bransch, storlek, geografi, köpsignaler och behov.",
-    },
-    {
-      title: "Prospect-motiv",
-      description:
-        "Sammanfattar vad en säljare borde veta innan kontakt: möjlig trigger, tänkbart problem, timing och rekommenderad öppning.",
-    },
-    {
-      title: "Segmentförslag",
-      description:
-        "Föreslår om bolaget bör ingå i ett befintligt segment eller om det pekar mot ett nytt prospekteringssegment.",
-    },
-    {
-      title: "Nästa bästa handling",
-      description:
-        "Rekommenderar nästa steg: bevaka, kontakta, lägg i lista, hitta liknande bolag eller skapa outreach-underlag.",
-    },
-    {
-      title: "Prospect-expansion",
-      description:
-        "Använder bolaget som frö för att hitta fler företag med liknande profil, behov och sannolik säljpotential.",
-    },
-    {
-      title: "Risk och friktion",
-      description:
-        "Beräknar manuella och AI-baserade varningsflaggor som kan påverka prioritet, pitch eller sannolikhet till affär.",
-    },
-  ];
-
-  return (
-    <div className="max-w-3xl">
-      <SectionBlock title="Säljinsikter">
-        <div className="divide-y divide-app-border">
-          {insightItems.map((item) => (
-            <InsightPlaceholder
-              key={item.title}
-              title={item.title}
-              description={item.description}
-            />
-          ))}
-        </div>
-      </SectionBlock>
-    </div>
-  );
-}
-
 function ContactTab({ company }: CompanyInsightSectionsProps) {
   const countyOverviewHref = countyHref(company);
   const municipalityOverviewHref = municipalityHref(company);
+  const postalAddress = formatPostalAddress({
+    careOf: company.care_of_address,
+    street: company.postal_address,
+    postalCode: company.postal_code,
+    city: company.postal_city,
+  });
 
   return (
-    <div className="grid gap-3 xl:grid-cols-2">
-      <SectionBlock title="Kontakt">
+    <div className={ui.detailGrid}>
+      <SectionBlock
+        title="Kontakt"
+        source={companySources(company, ["phone", "email", "advertising_status_code"], "SCB")}
+      >
         <DataGrid
           rows={[
-            { label: "Telefon", value: text(company, "phone", "telephone") },
-            { label: "Email", value: text(company, "email") },
-            { label: "Webb", value: text(company, "website", "url") },
-            { label: "Reklam", value: text(company, "reklam", "utskick") },
+            { label: "Telefon", value: text(company, "phone") },
+            { label: "E-post", value: text(company, "email") },
+            { label: "Reklam", value: text(company, "advertising_status") },
           ]}
         />
       </SectionBlock>
 
-      <SectionBlock title="Adress">
+      <SectionBlock
+        title="Adress"
+        source={companySources(
+          company,
+          ["postal_address", "postal_code", "postal_city", "municipality_code", "county_code"],
+        )}
+      >
         <DataGrid
           rows={[
-            { label: "Gata", value: text(company, "post_address", "co_address") },
-            { label: "Postnr", value: text(company, "post_nr") },
-            { label: "Postort", value: text(company, "post_ort") },
+            { label: "Postadress", value: postalAddress || null },
             {
               label: "Kommun",
               value: (
                 <LinkedValue href={municipalityOverviewHref}>
-                  {text(company, "seat_municipality_name", "seat_municipality")}
+                  {text(company, "municipality_name")}
                 </LinkedValue>
               ),
             },
@@ -589,7 +549,7 @@ function ContactTab({ company }: CompanyInsightSectionsProps) {
               label: "Län",
               value: (
                 <LinkedValue href={countyOverviewHref}>
-                  {text(company, "seat_county_name", "seat_county")}
+                  {text(company, "county_name")}
                 </LinkedValue>
               ),
             },
@@ -602,7 +562,7 @@ function ContactTab({ company }: CompanyInsightSectionsProps) {
 
 function RawTab({ company }: CompanyInsightSectionsProps) {
   return (
-    <SectionBlock title="Raw payload">
+    <SectionBlock title="Rådata">
       <pre className="max-h-[32rem] overflow-auto rounded-sm bg-app-panel-muted p-3 text-xs leading-5 text-app-text-muted">
         {JSON.stringify(company, null, 2)}
       </pre>
@@ -610,46 +570,154 @@ function RawTab({ company }: CompanyInsightSectionsProps) {
   );
 }
 
+function eventDate(event: CompanyEventHistoryItem) {
+  return event.effective_at ?? event.detected_at;
+}
+
+function eventKindLabel(kind: CompanyEventHistoryItem["kind"]) {
+  switch (kind) {
+    case "company_event":
+      return "Händelse";
+    case "change":
+      return "Ändring";
+    case "registration":
+      return "Registrering";
+    case "procedure":
+      return "Förfarande";
+    default:
+      return kind;
+  }
+}
+
+const EVENT_KIND_ICONS: Record<CompanyEventHistoryItem["kind"], string> = {
+  company_event: "/icons/event/company_event.svg",
+  change: "/icons/event/change.svg",
+  registration: "/icons/event/registration.svg",
+  procedure: "/icons/event/procedure.svg",
+};
+
+function eventKindClassName(kind: CompanyEventHistoryItem["kind"]) {
+  switch (kind) {
+    case "company_event":
+      return "bg-app-positive-bg text-app-positive-text";
+    case "change":
+      return "bg-app-info-bg text-app-info-text";
+    case "registration":
+      return "bg-app-event-registration-bg text-app-event-registration-text";
+    case "procedure":
+      return "bg-app-warning-bg text-app-warning-text";
+    default:
+      return "bg-app-panel-muted text-app-text-muted";
+  }
+}
+
+function EventTimeline({ items = [] }: { items?: CompanyEventHistoryItem[] }) {
+  if (items.length === 0) {
+    return (
+      <Feedback>
+        Inga historikhändelser finns ännu.
+      </Feedback>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-app-border">
+      {items.map((event) => {
+        const date = eventDate(event);
+
+        return (
+          <article key={event.id} className="grid gap-3 py-3 md:grid-cols-[8rem_minmax(0,1fr)]">
+            <div className="text-xs text-app-text-subtle">
+              <div className="font-medium text-app-text-muted">
+                {formatDate(date)}
+              </div>
+              <div className="mt-1">
+                {event.effective_at ? "Händelsedatum" : "Upptäckt i data"}
+              </div>
+            </div>
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5">
+                  <span
+                    className={[
+                      "inline-flex shrink-0 items-center gap-1.5 rounded-sm px-2 py-1 text-[11px] font-semibold leading-none",
+                      eventKindClassName(event.kind),
+                    ].join(" ")}
+                  >
+                    <MaskedIcon
+                      src={EVENT_KIND_ICONS[event.kind]}
+                      className="h-3.5 w-3.5"
+                    />
+                    {eventKindLabel(event.kind)}
+                  </span>
+                  <h3 className="min-w-0 text-sm font-semibold text-app-text">
+                    {event.title}
+                  </h3>
+                </div>
+                {event.description ? (
+                  <p className="mt-1 text-sm leading-6 text-app-text-muted">
+                    {event.description}
+                  </p>
+                ) : null}
+                {event.source_label || (event.detected_at && event.effective_at) ? (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-2 text-xs text-app-text-subtle">
+                    {event.source_label ? (
+                      <span>Källa: {event.source_label}</span>
+                    ) : null}
+                    {event.source_label && event.detected_at && event.effective_at ? (
+                      <span aria-hidden="true">·</span>
+                    ) : null}
+                    {event.detected_at && event.effective_at ? (
+                      <span>Inläst {formatDate(event.detected_at)}</span>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function EventsTab({ eventHistory = [] }: CompanyInsightSectionsProps) {
+  return (
+    <SectionBlock
+      title="Tidslinje"
+      source={formatDataSources(eventHistory.map((event) => event.source))}
+    >
+      <EventTimeline items={eventHistory} />
+    </SectionBlock>
+  );
+}
+
 export function CompanyInsightSections({
   company,
   turnoverHistory = [],
+  eventHistory = [],
 }: CompanyInsightSectionsProps) {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
   return (
     <div className="space-y-3">
-      <nav
-        className="flex gap-1 overflow-x-auto border-b border-app-border"
-        aria-label="Företagsvy"
-      >
-        {tabs.map((tab) => {
-          const active = tab.key === activeTab;
+      <Tabs
+        items={tabs}
+        value={activeTab}
+        onChange={setActiveTab}
+        ariaLabel="Företagsvy"
+      />
 
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={[
-                "border-b-2 px-3 py-2 text-sm font-medium transition",
-                active
-                  ? "border-app-accent-border text-app-accent-text"
-                  : "border-transparent text-app-text-muted hover:text-app-text",
-              ].join(" ")}
-              aria-pressed={active}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </nav>
-
-      {activeTab === "overview" ? (
-        <OverviewTab company={company} turnoverHistory={turnoverHistory} />
-      ) : null}
-      {activeTab === "insights" ? <InsightsTab /> : null}
-      {activeTab === "contact" ? <ContactTab company={company} /> : null}
-      {activeTab === "raw" ? <RawTab company={company} /> : null}
+      <AnimatedContent key={activeTab}>
+        {activeTab === "overview" ? (
+          <OverviewTab company={company} turnoverHistory={turnoverHistory} />
+        ) : null}
+        {activeTab === "events" ? (
+          <EventsTab company={company} eventHistory={eventHistory} />
+        ) : null}
+        {activeTab === "contact" ? <ContactTab company={company} /> : null}
+        {activeTab === "raw" ? <RawTab company={company} /> : null}
+      </AnimatedContent>
     </div>
   );
 }

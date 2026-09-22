@@ -4,13 +4,14 @@ type RawPayloadProps = {
 
 export function RawPayload({ data }: RawPayloadProps) {
   return (
-    <details className="rounded-lg border border-slate-800 bg-slate-900 p-5 text-slate-200">
-      <summary className="cursor-pointer text-sm font-semibold text-slate-100">
-        Raw payload
+    <Surface as="details" className="text-app-text">
+      <summary className="cursor-pointer text-sm font-semibold text-app-text">
+        Rådata
       </summary>
-      <pre className="mt-3 max-h-96 overflow-auto rounded-md bg-slate-950/70 p-4 text-xs text-slate-300">
+      <pre className="mt-3 max-h-96 overflow-auto rounded-md bg-app-panel-soft p-3 text-xs text-app-text-muted">
         {JSON.stringify(data, null, 2)}
       </pre>
-    </details>
+    </Surface>
   );
 }
+import { Surface } from "@/src/components/ui/Surface";

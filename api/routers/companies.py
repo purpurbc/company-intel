@@ -1,19 +1,34 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
+from uuid import UUID
+from ..schemas import (
+    CompaniesResponse,
+    CompanyDetail,
+    CompanyEventHistoryResponse,
+    MetricSort,
+    NameSort,
+    SearchBy,
+    SearchResultClick,
+    SearchTelemetryAccepted,
+    TurnoverHistoryResponse,
+)
 from ..services.company_service import (
+    MAX_LIST_RESULTS,
     get_companies,
     get_company_by_orgnr,
+    get_company_by_id,
+    get_company_event_history,
     get_company_turnover_history,
+    record_search_result_click,
 )
 from typing import Annotated
 
 router = APIRouter()
 
 
-@router.get("/companies")
+@router.get("/companies", response_model=CompaniesResponse)
 def companies(
     q: str | None = Query(default=None),
-    search_by: str = Query(default="all"),
-
+    search_by: SearchBy = Query(default="all"),
     county_codes: Annotated[list[str] | None, Query()] = None,
     municipality_codes: Annotated[list[str] | None, Query()] = None,
     company_status_codes: Annotated[list[str] | None, Query()] = None,
@@ -35,10 +50,14 @@ def companies(
     industry_detail_codes: Annotated[list[str] | None, Query()] = None,
     turnover_size_codes: Annotated[list[str] | None, Query()] = None,
 
-    name_sort: str = Query(default="asc"),
-    metric_sort: str = Query(default="none"),
-    limit: int = Query(default=100, ge=1, le=500),
-    offset: int = Query(default=0, ge=0),
+    name_sort: NameSort = Query(default="asc"),
+    metric_sort: MetricSort = Query(default="none"),
+    limit: int = Query(default=50, ge=1, le=500),
+    offset: int = Query(default=0, ge=0, lt=MAX_LIST_RESULTS),
+    include_total: bool = Query(default=False),
+    count_only: bool = Query(default=False),
+    search_id: UUID | None = Query(default=None),
+    reformulated: bool = Query(default=False),
 ):
     return get_companies(
         q=q,
@@ -67,16 +86,50 @@ def companies(
         metric_sort=metric_sort,
         limit=limit,
         offset=offset,
+        include_total=include_total,
+        count_only=count_only,
+        search_id=search_id,
+        reformulated=reformulated,
     )
-    
-@router.get("/company/{org_nr}")
-def company(org_nr: str):
-    row = get_company_by_orgnr(org_nr)
+
+
+@router.post(
+    "/companies/search-events/click",
+    response_model=SearchTelemetryAccepted,
+)
+def company_search_click(payload: SearchResultClick):
+    record_search_result_click(
+        search_id=payload.search_id,
+        company_id=payload.company_id,
+        position=payload.position,
+    )
+    return {"ok": True}
+
+
+@router.get('/companies/by-id/{company_id}', response_model=CompanyDetail)
+def company_by_id(company_id: int):
+    row = get_company_by_id(company_id)
     if not row:
-        return {"error": "not_found"}
+        raise HTTPException(status_code=404, detail="company_not_found")
     return row
 
 
-@router.get("/company/{org_nr}/turnover-history")
+@router.get("/company/{org_nr}", response_model=CompanyDetail)
+def company(org_nr: str):
+    row = get_company_by_orgnr(org_nr)
+    if not row:
+        raise HTTPException(status_code=404, detail="company_not_found")
+    return row
+
+
+@router.get(
+    "/company/{org_nr}/turnover-history",
+    response_model=TurnoverHistoryResponse,
+)
 def company_turnover_history(org_nr: str):
     return get_company_turnover_history(org_nr)
+
+
+@router.get("/company/{org_nr}/events", response_model=CompanyEventHistoryResponse)
+def company_events(org_nr: str):
+    return get_company_event_history(org_nr)

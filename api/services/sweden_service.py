@@ -1,8 +1,11 @@
 import json
 from functools import lru_cache
 from pathlib import Path
+from threading import Lock
 
 from ..database import get_db_connection
+from .data_quality_service import get_overview_metadata
+from .overview_cache import get_overview_cache, set_overview_cache
 
 
 COMPANY_STATUS_LABELS = {
@@ -10,6 +13,28 @@ COMPANY_STATUS_LABELS = {
     "1": "Är verksam",
     "9": "Är ej längre verksam",
 }
+
+BREAKDOWN_LABEL_DOMAINS = {
+    "county": "seat_county_code",
+    "municipality": "seat_municipality_code",
+    "section": "industry_section_code",
+    "size": "employee_size_code",
+    "turnover": "turnover_class_code",
+    "activity_status": "activity_status_code",
+    "company_state": "company_state_code",
+    "employer_status": "employer_status_code",
+    "vat_status": "vat_status_code",
+    "f_tax_status": "f_tax_status_code",
+    "marketing": "advertising_status_code",
+}
+SWEDEN_OVERVIEW_CACHE_KEY = "sweden:v6"
+_sweden_overview_lock = Lock()
+
+VAT_AND_F_TAX_SQL = """
+        COUNT(*) FILTER (
+            WHERE vat_status_code = '1' AND f_tax_status_code = '1'
+        )
+""".strip()
 
 
 @lru_cache(maxsize=1)
@@ -43,213 +68,233 @@ def _apply_labels(rows, labels, fallback="Okänd"):
     ]
 
 
-def get_sweden_overview():
-    totals_sql = """
+def _breakdown_labels(cur) -> dict[tuple[str, str], str]:
+    """Load canonical labels once, after aggregating only compact code values."""
+    cur.execute(
+        """
+        SELECT DISTINCT ON (domain, code) domain, code, name
+        FROM meta.code
+        WHERE domain = ANY(%(domains)s)
+        ORDER BY domain, code,
+            CASE source
+                WHEN 'scb_api' THEN 0
+                WHEN 'scb_bulk' THEN 1
+                WHEN 'bolagsverket' THEN 2
+                ELSE 3
+            END;
+        """,
+        {"domains": list(BREAKDOWN_LABEL_DOMAINS.values())},
+    )
+    return {
+        (row["domain"], row["code"]): row["name"]
+        for row in cur.fetchall()
+    }
+
+
+def get_sweden_overview(*, connection_factory=None):
+    cached = get_overview_cache(
+        SWEDEN_OVERVIEW_CACHE_KEY,
+        connection_factory=connection_factory,
+    )
+    if cached:
+        return cached
+
+    # Recheck inside the lock so concurrent first-page requests do not launch
+    # identical national aggregates after an import invalidates the cache.
+    with _sweden_overview_lock:
+        cached = get_overview_cache(
+            SWEDEN_OVERVIEW_CACHE_KEY,
+            connection_factory=connection_factory,
+        )
+        if cached:
+            return cached
+
+        overview = _calculate_sweden_overview(
+            connection_factory=connection_factory,
+        )
+        set_overview_cache(
+            SWEDEN_OVERVIEW_CACHE_KEY,
+            overview,
+            connection_factory=connection_factory,
+        )
+        return overview
+
+
+def _calculate_sweden_overview(*, connection_factory=None):
+    totals_sql = f"""
     SELECT
         COUNT(*) AS companies,
-        COUNT(*) FILTER (WHERE company_status_code = '1') AS active,
-        COUNT(*) FILTER (WHERE company_status_code = '9') AS inactive,
-        COUNT(*) FILTER (WHERE company_status_code = '0') AS never_active,
+        COUNT(*) FILTER (WHERE activity_status_code = '1') AS active,
+        COUNT(*) FILTER (WHERE activity_status_code = '9') AS inactive,
+        COUNT(*) FILTER (WHERE activity_status_code = '0') AS never_active,
         COUNT(*) FILTER (WHERE employer_status_code = '1') AS employers,
         COUNT(*) FILTER (WHERE vat_status_code = '1') AS vat_registered,
         COUNT(*) FILTER (WHERE f_tax_status_code = '1') AS f_tax_registered,
-        COUNT(*) FILTER (WHERE reklam_code IN ('11', '12', '13')) AS accepts_marketing,
-        COUNT(DISTINCT seat_county_code) AS counties,
-        COUNT(DISTINCT seat_municipality_code) AS municipalities,
-        COUNT(DISTINCT left(bransch_1_code, 2)) AS industry_groups
-    FROM v_company_full;
+        {VAT_AND_F_TAX_SQL} AS vat_and_f_tax,
+        COUNT(*) FILTER (WHERE advertising_status_code IN ('11', '12', '13')) AS accepts_marketing,
+        COUNT(DISTINCT seat_county_code) FILTER (
+            WHERE seat_county_code NOT IN ('00', '99')
+        ) AS counties,
+        COUNT(DISTINCT seat_municipality_code) FILTER (
+            WHERE seat_municipality_code NOT IN ('0000', '9999')
+        ) AS municipalities,
+        COUNT(DISTINCT left(primary_industry_code, 2)) AS industry_groups,
+        COUNT(activity_status_code) AS activity_status_covered,
+        COUNT(employer_status_code) AS employer_status_covered,
+        COUNT(*) FILTER (
+            WHERE vat_status_code IS NOT NULL AND f_tax_status_code IS NOT NULL
+        ) AS tax_status_covered,
+        COUNT(*) FILTER (
+            WHERE seat_county_code IS NOT NULL
+              AND seat_county_code NOT IN ('00', '99')
+        ) AS county_covered,
+        COUNT(*) FILTER (
+            WHERE seat_municipality_code IS NOT NULL
+              AND seat_municipality_code NOT IN ('0000', '9999')
+        ) AS municipality_covered,
+        COUNT(primary_industry_code) AS industry_covered,
+        COUNT(company_state_code) AS company_state_covered,
+        COUNT(*) FILTER (
+            WHERE seat_county_code IN ('00', '99')
+        ) AS technical_county_rows,
+        COUNT(*) FILTER (
+            WHERE seat_municipality_code IN ('0000', '9999')
+        ) AS technical_municipality_rows,
+        COUNT(*) FILTER (WHERE seat_county_code IS NULL) AS missing_county_rows,
+        COUNT(*) FILTER (
+            WHERE seat_municipality_code IS NULL
+        ) AS missing_municipality_rows
+    FROM core.company_current;
     """
 
-    county_sql = """
-    SELECT
-        seat_county_code AS code,
-        seat_county_name AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    WHERE seat_county_code IS NOT NULL
-    GROUP BY seat_county_code, seat_county_name
-    ORDER BY count DESC, name ASC;
+    # One GROUPING SETS query produces every chart breakdown during a single
+    # scan of the compact current-state table. Keep additions here so a new
+    # breakdown does not silently add another full-table query.
+    breakdowns_sql = """
+    SELECT dimension, code, name, count
+    FROM (
+        SELECT
+            CASE
+                WHEN GROUPING(seat_county_code) = 0 THEN 'county'
+                WHEN GROUPING(seat_municipality_code) = 0 THEN 'municipality'
+                WHEN GROUPING(COALESCE(left(primary_industry_code, 2), '00')) = 0 THEN 'industry'
+                WHEN GROUPING(industry_section_code) = 0 THEN 'section'
+                WHEN GROUPING(employee_size_code) = 0 THEN 'size'
+                WHEN GROUPING(turnover_class_code) = 0 THEN 'turnover'
+                WHEN GROUPING(activity_status_code) = 0 THEN 'activity_status'
+                WHEN GROUPING(company_state_code) = 0 THEN 'company_state'
+                WHEN GROUPING(employer_status_code) = 0 THEN 'employer_status'
+                WHEN GROUPING(vat_status_code) = 0 THEN 'vat_status'
+                WHEN GROUPING(f_tax_status_code) = 0 THEN 'f_tax_status'
+                ELSE 'marketing'
+            END AS dimension,
+            CASE
+                WHEN GROUPING(seat_county_code) = 0 THEN seat_county_code
+                WHEN GROUPING(seat_municipality_code) = 0 THEN seat_municipality_code
+                WHEN GROUPING(COALESCE(left(primary_industry_code, 2), '00')) = 0
+                    THEN COALESCE(left(primary_industry_code, 2), '00')
+                WHEN GROUPING(industry_section_code) = 0 THEN industry_section_code
+                WHEN GROUPING(employee_size_code) = 0 THEN employee_size_code
+                WHEN GROUPING(turnover_class_code) = 0 THEN turnover_class_code
+                WHEN GROUPING(activity_status_code) = 0 THEN activity_status_code
+                WHEN GROUPING(company_state_code) = 0 THEN company_state_code
+                WHEN GROUPING(employer_status_code) = 0 THEN employer_status_code
+                WHEN GROUPING(vat_status_code) = 0 THEN vat_status_code
+                WHEN GROUPING(f_tax_status_code) = 0 THEN f_tax_status_code
+                ELSE advertising_status_code
+            END AS code,
+            NULL::text AS name,
+            COUNT(*) AS count
+        FROM core.company_current
+        GROUP BY GROUPING SETS (
+            (seat_county_code),
+            (seat_municipality_code),
+            (COALESCE(left(primary_industry_code, 2), '00')),
+            (industry_section_code),
+            (employee_size_code),
+            (turnover_class_code),
+            (activity_status_code),
+            (company_state_code),
+            (employer_status_code),
+            (vat_status_code),
+            (f_tax_status_code),
+            (advertising_status_code)
+        )
+    ) breakdown
+    WHERE (dimension <> 'county' OR (code IS NOT NULL AND code NOT IN ('00', '99')))
+      AND (dimension <> 'municipality' OR (code IS NOT NULL AND code NOT IN ('0000', '9999')))
+    ;
     """
 
-    municipality_sql = """
-    SELECT
-        seat_municipality_code AS code,
-        seat_municipality_name AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    WHERE seat_municipality_code IS NOT NULL
-    GROUP BY seat_municipality_code, seat_municipality_name
-    ORDER BY count DESC, name ASC
-    LIMIT 25;
-    """
-
-    industry_sql = """
-    SELECT
-        COALESCE(left(bransch_1_code, 2), '00') AS code,
-        NULL::text AS name,
-        COUNT(*) AS count
-    FROM company
-    GROUP BY COALESCE(left(bransch_1_code, 2), '00')
-    ORDER BY count DESC, code ASC;
-    """
-
-    section_sql = """
-    SELECT
-        avdelning_1_code AS code,
-        avdelning_1 AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY avdelning_1_code, avdelning_1
-    ORDER BY count DESC, name ASC;
-    """
-
-    size_sql = """
-    SELECT
-        size_class_code AS code,
-        size_class_name_dim AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY size_class_code, size_class_name_dim
-    ORDER BY
-      CASE size_class_code
-        WHEN '1' THEN 1
-        WHEN '2' THEN 2
-        WHEN '3' THEN 3
-        WHEN '4' THEN 4
-        WHEN '5' THEN 5
-        WHEN '6' THEN 6
-        WHEN '7' THEN 7
-        WHEN '8' THEN 8
-        WHEN '9' THEN 9
-        WHEN '10' THEN 10
-        WHEN '11' THEN 11
-        WHEN '12' THEN 12
-        WHEN '13' THEN 13
-        WHEN '14' THEN 14
-        WHEN '15' THEN 15
-        WHEN '16' THEN 16
-        ELSE 99
-      END ASC,
-      name ASC;
-    """
-
-    turnover_sql = """
-    SELECT
-        turnover_size_code AS code,
-        turnover_gross_name_dim AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY turnover_size_code, turnover_gross_name_dim
-    ORDER BY turnover_size_code::int ASC NULLS LAST, name ASC;
-    """
-
-    status_sql = """
-    SELECT
-        company_status_code AS code,
-        COALESCE(
-          MAX(company_status),
-          CASE company_status_code
-            WHEN '0' THEN 'Har aldrig varit verksam'
-            WHEN '1' THEN 'Är verksam'
-            WHEN '9' THEN 'Är ej längre verksam'
-            ELSE NULL
-          END
-        ) AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY company_status_code
-    ORDER BY count DESC, name ASC;
-    """
-
-    state_sql = """
-    SELECT
-        company_state_code AS code,
-        COALESCE(MAX(company_state), company_state_name_dim) AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY company_state_code, company_state_name_dim
-    ORDER BY count DESC, name ASC;
-    """
-
-    employer_status_sql = """
-    SELECT
-        employer_status_code AS code,
-        employer_status AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY employer_status_code, employer_status
-    ORDER BY count DESC, name ASC;
-    """
-
-    vat_status_sql = """
-    SELECT
-        vat_status_code AS code,
-        vat_status AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY vat_status_code, vat_status
-    ORDER BY count DESC, name ASC;
-    """
-
-    f_tax_status_sql = """
-    SELECT
-        f_tax_status_code AS code,
-        f_tax_status AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY f_tax_status_code, f_tax_status
-    ORDER BY count DESC, name ASC;
-    """
-
-    marketing_sql = """
-    SELECT
-        reklam_code AS code,
-        reklam AS name,
-        COUNT(*) AS count
-    FROM v_company_full
-    GROUP BY reklam_code, reklam
-    ORDER BY count DESC, name ASC;
-    """
-
-    with get_db_connection() as conn, conn.cursor() as cur:
+    connect = connection_factory or get_db_connection
+    with connect() as conn, conn.cursor() as cur:
+        # Cold-cache work is bounded to compact code columns. Two workers keep
+        # first load practical without letting concurrent requests monopolize
+        # the database; normal page loads return the persisted cache directly.
+        cur.execute("SET LOCAL max_parallel_workers_per_gather = 2")
         cur.execute(totals_sql)
         totals_row = cur.fetchone()
 
-        cur.execute(county_sql)
-        county_rows = cur.fetchall()
+        cur.execute(breakdowns_sql)
+        breakdown_rows = cur.fetchall()
+        labels = _breakdown_labels(cur)
+        breakdowns = {}
+        for row in breakdown_rows:
+            dimension = row.pop("dimension")
+            domain = BREAKDOWN_LABEL_DOMAINS.get(dimension)
+            if domain and row.get("code") is not None:
+                row["name"] = labels.get((domain, row["code"]))
+            breakdowns.setdefault(dimension, []).append(row)
 
-        cur.execute(municipality_sql)
-        municipality_rows = cur.fetchall()
+        metadata = get_overview_metadata(
+            cur,
+            total=totals_row["companies"],
+            coverage_counts={
+                "companies": totals_row["companies"],
+                "active": totals_row["activity_status_covered"],
+                "employers": totals_row["employer_status_covered"],
+                "vat_and_f_tax": totals_row["tax_status_covered"],
+                "counties": totals_row["county_covered"],
+                "municipalities": totals_row["municipality_covered"],
+                "industry_groups": totals_row["industry_covered"],
+                "activity_status": totals_row["activity_status_covered"],
+                "company_state": totals_row["company_state_covered"],
+            },
+            technical_geography={
+                "county_rows": totals_row["technical_county_rows"],
+                "municipality_rows": totals_row["technical_municipality_rows"],
+                "missing_county_rows": totals_row["missing_county_rows"],
+                "missing_municipality_rows": totals_row["missing_municipality_rows"],
+            },
+        )
 
-        cur.execute(industry_sql)
-        industry_rows = cur.fetchall()
+    def by_count_desc(dimension):
+        return sorted(
+            breakdowns.get(dimension, []),
+            key=lambda row: (-row["count"], row.get("name") or ""),
+        )
 
-        cur.execute(section_sql)
-        section_rows = cur.fetchall()
+    def by_numeric_code(dimension):
+        return sorted(
+            breakdowns.get(dimension, []),
+            key=lambda row: (
+                int(row["code"]) if (row.get("code") or "").isdigit() else 999,
+                row.get("name") or "",
+            ),
+        )
 
-        cur.execute(size_sql)
-        size_rows = cur.fetchall()
-
-        cur.execute(turnover_sql)
-        turnover_rows = cur.fetchall()
-
-        cur.execute(status_sql)
-        status_rows = cur.fetchall()
-
-        cur.execute(state_sql)
-        state_rows = cur.fetchall()
-
-        cur.execute(employer_status_sql)
-        employer_status_rows = cur.fetchall()
-
-        cur.execute(vat_status_sql)
-        vat_status_rows = cur.fetchall()
-
-        cur.execute(f_tax_status_sql)
-        f_tax_status_rows = cur.fetchall()
-
-        cur.execute(marketing_sql)
-        marketing_rows = cur.fetchall()
+    county_rows = by_count_desc("county")
+    municipality_rows = by_count_desc("municipality")[:25]
+    industry_rows = by_count_desc("industry")
+    section_rows = by_count_desc("section")
+    size_rows = by_numeric_code("size")
+    turnover_rows = by_numeric_code("turnover")
+    status_rows = by_count_desc("activity_status")
+    state_rows = by_count_desc("company_state")
+    employer_status_rows = by_count_desc("employer_status")
+    vat_status_rows = by_count_desc("vat_status")
+    f_tax_status_rows = by_count_desc("f_tax_status")
+    marketing_rows = by_count_desc("marketing")
 
     return {
         "scope": "sweden",
@@ -261,19 +306,21 @@ def get_sweden_overview():
             "employers": totals_row["employers"],
             "vat_registered": totals_row["vat_registered"],
             "f_tax_registered": totals_row["f_tax_registered"],
+            "vat_and_f_tax": totals_row["vat_and_f_tax"],
             "accepts_marketing": totals_row["accepts_marketing"],
             "counties": totals_row["counties"],
             "municipalities": totals_row["municipalities"],
             "industry_groups": totals_row["industry_groups"],
         },
+        "metadata": metadata,
         "by_county": county_rows,
         "by_municipality": municipality_rows,
         "by_industry": _apply_labels(industry_rows, _industry_group_labels()),
         "by_section": section_rows,
         "by_size": size_rows,
         "by_turnover": turnover_rows,
-        "by_status": _apply_labels(status_rows, COMPANY_STATUS_LABELS),
-        "by_state": state_rows,
+        "by_activity_status": _apply_labels(status_rows, COMPANY_STATUS_LABELS),
+        "by_company_state": state_rows,
         "by_employer_status": employer_status_rows,
         "by_vat_status": vat_status_rows,
         "by_f_tax_status": f_tax_status_rows,

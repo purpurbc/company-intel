@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import maplibregl, { type Map as MapLibreMap } from "maplibre-gl";
-import { buttonClassName } from "@/src/components/ui/Button";
+import { Button, buttonClassName } from "@/src/components/ui/Button";
+import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
+import { Surface } from "@/src/components/ui/Surface";
+import { ui } from "@/src/lib/uiStyles";
 
 type BoundaryLayer = "regions" | "municipalities";
 
@@ -54,18 +57,56 @@ type MapContextMenu = {
 
 const REGION_SOURCE = "sweden-regions";
 const MUNICIPALITY_SOURCE = "sweden-municipalities";
-const MAP_COLORS = {
-  background: "#111315",
-  silhouette: "#6f7975",
-  regionFill: "#0f8f7a",
-  regionHover: "#2dd4bf",
-  regionSelected: "#f4f5f5",
-  municipalityFill: "#2dd4bf",
-  municipalityHover: "#5eead4",
-  municipalitySelected: "#f4f5f5",
-  municipalityLine: "#8fd8cc",
-  regionLine: "#2dd4bf",
-};
+
+const MAP_COLOR_TOKENS = {
+  background: ["--app-map-background", "#111315"],
+  silhouette: ["--app-map-silhouette", "#6f7975"],
+  regionFill: ["--app-map-region-fill", "#5eead4"],
+  regionHover: ["--app-map-region-hover", "#5eead4"],
+  regionSelected: ["--app-map-region-selected", "#f4f5f5"],
+  municipalityFill: ["--app-map-municipality-fill", "#5eead4"],
+  municipalityHover: ["--app-map-municipality-hover", "#5eead4"],
+  municipalitySelected: ["--app-map-municipality-selected", "#f4f5f5"],
+  municipalityLine: ["--app-map-municipality-line", "#5eead4"],
+  regionLine: ["--app-map-region-line", "#5eead4"],
+} as const;
+
+type MapColors = { [Key in keyof typeof MAP_COLOR_TOKENS]: string };
+
+function readMapColors(): MapColors {
+  const styles = window.getComputedStyle(document.documentElement);
+
+  return Object.fromEntries(
+    Object.entries(MAP_COLOR_TOKENS).map(([key, [token, fallback]]) => [
+      key,
+      styles.getPropertyValue(token).trim() || fallback,
+    ]),
+  ) as MapColors;
+}
+
+function syncMapColors(map: MapLibreMap) {
+  if (!map.isStyleLoaded()) return;
+
+  const colors = readMapColors();
+  const layers: Array<
+    [string, "background-color" | "fill-color" | "line-color", string]
+  > = [
+    ["background", "background-color", colors.background],
+    ["sweden-silhouette", "fill-color", colors.silhouette],
+    ["region-fill", "fill-color", colors.regionFill],
+    ["region-hover", "fill-color", colors.regionHover],
+    ["region-selected", "fill-color", colors.regionSelected],
+    ["municipality-fill", "fill-color", colors.municipalityFill],
+    ["municipality-hover", "fill-color", colors.municipalityHover],
+    ["municipality-selected", "fill-color", colors.municipalitySelected],
+    ["municipality-line", "line-color", colors.municipalityLine],
+    ["region-line", "line-color", colors.regionLine],
+  ];
+
+  for (const [layerId, property, color] of layers) {
+    if (map.getLayer(layerId)) map.setPaintProperty(layerId, property, color);
+  }
+}
 
 const SWEDEN_BOUNDS: [[number, number], [number, number]] = [
   [10.2, 55.0],
@@ -99,19 +140,12 @@ function LayerToggleButton({
       onClick={onClick}
       className={[
         buttonClassName({
-          variant: active ? "accent" : "toggle",
+          variant: active ? "accent" : "secondary",
           size: "sm",
-          className: "gap-2",
+          className: "font-semibold",
         }),
-        active ? "shadow-[inset_0_0_0_1px_rgba(45,212,191,.18)]" : "",
       ].join(" ")}
     >
-      <span
-        className={[
-          "h-2 w-2 rounded-full",
-          active ? "bg-app-accent" : "bg-app-text-muted",
-        ].join(" ")}
-      />
       {label}
     </button>
   );
@@ -246,6 +280,8 @@ export function SwedenBoundaryMap() {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    const mapColors = readMapColors();
+
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: {
@@ -256,7 +292,7 @@ export function SwedenBoundaryMap() {
             id: "background",
             type: "background",
             paint: {
-              "background-color": MAP_COLORS.background,
+              "background-color": mapColors.background,
             },
           },
         ],
@@ -271,6 +307,12 @@ export function SwedenBoundaryMap() {
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: false }));
     map.addControl(new maplibregl.AttributionControl({ compact: true }));
     mapRef.current = map;
+
+    const themeObserver = new MutationObserver(() => syncMapColors(map));
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "data-color-theme"],
+    });
 
     map.on("load", async () => {
       try {
@@ -318,7 +360,7 @@ export function SwedenBoundaryMap() {
           type: "fill",
           source: REGION_SOURCE,
           paint: {
-            "fill-color": MAP_COLORS.silhouette,
+            "fill-color": mapColors.silhouette,
             "fill-opacity": 0.24,
           },
         });
@@ -329,7 +371,7 @@ export function SwedenBoundaryMap() {
           source: REGION_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "fill-color": MAP_COLORS.regionFill,
+            "fill-color": mapColors.regionFill,
             "fill-opacity": 0.05,
           },
         });
@@ -341,7 +383,7 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_REGION_FILTER,
           paint: {
-            "fill-color": MAP_COLORS.regionHover,
+            "fill-color": mapColors.regionHover,
             "fill-opacity": 0.18,
           },
         });
@@ -353,7 +395,7 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_REGION_FILTER,
           paint: {
-            "fill-color": MAP_COLORS.regionSelected,
+            "fill-color": mapColors.regionSelected,
             "fill-opacity": 0.2,
           },
         });
@@ -364,8 +406,8 @@ export function SwedenBoundaryMap() {
           source: MUNICIPALITY_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "fill-color": MAP_COLORS.municipalityFill,
-            "fill-opacity": 0.08,
+            "fill-color": mapColors.municipalityFill,
+            "fill-opacity": 0.13,
           },
         });
 
@@ -376,7 +418,7 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_MUNICIPALITY_FILTER,
           paint: {
-            "fill-color": MAP_COLORS.municipalityHover,
+            "fill-color": mapColors.municipalityHover,
             "fill-opacity": 0.18,
           },
         });
@@ -388,7 +430,7 @@ export function SwedenBoundaryMap() {
           layout: { visibility: "none" },
           filter: EMPTY_MUNICIPALITY_FILTER,
           paint: {
-            "fill-color": MAP_COLORS.municipalitySelected,
+            "fill-color": mapColors.municipalitySelected,
             "fill-opacity": 0.22,
           },
         });
@@ -399,8 +441,8 @@ export function SwedenBoundaryMap() {
           source: MUNICIPALITY_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "line-color": MAP_COLORS.municipalityLine,
-            "line-opacity": 0.34,
+            "line-color": mapColors.municipalityLine,
+            "line-opacity": 0.48,
             "line-width": [
               "interpolate",
               ["linear"],
@@ -421,7 +463,7 @@ export function SwedenBoundaryMap() {
           source: REGION_SOURCE,
           layout: { visibility: "none" },
           paint: {
-            "line-color": MAP_COLORS.regionLine,
+            "line-color": mapColors.regionLine,
             "line-opacity": 0.82,
             "line-width": [
               "interpolate",
@@ -554,6 +596,7 @@ export function SwedenBoundaryMap() {
         });
 
         map.fitBounds(SWEDEN_BOUNDS, { padding: 28, duration: 0 });
+        syncMapColors(map);
         setMapReady(true);
         setStatus("Karta redo");
       } catch (error) {
@@ -564,6 +607,7 @@ export function SwedenBoundaryMap() {
     });
 
     return () => {
+      themeObserver.disconnect();
       popupRef.current?.remove();
       map.remove();
       mapRef.current = null;
@@ -589,7 +633,7 @@ export function SwedenBoundaryMap() {
       map.setPaintProperty(
         "region-fill",
         "fill-opacity",
-        municipalitiesVisible ? 0.05 : 0.14,
+        municipalitiesVisible ? 0.07 : 0.18,
       );
     }
   }, [mapReady, municipalitiesVisible, regionsVisible]);
@@ -614,9 +658,79 @@ export function SwedenBoundaryMap() {
       municipalitiesVisible,
     );
     if (map.getLayer("municipality-fill")) {
-      map.setPaintProperty("municipality-fill", "fill-opacity", 0.08);
+      map.setPaintProperty("municipality-fill", "fill-opacity", 0.13);
     }
   }, [mapReady, municipalitiesVisible, regionsVisible]);
+
+  function selectMunicipality(municipality: MunicipalityOption) {
+    const map = mapRef.current;
+    setSelectedRegion(null);
+    setSelectedMunicipality(municipality);
+    setMunicipalitySearch(municipality.name);
+    setMunicipalityDropdownOpen(false);
+    setMunicipalitiesVisible(true);
+    municipalitiesVisibleRef.current = true;
+
+    if (!map?.isStyleLoaded()) return;
+
+    setLayerVisibility(map, ["sweden-silhouette"], false);
+    setLayerVisibility(
+      map,
+      [
+        "municipality-fill",
+        "municipality-line",
+        "municipality-hover",
+        "municipality-selected",
+      ],
+      true,
+    );
+    if (map.getLayer("region-fill")) {
+      map.setPaintProperty("region-fill", "fill-opacity", 0.04);
+    }
+    map.setFilter("region-selected", EMPTY_REGION_FILTER);
+    map.setFilter("municipality-selected", [
+      "==",
+      ["get", "id"],
+      municipality.id,
+    ]);
+    map.setBearing(0);
+    map.setPitch(0);
+    focusFeature(map, municipality.feature);
+  }
+
+  function selectRegion(region: RegionOption) {
+    const map = mapRef.current;
+    setSelectedMunicipality(null);
+    setSelectedRegion(region);
+    setRegionSearch(region.name);
+    setRegionDropdownOpen(false);
+    setRegionsVisible(true);
+
+    if (!map?.isStyleLoaded()) return;
+
+    setLayerVisibility(map, ["sweden-silhouette"], false);
+    setLayerVisibility(
+      map,
+      ["region-fill", "region-line", "region-hover", "region-selected"],
+      true,
+    );
+    if (map.getLayer("region-fill")) {
+      map.setPaintProperty(
+        "region-fill",
+        "fill-opacity",
+        municipalitiesVisibleRef.current ? 0.04 : 0.18,
+      );
+    }
+    map.setFilter("municipality-selected", EMPTY_MUNICIPALITY_FILTER);
+    map.setFilter("region-selected", [
+      "==",
+      ["get", "name"],
+      region.name,
+    ]);
+    map.setBearing(0);
+    map.setPitch(0);
+    focusFeature(map, region.feature);
+  }
 
   useEffect(() => {
     if (!mapReady || !requestedMunicipalityId || municipalities.length === 0) {
@@ -655,76 +769,6 @@ export function SwedenBoundaryMap() {
     };
   }, [mapReady, municipalities, requestedMunicipalityId]);
 
-  function selectMunicipality(municipality: MunicipalityOption) {
-    const map = mapRef.current;
-    setSelectedRegion(null);
-    setSelectedMunicipality(municipality);
-    setMunicipalitySearch(municipality.name);
-    setMunicipalityDropdownOpen(false);
-    setMunicipalitiesVisible(true);
-    municipalitiesVisibleRef.current = true;
-
-    if (!map?.isStyleLoaded()) return;
-
-    setLayerVisibility(map, ["sweden-silhouette"], false);
-    setLayerVisibility(
-      map,
-      [
-        "municipality-fill",
-        "municipality-line",
-        "municipality-hover",
-        "municipality-selected",
-      ],
-      true,
-    );
-    if (map.getLayer("region-fill")) {
-      map.setPaintProperty("region-fill", "fill-opacity", 0.03);
-    }
-    map.setFilter("region-selected", EMPTY_REGION_FILTER);
-    map.setFilter("municipality-selected", [
-      "==",
-      ["get", "id"],
-      municipality.id,
-    ]);
-    map.setBearing(0);
-    map.setPitch(0);
-    focusFeature(map, municipality.feature);
-  }
-
-  function selectRegion(region: RegionOption) {
-    const map = mapRef.current;
-    setSelectedMunicipality(null);
-    setSelectedRegion(region);
-    setRegionSearch(region.name);
-    setRegionDropdownOpen(false);
-    setRegionsVisible(true);
-
-    if (!map?.isStyleLoaded()) return;
-
-    setLayerVisibility(map, ["sweden-silhouette"], false);
-    setLayerVisibility(
-      map,
-      ["region-fill", "region-line", "region-hover", "region-selected"],
-      true,
-    );
-    if (map.getLayer("region-fill")) {
-      map.setPaintProperty(
-        "region-fill",
-        "fill-opacity",
-        municipalitiesVisibleRef.current ? 0.03 : 0.13,
-      );
-    }
-    map.setFilter("municipality-selected", EMPTY_MUNICIPALITY_FILTER);
-    map.setFilter("region-selected", [
-      "==",
-      ["get", "name"],
-      region.name,
-    ]);
-    map.setBearing(0);
-    map.setPitch(0);
-    focusFeature(map, region.feature);
-  }
-
   function clearFocus() {
     const map = mapRef.current;
     setSelectedMunicipality(null);
@@ -740,33 +784,38 @@ export function SwedenBoundaryMap() {
   }
 
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-800 bg-slate-900">
-      <div className="border-b border-slate-800 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          Geografisk vy
-        </p>
-        <h1 className="mt-1 text-xl font-semibold text-slate-50">
-          Sverige karta
-        </h1>
-      </div>
-
-      <div className="grid min-h-[620px] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_19rem]">
-        <div className="relative h-[62vh] min-h-[520px] lg:h-[calc(100vh-13rem)]">
+    <Surface
+      padding="none"
+      className="overflow-hidden rounded-none border-0"
+    >
+      <div className="grid min-h-[calc(100dvh-3rem)] grid-cols-1 lg:h-[calc(100dvh-3rem)] lg:grid-cols-[minmax(0,1fr)_19rem]">
+        <div className="relative h-[65dvh] min-h-[420px] lg:h-full lg:min-h-0">
           <div ref={containerRef} className="h-full w-full" />
+          <Button
+            type="button"
+            onClick={clearFocus}
+            variant="secondary"
+            size="icon"
+            className="absolute left-3 top-3 z-20 h-7 min-w-7 bg-app-panel p-0 shadow-[var(--app-shadow-panel)]"
+            aria-label="Återställ kartvy"
+            title="Återställ kartvy"
+          >
+            <MaskedIcon src="/icons/utility/update.svg" />
+          </Button>
           {contextMenu ? (
             <div
-              className="absolute z-30 min-w-52 overflow-hidden rounded-md border border-slate-700 bg-slate-950 shadow-2xl"
+              className="absolute z-30 min-w-52 overflow-hidden rounded-md border border-app-border bg-app-panel shadow-[var(--app-shadow-float)]"
               style={{
                 left: contextMenu.x,
                 top: contextMenu.y,
                 transform: "translate(8px, 8px)",
               }}
             >
-              <div className="border-b border-slate-800 px-3 py-2">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+              <div className="border-b border-app-border px-3 py-2">
+                <div className="text-xs font-medium uppercase text-app-text-subtle">
                   {contextMenu.type}
                 </div>
-                <div className="mt-0.5 truncate text-sm font-semibold text-slate-100">
+                <div className="mt-0.5 truncate text-sm font-semibold text-app-text">
                   {contextMenu.label}
                 </div>
               </div>
@@ -777,21 +826,23 @@ export function SwedenBoundaryMap() {
                   setContextMenu(null);
                   router.push(href);
                 }}
-                className="block w-full px-3 py-2 text-left text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-slate-50"
+                className={[ui.selectMenuOption, "font-medium text-app-text-muted hover:bg-app-panel-hover-soft hover:text-app-text"].join(" ")}
               >
                 Gå till {contextMenu.type.toLowerCase()}
               </button>
             </div>
           ) : null}
-          <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-slate-800 bg-slate-950/85 px-3 py-2 text-xs text-slate-400 shadow-lg">
-            {status}
-          </div>
+          {status !== "Karta redo" ? (
+            <div className="pointer-events-none absolute bottom-3 left-3 rounded-md border border-app-border bg-app-overlay-soft px-3 py-2 text-xs text-app-text-muted shadow-[var(--app-shadow-panel)]">
+              {status}
+            </div>
+          ) : null}
         </div>
 
-        <aside className="order-first border-b border-slate-800 bg-slate-950/40 p-4 lg:order-none lg:border-b-0 lg:border-l">
+        <aside className="order-first border-b border-app-border bg-app-panel-soft p-4 lg:order-none lg:border-b-0 lg:border-l">
           <div className="space-y-5">
             <div>
-              <h2 className="text-sm font-semibold text-slate-100">Lager</h2>
+              <h2 className={ui.sectionTitle}>Lager</h2>
               <div className="mt-3 flex flex-wrap gap-2">
                 <LayerToggleButton
                   label="Regiongränser"
@@ -808,17 +859,18 @@ export function SwedenBoundaryMap() {
 
             <div>
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold text-slate-100">
+                <h2 className={ui.sectionTitle}>
                   Regionfokus
                 </h2>
                 {selectedRegion ? (
-                  <button
+                  <Button
                     type="button"
                     onClick={clearFocus}
-                    className="text-xs font-medium text-slate-400 hover:text-slate-100"
+                    variant="ghost"
+                    size="xs"
                   >
                     Rensa
-                  </button>
+                  </Button>
                 ) : null}
               </div>
 
@@ -836,11 +888,11 @@ export function SwedenBoundaryMap() {
                     setRegionDropdownOpen(true);
                   }}
                   placeholder="Sök region"
-                  className="w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
+                  className={ui.input}
                 />
 
                 {regionDropdownOpen ? (
-                  <div className="absolute left-0 right-0 z-30 mt-2 max-h-64 overflow-auto rounded-md border border-slate-800 bg-slate-950 shadow-xl">
+                  <div className={ui.selectMenuPanel}>
                     {visibleRegions.length > 0 ? (
                       visibleRegions.map((region) => (
                         <button
@@ -849,17 +901,17 @@ export function SwedenBoundaryMap() {
                           onMouseDown={(event) => event.preventDefault()}
                           onClick={() => selectRegion(region)}
                           className={[
-                            "block w-full px-3 py-2 text-left text-sm transition",
+                            ui.selectMenuOption,
                             selectedRegion?.id === region.id
                               ? "bg-app-accent-bg text-app-accent-text"
-                              : "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
+                              : "text-app-text-muted hover:bg-app-panel-hover-soft hover:text-app-text",
                           ].join(" ")}
                         >
                           {region.name}
                         </button>
                       ))
                     ) : (
-                      <div className="px-3 py-4 text-sm text-slate-500">
+                      <div className="px-3 py-4 text-sm text-app-text-subtle">
                         Ingen region hittades.
                       </div>
                     )}
@@ -870,17 +922,18 @@ export function SwedenBoundaryMap() {
 
             <div>
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold text-slate-100">
+                <h2 className={ui.sectionTitle}>
                   Kommunfokus
                 </h2>
                 {selectedMunicipality ? (
-                  <button
+                  <Button
                     type="button"
                     onClick={clearFocus}
-                    className="text-xs font-medium text-slate-400 hover:text-slate-100"
+                    variant="ghost"
+                    size="xs"
                   >
                     Rensa
-                  </button>
+                  </Button>
                 ) : null}
               </div>
 
@@ -901,11 +954,11 @@ export function SwedenBoundaryMap() {
                     setMunicipalityDropdownOpen(true);
                   }}
                   placeholder="Sök kommun"
-                  className="w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus"
+                  className={ui.input}
                 />
 
                 {municipalityDropdownOpen ? (
-                  <div className="absolute left-0 right-0 z-30 mt-2 max-h-72 overflow-auto rounded-md border border-slate-800 bg-slate-950 shadow-xl">
+                  <div className={ui.selectMenuPanel}>
                     {visibleMunicipalities.length > 0 ? (
                       visibleMunicipalities.map((municipality) => (
                         <button
@@ -914,17 +967,17 @@ export function SwedenBoundaryMap() {
                           onMouseDown={(event) => event.preventDefault()}
                           onClick={() => selectMunicipality(municipality)}
                           className={[
-                            "block w-full px-3 py-2 text-left text-sm transition",
+                            ui.selectMenuOption,
                             selectedMunicipality?.id === municipality.id
                               ? "bg-app-accent-bg text-app-accent-text"
-                              : "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
+                              : "text-app-text-muted hover:bg-app-panel-hover-soft hover:text-app-text",
                           ].join(" ")}
                         >
                           {municipality.name}
                         </button>
                       ))
                     ) : (
-                      <div className="px-3 py-4 text-sm text-slate-500">
+                      <div className="px-3 py-4 text-sm text-app-text-subtle">
                         Ingen kommun hittades.
                       </div>
                     )}
@@ -935,6 +988,6 @@ export function SwedenBoundaryMap() {
           </div>
         </aside>
       </div>
-    </section>
+    </Surface>
   );
 }

@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { ChevronIcon } from "@/src/components/ui/ChevronIcon";
+import { Surface } from "@/src/components/ui/Surface";
+import { AnimatedCollapse } from "@/src/components/ui/AnimatedCollapse";
+import { InfoChip } from "@/src/components/ui/Chip";
 
 type CollapsibleSectionProps = {
   title: string;
@@ -20,19 +24,18 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="overflow-hidden rounded-md border border-app-border bg-app-panel">
+    <Surface padding="none" className="overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
       >
         <div>
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-app-text">{title}</span>
             {badge ? (
-              <span className="rounded-md border border-app-border bg-app-panel-soft px-2 py-0.5 text-xs text-app-text-muted">
-                {badge}
-              </span>
+              <InfoChip>{badge}</InfoChip>
             ) : null}
           </div>
           {subtitle ? (
@@ -40,17 +43,14 @@ export function CollapsibleSection({
           ) : null}
         </div>
 
-        <span
-          className={[
-            "text-xs text-app-text-muted transition-transform",
-            open ? "rotate-180" : "",
-          ].join(" ")}
-        >
-          ▼
+        <span className="text-app-text-muted">
+          <ChevronIcon expanded={open} />
         </span>
       </button>
 
-      {open ? <div className="border-t border-app-border px-4 py-4">{children}</div> : null}
-    </div>
+      <AnimatedCollapse expanded={open}>
+        <div className="border-t border-app-border p-4">{children}</div>
+      </AnimatedCollapse>
+    </Surface>
   );
 }

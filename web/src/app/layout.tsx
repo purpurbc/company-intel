@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Geist_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { AppShell } from "@/src/components/ui/AppShell";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
-const appSans = IBM_Plex_Sans({
+const appSans = Geist({
   variable: "--font-app-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  fallback: ["Inter", "Arial", "sans-serif"],
 });
 
 const geistMono = Geist_Mono({
@@ -16,8 +16,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Company Intel",
-  description: "B2B lead intelligence workspace",
+  title: {
+    default: "Cintela",
+    template: "%s | Cintela",
+  },
+  description: "Svensk företags- och marknadsinsikt med tydliga källor.",
 };
 
 export default function RootLayout({
@@ -31,18 +34,26 @@ export default function RootLayout({
       var theme = storedTheme === "light" || storedTheme === "dark"
         ? storedTheme
         : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      var storedColorTheme = localStorage.getItem("company-intel-color-theme");
+      var colorThemes = ["nordic", "ocean", "plum"];
+      var colorTheme = colorThemes.indexOf(storedColorTheme) >= 0
+        ? storedColorTheme
+        : "nordic";
       document.documentElement.dataset.theme = theme;
+      document.documentElement.dataset.colorTheme = colorTheme;
     } catch (_) {}
   `;
 
   return (
-    <html lang="sv" suppressHydrationWarning>
+    <html
+      lang="sv"
+      suppressHydrationWarning
+      className={`${appSans.variable} ${geistMono.variable}`}
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body
-        className={`${appSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <AppShell>
           {children}
         </AppShell>

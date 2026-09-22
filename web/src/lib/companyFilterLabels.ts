@@ -1,8 +1,16 @@
 import {
   COUNTY_OPTIONS,
+  EMPLOYER_STATUS_OPTIONS,
+  EXPORT_IMPORT_OPTIONS,
+  F_TAX_STATUS_OPTIONS,
   INDUSTRY_OPTIONS,
+  MARKETING_STATUS_OPTIONS,
   MUNICIPALITY_OPTIONS,
+  OWNER_CATEGORY_OPTIONS,
   SIZE_OPTIONS,
+  SME_SIZE_OPTIONS,
+  VAT_STATUS_OPTIONS,
+  type FilterOption,
 } from "@/src/lib/companyFilterOptions";
 import {
   INDUSTRY_DETAIL_OPTIONS,
@@ -13,16 +21,15 @@ import {
   COMPANY_STATE_OPTIONS,
   COMPANY_STATUS_OPTIONS,
 } from "@/src/lib/companyStatus";
-
-type FilterOption = { value: string; label: string };
+import { COMPANY_SEARCH_BY_OPTIONS } from "@/src/lib/companySearchOptions";
 
 export const FILTER_LABELS: Record<string, string> = {
   q: "Söktext",
   search_by: "Sökfält",
   county_codes: "Län",
   municipality_codes: "Kommun",
-  company_status_codes: "Företagsstatus",
-  company_state_codes: "Risk/statusläge",
+  company_status_codes: "Verksamhetsstatus",
+  company_state_codes: "Bolagsläge / riskläge",
   employer_status_codes: "Arbetsgivare",
   vat_status_codes: "Moms",
   f_tax_status_codes: "F-skatt",
@@ -33,7 +40,7 @@ export const FILTER_LABELS: Record<string, string> = {
   post_ort: "Postort",
   post_nr: "Postnummer",
   owner_category_codes: "Ägarstruktur",
-  sme_size_codes: "SME-klass",
+  sme_size_codes: "SMF-klass",
   export_import_marks: "Export/import",
   section_codes: "Avdelning",
   industry_codes: "Branschgrupp",
@@ -41,67 +48,8 @@ export const FILTER_LABELS: Record<string, string> = {
   turnover_size_codes: "Omsättning",
 };
 
-const SEARCH_BY_OPTIONS: FilterOption[] = [
-  { value: "all", label: "Sök i alla" },
-  { value: "company_name", label: "Företagsnamn" },
-  { value: "org_nr", label: "Org.nr" },
-];
-
-const EMPLOYER_STATUS_OPTIONS: FilterOption[] = [
-  { value: "0", label: "Har aldrig varit registrerad som arbetsgivare" },
-  { value: "1", label: "Är registrerad som vanlig arbetsgivare" },
-  { value: "2", label: "Är registrerad som privatarbetsgivare" },
-  { value: "3", label: "Är registrerad som arbetsgivare via representant" },
-  { value: "4", label: "Är registrerad som ambassad eller konsulat" },
-  { value: "9", label: "Är avregistrerad som arbetsgivare" },
-];
-
-const VAT_STATUS_OPTIONS: FilterOption[] = [
-  { value: "0", label: "Har aldrig varit registrerad för moms" },
-  { value: "1", label: "Är registrerad för moms" },
-  { value: "3", label: "Är registrerad för moms via representant" },
-  { value: "9", label: "Är avregistrerad för moms" },
-];
-
-const F_TAX_STATUS_OPTIONS: FilterOption[] = [
-  { value: "0", label: "Har aldrig varit registrerad för F-skatt" },
-  { value: "1", label: "Är registrerad för F-skatt" },
-  { value: "9", label: "Är avregistrerad för F-skatt" },
-];
-
-const MARKETING_STATUS_OPTIONS: FilterOption[] = [
-  { value: "11", label: "Tar emot reklam, ej telefonnummerspärrat" },
-  { value: "12", label: "Tar emot reklam, telefonnummerspärr telemarketing" },
-  { value: "13", label: "Tar emot reklam, nix-telefon" },
-  { value: "21", label: "Har frånsagt sig reklam, ej telefonnummerspärrat" },
-  { value: "22", label: "Har frånsagt sig reklam, telefonnummerspärr telemarketing" },
-  { value: "23", label: "Har frånsagt sig reklam, nix-telefon" },
-];
-
-const OWNER_CATEGORY_OPTIONS: FilterOption[] = [
-  { value: "10", label: "Statligt" },
-  { value: "20", label: "Kommunalt" },
-  { value: "30", label: "Regioner" },
-  { value: "41", label: "Privat svenskt utan koncern" },
-  { value: "42", label: "Privat svenskt med koncern" },
-  { value: "50", label: "Utländska" },
-];
-
-const SME_SIZE_OPTIONS: FilterOption[] = [
-  { value: "0", label: "0 anställda" },
-  { value: "1", label: "1-9 anställda" },
-  { value: "2", label: "10-49 anställda" },
-  { value: "3", label: "50-249 anställda" },
-  { value: "4", label: "250-499 anställda" },
-  { value: "5", label: "Minst 500 anställda" },
-];
-
-const EXPORT_IMPORT_OPTIONS: FilterOption[] = [
-  { value: "J", label: "Har export/import-markering" },
-];
-
 const FILTER_VALUE_OPTIONS: Record<string, FilterOption[]> = {
-  search_by: SEARCH_BY_OPTIONS,
+  search_by: COMPANY_SEARCH_BY_OPTIONS,
   county_codes: COUNTY_OPTIONS,
   municipality_codes: MUNICIPALITY_OPTIONS,
   company_status_codes: COMPANY_STATUS_OPTIONS,
@@ -122,7 +70,8 @@ const FILTER_VALUE_OPTIONS: Record<string, FilterOption[]> = {
 
 function optionLabel(key: string, value: string): string {
   const option = FILTER_VALUE_OPTIONS[key]?.find((item) => item.value === value);
-  return option ? `${value} ${option.label}` : value;
+  if (!option) return value;
+  return key === "search_by" ? option.label : `${value} ${option.label}`;
 }
 
 export function filterValueLabel(key: string, value: unknown): string {

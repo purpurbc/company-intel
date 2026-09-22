@@ -1,4 +1,7 @@
 import type { ElementType, ReactNode } from "react";
+import { ui } from "@/src/lib/uiStyles";
+import { AnimatedCollapse } from "@/src/components/ui/AnimatedCollapse";
+import { EmptyState } from "@/src/components/ui/EmptyState";
 
 type ListDensity = "compact" | "comfortable" | "spacious";
 type ListSurface = "panel" | "soft" | "none";
@@ -33,15 +36,15 @@ type ListItemProps = {
 };
 
 const surfaceClass: Record<ListSurface, string> = {
-  panel: "border border-app-border bg-app-panel shadow-[var(--app-shadow-panel)]",
-  soft: "border border-app-border bg-app-panel-soft shadow-[var(--app-shadow-panel)]",
+  panel: ui.card,
+  soft: ui.cardMuted,
   none: "",
 };
 
 const itemPadding: Record<ListDensity, string> = {
-  compact: "px-4 py-2",
-  comfortable: "p-3.5",
-  spacious: "p-4",
+  compact: "px-3 py-2",
+  comfortable: "px-3 py-2.5",
+  spacious: "p-3",
 };
 
 const itemTone: Record<ListTone, string> = {
@@ -71,17 +74,17 @@ export function List({
       className={["overflow-hidden rounded-md", surfaceClass[surface], className].join(" ")}
     >
       {hasHeader ? (
-        <div className="border-b border-app-border p-3.5">
+        <div className="border-b border-app-border px-3 py-2.5">
           {header ?? (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
                 {eyebrow ? (
-                  <p className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
+                  <p className={ui.eyebrow}>
                     {eyebrow}
                   </p>
                 ) : null}
                 {title ? (
-                  <h2 className="mt-1 text-lg font-semibold text-app-text">
+                  <h2 className={[eyebrow ? "mt-1" : "", "text-lg font-semibold text-app-text"].join(" ")}>
                     {title}
                   </h2>
                 ) : null}
@@ -92,25 +95,29 @@ export function List({
                 ) : null}
               </div>
               {actions ? (
-                <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>
+                <div className="flex shrink-0 items-center gap-2">{actions}</div>
               ) : null}
             </div>
           )}
         </div>
       ) : null}
 
-      {collapsed ? null : empty ? (
-        <div className="p-5 text-sm text-app-text-subtle">{empty}</div>
-      ) : (
-        <div
-          className={[
-            divided ? "divide-y divide-app-border" : "",
-            contentClassName,
-          ].join(" ")}
-        >
-          {children}
-        </div>
-      )}
+      <AnimatedCollapse expanded={!collapsed}>
+        {empty ? (
+          <div className="p-3">
+            <EmptyState title={empty} compact />
+          </div>
+        ) : (
+          <div
+            className={[
+              divided ? "divide-y divide-app-border" : "",
+              contentClassName,
+            ].join(" ")}
+          >
+            {children}
+          </div>
+        )}
+      </AnimatedCollapse>
     </section>
   );
 }
@@ -135,14 +142,14 @@ export function ListItem({
       className={[
         itemPadding[resolvedDensity],
         itemTone[tone],
-        interactive ? "transition hover:bg-app-panel-hover" : "",
+        interactive ? "transition-colors hover:bg-app-panel-hover-soft" : "",
         className,
       ].join(" ")}
     >
       {numbered ? (
         <div
           className={[
-            "flex min-w-0 gap-4",
+            "flex min-w-0 gap-3",
             compact ? "items-center" : "items-start",
             contentClassName,
           ].join(" ")}
@@ -171,7 +178,7 @@ export function ListItemNumber({
   return (
     <span
       className={[
-        "w-8 shrink-0 text-right text-xs tabular-nums text-app-text-subtle",
+        "w-6 shrink-0 text-left text-xs tabular-nums text-app-text-subtle",
         compact ? "" : "pt-0.5",
       ].join(" ")}
     >

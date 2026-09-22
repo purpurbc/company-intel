@@ -3,28 +3,46 @@ import type {
   AppUserProfile,
   AppUserProfilePayload,
   CompaniesResponse,
-  CountyOverviewResponse,
-  MunicipalityOverviewResponse,
+  Company,
+  CountyOverview,
+  MunicipalityOverview,
   SwedenOverview,
-  CompanyResponse,
+  CompanyEventHistoryResponse,
   CompanyTurnoverHistoryResponse,
-  CustomerAccount,
-  CustomerAccountPayload,
-  CustomerAccountsResponse,
   ListCompaniesParams,
-  SalesOffer,
-  SalesOfferPayload,
-  SalesOffersResponse,
   SavedSegment,
   SavedSegmentPayload,
   SavedSegmentsResponse,
+  AdminDataOverview,
+  BolagsverketStatisticsOverview,
 } from "@/src/lib/types";
 
 export const API = process.env.NEXT_PUBLIC_API_BASE;
 
-async function fetchJson<T>(url: string): Promise<T> {
+async function apiError(res: Response, url: string) {
+  let detail: unknown = null;
+  try {
+    detail = (await res.json())?.detail;
+  } catch {
+    // Keep the generic fallback when the API did not return JSON.
+  }
+  return new Error(
+    typeof detail === "string"
+      ? detail
+      : `API-fel: ${res.status} (${url})`,
+  );
+}
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, init);
+  if (!res.ok) throw await apiError(res, url);
+  return res.json() as Promise<T>;
+}
+
+async function fetchJsonOrNull<T>(url: string): Promise<T | null> {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`API error: ${res.status} (${url})`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw await apiError(res, url);
   return res.json() as Promise<T>;
 }
 
@@ -38,7 +56,7 @@ async function sendJson<T>(
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (!res.ok) throw new Error(`API error: ${res.status} (${url})`);
+  if (!res.ok) throw await apiError(res, url);
   return res.json() as Promise<T>;
 }
 
@@ -67,9 +85,13 @@ export async function listCompanies({
   turnover_size_codes,
   name_sort = "asc",
   metric_sort = "none",
-  limit = 100,
+  limit = 50,
   offset = 0,
-}: ListCompaniesParams = {}) {
+  include_total,
+  count_only,
+  search_id,
+  reformulated,
+}: ListCompaniesParams = {}, options: { signal?: AbortSignal } = {}) {
   const params = new URLSearchParams();
 
   if (q?.trim()) params.set("q", q.trim());
@@ -149,12 +171,35 @@ export async function listCompanies({
   params.set("metric_sort", metric_sort);
   params.set("limit", String(limit));
   params.set("offset", String(offset));
+  if (include_total) params.set("include_total", "true");
+  if (count_only) params.set("count_only", "true");
+  if (search_id) params.set("search_id", search_id);
+  if (reformulated) params.set("reformulated", "true");
 
-  return fetchJson<CompaniesResponse>(`${API}/companies?${params.toString()}`);
+  return fetchJson<CompaniesResponse>(`${API}/companies?${params.toString()}`, {
+    signal: options.signal,
+  });
 }
 
-export async function getCompany(orgNr: string): Promise<CompanyResponse> {
-  return fetchJson(`${API}/company/${encodeURIComponent(orgNr)}`);
+export async function recordCompanySearchClick(
+  searchId: string,
+  companyId: number,
+  position: number,
+) {
+  return fetchJson<{ ok: true }>(`${API}/companies/search-events/click`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      search_id: searchId,
+      company_id: companyId,
+      position,
+    }),
+    keepalive: true,
+  });
+}
+
+export async function getCompany(orgNr: string): Promise<Company | null> {
+  return fetchJsonOrNull(`${API}/company/${encodeURIComponent(orgNr)}`);
 }
 
 export async function getCompanyTurnoverHistory(
@@ -165,24 +210,42 @@ export async function getCompanyTurnoverHistory(
   );
 }
 
+export async function getCompanyEventHistory(
+  orgNr: string
+): Promise<CompanyEventHistoryResponse> {
+  return fetchJson<CompanyEventHistoryResponse>(
+    `${API}/company/${encodeURIComponent(orgNr)}/events`
+  );
+}
+
 export async function getCountyOverview(
   countyCode: string
-): Promise<CountyOverviewResponse> {
-  return fetchJson<CountyOverviewResponse>(
+): Promise<CountyOverview | null> {
+  return fetchJsonOrNull<CountyOverview>(
     `${API}/county/${encodeURIComponent(countyCode)}`
   );
 }
 
 export async function getMunicipalityOverview(
   municipalityCode: string
-): Promise<MunicipalityOverviewResponse> {
-  return fetchJson<MunicipalityOverviewResponse>(
+): Promise<MunicipalityOverview | null> {
+  return fetchJsonOrNull<MunicipalityOverview>(
     `${API}/municipality/${encodeURIComponent(municipalityCode)}`
   );
 }
 
 export async function getSwedenOverview(): Promise<SwedenOverview> {
   return fetchJson<SwedenOverview>(`${API}/sweden`);
+}
+
+export async function getBolagsverketStatistics(): Promise<BolagsverketStatisticsOverview> {
+  return fetchJson<BolagsverketStatisticsOverview>(
+    `${API}/sweden/bolagsverket-statistics`,
+  );
+}
+
+export async function getAdminDataOverview(): Promise<AdminDataOverview> {
+  return fetchJson<AdminDataOverview>(`${API}/admin/data`);
 }
 
 export async function listSavedSegments(): Promise<SavedSegmentsResponse> {
@@ -239,64 +302,4 @@ export async function updateUserProfile(
   payload: AppUserProfilePayload,
 ): Promise<AppUserProfile> {
   return sendJson<AppUserProfile>(`${API}/user-profile`, "PUT", payload);
-}
-
-export async function listSalesOffers(): Promise<SalesOffersResponse> {
-  return fetchJson<SalesOffersResponse>(`${API}/sales-offers`);
-}
-
-export async function createSalesOffer(
-  payload: SalesOfferPayload,
-): Promise<SalesOffer> {
-  return sendJson<SalesOffer>(`${API}/sales-offers`, "POST", payload);
-}
-
-export async function updateSalesOffer(
-  id: string,
-  payload: SalesOfferPayload,
-): Promise<SalesOffer> {
-  return sendJson<SalesOffer>(
-    `${API}/sales-offers/${encodeURIComponent(id)}`,
-    "PUT",
-    payload,
-  );
-}
-
-export async function deleteSalesOffer(
-  id: string,
-): Promise<{ ok: boolean; id: string }> {
-  return sendJson<{ ok: boolean; id: string }>(
-    `${API}/sales-offers/${encodeURIComponent(id)}`,
-    "DELETE",
-  );
-}
-
-export async function listCustomerAccounts(): Promise<CustomerAccountsResponse> {
-  return fetchJson<CustomerAccountsResponse>(`${API}/customers`);
-}
-
-export async function createCustomerAccount(
-  payload: CustomerAccountPayload,
-): Promise<CustomerAccount> {
-  return sendJson<CustomerAccount>(`${API}/customers`, "POST", payload);
-}
-
-export async function updateCustomerAccount(
-  id: string,
-  payload: CustomerAccountPayload,
-): Promise<CustomerAccount> {
-  return sendJson<CustomerAccount>(
-    `${API}/customers/${encodeURIComponent(id)}`,
-    "PUT",
-    payload,
-  );
-}
-
-export async function deleteCustomerAccount(
-  id: string,
-): Promise<{ ok: boolean; id: string }> {
-  return sendJson<{ ok: boolean; id: string }>(
-    `${API}/customers/${encodeURIComponent(id)}`,
-    "DELETE",
-  );
 }

@@ -1,11 +1,18 @@
 "use client";
 
-import { ui, uiTextSize, type UiTextSize } from "@/src/lib/uiStyles";
+import type { ReactNode } from "react";
+import {
+  ui,
+  uiControlSize,
+  uiTextSize,
+  type UiTextSize,
+} from "@/src/lib/uiStyles";
 
 type ToggleOption<T extends string> = {
   value: T;
   label: string;
   activeLabel?: string;
+  icon?: ReactNode;
 };
 
 type ToggleButtonProps<T extends string> = {
@@ -15,15 +22,10 @@ type ToggleButtonProps<T extends string> = {
   size?: "xs" | "sm" | "md";
   textSize?: UiTextSize;
   sameVariant?: boolean;
+  iconOnly?: boolean;
   ariaLabel?: string;
   className?: string;
 };
-
-const sizeClass = {
-  xs: "px-2 py-1",
-  sm: "px-2.5 py-1.5",
-  md: "px-3 py-2",
-} as const;
 
 export function ToggleButton<T extends string>({
   value,
@@ -32,15 +34,27 @@ export function ToggleButton<T extends string>({
   size = "xs",
   textSize = "xs",
   sameVariant = false,
+  iconOnly = false,
   ariaLabel,
   className = "",
 }: ToggleButtonProps<T>) {
+  const activeIndex = options.findIndex((option) => option.value === value);
+
   return (
     <div
       className={[ui.toggleGroup, className].join(" ")}
       role="group"
       aria-label={ariaLabel}
     >
+      {!sameVariant ? (
+        <span
+          aria-hidden="true"
+          className={[
+            "pointer-events-none absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-sm bg-app-panel shadow-sm ring-1 ring-inset ring-app-border-strong transition-transform duration-200 ease-out motion-reduce:transition-none",
+            activeIndex === 1 ? "translate-x-full" : "translate-x-0",
+          ].join(" ")}
+        />
+      ) : null}
       {options.map((option) => {
         const active = option.value === value;
 
@@ -49,16 +63,21 @@ export function ToggleButton<T extends string>({
             key={option.value}
             type="button"
             aria-pressed={active}
+            aria-label={iconOnly ? option.label : undefined}
+            title={iconOnly ? option.label : undefined}
             onClick={() => onChange(option.value)}
             className={[
               ui.toggleOption,
-              sizeClass[size],
+              iconOnly ? "h-6 w-6 p-0" : uiControlSize.toggle[size],
               uiTextSize[textSize],
               active && !sameVariant ? ui.toggleOptionActive : "",
               !active || sameVariant ? ui.toggleOptionIdle : "",
             ].join(" ")}
           >
-            {active && option.activeLabel ? option.activeLabel : option.label}
+            {option.icon}
+            <span className={iconOnly ? "sr-only" : ""}>
+              {active && option.activeLabel ? option.activeLabel : option.label}
+            </span>
           </button>
         );
       })}

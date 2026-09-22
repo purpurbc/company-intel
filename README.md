@@ -1,79 +1,60 @@
-# Company Intel
-Business focused tool to retrieve company insights and evaluations.
-Very much a WIP.
+# Cintela
 
-Utilizes: 
-- SCB företagsregister (SokPaVar)
-- PostgreSQL
-- FastAPI
-- Next.js
+Cintela samlar officiell svensk företagsdata för sök, historik och
+marknadsöversikter. Källorna är främst SCB:s företagsregister och
+Bolagsverkets bulk- och statistikfiler.
 
-- Future implementations/ideas
-    - AI evaluation
-    - Retrive company website (unsure how, dont want to scrape...)
-    - Google Page Speed Insights for company website evaluation
+## Struktur
 
----
-## Architecture
-company-intel/
-- api/ → FastAPI backend
-- web/ → Next.js frontend
-- worker/ → SCB data gathering
-- db/ → SQL migrations
----
-## 1. Database Setup (Docker)
-From root:
+- `api/` – FastAPI och publika svarskontrakt.
+- `web/` – Next.js-gränssnitt.
+- `worker/` – validerade och återstartningsbara importer.
+- `db/` – PostgreSQL-migreringar och datamodell.
+- `tests/` – kontrakts-, tjänste- och integrationsprov.
+
+## Lokal start
+
+```powershell
 docker compose up -d
-
-Apply migrations:
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/001_init.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/002_dimensions.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/003_backfill_dimensions.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/004_views.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/005_indexes.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/006_company_history.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/007_company_status_labels.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/008_saved_segments.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/010_offers_and_customers.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/011_app_user.sql
-psql "postgresql://app:app@localhost:5432/companyintel" -f db/migrations/012_customer_insights.sql
-
-Run a fresh SCB update:
-python -m worker.run_scb_update
-
-Run only inactive/non-active company statuses:
-python -m worker.run_scb_update --include-inactive
-
-Run active and inactive company statuses:
-python -m worker.run_scb_update --include-inactive --include-active
-
-Run one specific SCB company status:
-python -m worker.run_scb_update --company-status 2
-
-## 2. Backend (FastAPI)
-Install dependencies:
-pip install -r api/requirements.txt
-
-Create .env in repo root:
-see .env.example. Need to apply for access to SCB
-
-Run API:
-uvicorn api.main:app --reload --port 8000
-
-## 3. Frontend (Next.js)
-cd web
+python -m pip install -r worker/requirements.txt -r api/requirements.txt
+python -m db.migrate
 npm install
+npm run dev:api
+```
 
-Create web/.env.local:
-NEXT_PUBLIC_API_BASE=http://localhost:8000
+Starta webbgränssnittet i en separat terminal:
 
-Run:
+```powershell
 npm run dev
+```
 
-Open:
-http://localhost:3000
+Kopiera relevanta värden från `.env.example` till `.env` och sätt
+`NEXT_PUBLIC_API_BASE=http://127.0.0.1:8000` i `web/.env.local`.
 
-API Endpoints (MVP)
-GET /health
-GET /company/{org_nr}
-...
+`GET /health` är processens liveness-kontroll. `GET /health/db` verifierar
+databasanslutning och obligatoriska schemaobjekt och ska användas för readiness.
+
+## Importer
+
+```powershell
+python -m worker.run_bulk_import --scb data/scb_bulkfil.zip --bolagsverket data/bolagsverket_bulkfil.zip --resume
+python -m worker.run_scb_update
+python -m worker.run_bolagsverket_statistics_import --download-official
+```
+
+Alla observationer i en import använder körningens `started_at` som
+`observed_at`. Källans referensdatum lagras separat som `source_as_of_date`, och
+verksamhetshändelser använder `effective_at`. Lyckade importer invaliderar och
+förvärmer de globala översiktscacherna.
+
+Läs [databasguiden](db/README.md) före schemaändringar och
+[statistikguiden](docs/bolagsverket-statistik.md) för Bolagsverkets aggregerade
+statistik.
+
+## Kontroll
+
+```powershell
+python -m pytest
+npm run lint
+npm run build
+```

@@ -4,12 +4,18 @@ services:
     runtime: python
     buildCommand: pip install -r api/requirements.txt
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /health
+    healthCheckPath: /health/db
     autoDeploy: true
     envVars:
       - key: APP_ENV
         value: staging
       - key: CORS_ORIGINS
-        value: http://localhost:3000
+        sync: false
       - key: DATABASE_URL
         sync: false
+      - key: DB_POOL_MIN_SIZE
+        value: "1"
+      - key: DB_POOL_MAX_SIZE
+        value: "10"
+      - key: OVERVIEW_CACHE_TTL_SECONDS
+        value: "3600"

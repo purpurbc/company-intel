@@ -34,3 +34,6 @@ docker-compose.override.yml
 
 *.dump
 *.bak
+.tmp/
+data/*.zip
+data/bolagsverket_statistics/

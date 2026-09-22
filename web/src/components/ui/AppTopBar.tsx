@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { ActionControl } from "@/src/components/ui/Button";
 import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
-
-type Theme = "dark" | "light";
+import {
+  applyColorMode,
+  currentColorMode,
+  type ColorMode,
+} from "@/src/lib/appTheme";
 
 const ICONS = {
   dashboard: "/icons/menu/house-chimney-blank-svgrepo-com.svg",
@@ -12,12 +15,9 @@ const ICONS = {
   themeLight: "/icons/menu/sun-svgrepo-com.svg",
   themeDark: "/icons/menu/moon-svgrepo-com.svg",
   logout: "/icons/menu/logout-svgrepo-com.svg",
+  sidebarShow: "/icons/menu/show_sidebar.svg",
+  sidebarHide: "/icons/menu/hide_sidebar.svg",
 };
-
-function applyTheme(theme: Theme) {
-  document.documentElement.dataset.theme = theme;
-  localStorage.setItem("company-intel-theme", theme);
-}
 
 export function AppTopBar({
   sidebarOpen,
@@ -26,18 +26,12 @@ export function AppTopBar({
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
 }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<ColorMode>("dark");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      const currentTheme = document.documentElement.dataset.theme;
-      const initialTheme =
-        currentTheme === "light" || currentTheme === "dark"
-          ? currentTheme
-          : "dark";
-
-      setTheme(initialTheme);
+      setTheme(currentColorMode());
       setMounted(true);
     }, 0);
 
@@ -45,7 +39,7 @@ export function AppTopBar({
   }, []);
 
   useEffect(() => {
-    if (mounted) applyTheme(theme);
+    if (mounted) applyColorMode(theme);
   }, [mounted, theme]);
 
   function toggleTheme() {
@@ -62,13 +56,16 @@ export function AppTopBar({
           <div className="md:hidden">
             <ActionControl
               label={sidebarOpen ? "Stäng sidomeny" : "Öppna sidomeny"}
+              icon={
+                <MaskedIcon
+                  src={sidebarOpen ? ICONS.sidebarHide : ICONS.sidebarShow}
+                />
+              }
               onClick={onToggleSidebar}
               pressed={sidebarOpen}
-              variant="secondary"
+              variant="ghost"
               size="icon"
-            >
-              {sidebarOpen ? "<" : ">"}
-            </ActionControl>
+            />
           </div>
         </div>
 

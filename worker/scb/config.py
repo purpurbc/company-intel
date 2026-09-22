@@ -9,6 +9,7 @@ APP_ENV = os.getenv("APP_ENV", "development")
 SCB_BASE_URL = os.getenv("SCB_BASE_URL", "https://privateapi.scb.se/nv0101/v1/sokpavar/")
 SCB_TIMEOUT_S = int(os.getenv("SCB_TIMEOUT_S", "30"))
 SCB_API_ID = os.getenv("SCB_API_ID", "")
+SCB_API_KEY = os.getenv("SCB_API_KEY", "")
 SCB_CERT_FILEPATH = os.getenv("SCB_CERT_FILEPATH", "")
 SCB_CERT_PASSWORD = os.getenv("SCB_CERT_PASSWORD", "")
 

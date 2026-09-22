@@ -42,18 +42,73 @@ export const uiRadius = {
   full: "rounded-full",
 } as const;
 
+/** Shared density for interactive controls. Keep control spacing out of pages. */
+export const uiControlSize = {
+  button: {
+    icon: "h-7 min-w-7 px-1 text-xs",
+    xs: "h-6 px-2 py-0.5 text-xs",
+    sm: "h-7 px-2 py-1 text-xs",
+    md: "h-7 px-2.5 py-1 text-xs",
+  },
+  toggle: {
+    xs: "px-1.5 py-0.5",
+    sm: "px-2 py-1",
+    md: "px-2.5 py-1",
+  },
+  select: {
+    embedded: "h-full px-2 py-0",
+    compact: "h-7 px-2 py-1",
+    default: "h-7 px-2.5 py-1",
+  },
+} as const;
+
 export const ui = {
+  /*
+   * Application-level design tokens. Page and Surface components consume these
+   * so product code should not repeat page padding, panel padding or heading
+   * typography. Change these values to update the complete application shell.
+   */
+  page: "min-h-screen bg-app-bg px-4 py-5 text-app-text sm:px-6 sm:py-6",
+  pageContent: "mx-auto w-full max-w-7xl space-y-5",
+  pageContentNarrow: "mx-auto w-full max-w-4xl space-y-5",
+  pageHeader: "[&+nav]:!mt-3",
+  pageTitle: "text-2xl font-semibold text-app-text",
+  pageDescription: "mt-2 max-w-3xl text-sm leading-6 text-app-text-muted",
+  eyebrow: "text-xs font-medium uppercase text-app-text-subtle",
+  sectionTitle: "text-base font-semibold text-app-text",
+  sectionDescription: "mt-1 text-sm leading-6 text-app-text-muted",
+  sectionGrid: "grid min-w-0 gap-4 lg:grid-cols-2",
+  detailGrid: "grid min-w-0 gap-4 xl:grid-cols-2",
+
   card: "rounded-md border border-app-border bg-app-panel shadow-[var(--app-shadow-panel)]",
   cardMuted: "rounded-md border border-app-border bg-app-panel-muted shadow-[var(--app-shadow-panel)]",
+  stickyHeader:
+    "sticky top-0 z-30 bg-app-panel shadow-[var(--app-shadow-sticky)]",
+  panelPadding: "p-3 sm:p-4",
+  panelPaddingCompact: "p-3",
+  inset: "rounded-md border border-app-border bg-app-panel-soft p-2.5",
+  modalOverlay:
+    "fixed inset-0 z-[100] flex items-center justify-center bg-app-overlay p-4",
+  modalPanel:
+    "max-h-[90vh] w-full overflow-auto rounded-md border border-app-border bg-app-panel p-3 shadow-[var(--app-shadow-float)] sm:p-4",
 
   input:
-    "w-full rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+    "min-h-7 w-full rounded-md border border-app-border-strong bg-app-panel px-2 py-1 text-xs text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+
+  inputReadOnly:
+    "min-h-7 w-full rounded-md border border-app-border bg-app-panel-muted px-2 py-1 text-xs text-app-text outline-none",
+
+  textarea:
+    "w-full rounded-md border border-app-border-strong bg-app-panel px-2 py-1 text-xs text-app-text outline-none transition placeholder:text-app-placeholder focus:border-app-focus",
+
+  searchFrame:
+    "app-search-frame rounded-lg border border-app-border bg-app-panel p-1 text-left",
 
   select:
-    "rounded-md border border-app-border-strong bg-app-panel px-3 py-2 text-sm text-app-text outline-none transition focus:border-app-focus",
+    "min-h-7 rounded-md border border-app-border-strong bg-app-panel px-2 py-1 text-xs text-app-text outline-none transition focus:border-app-focus",
 
   buttonBase:
-    "inline-flex items-center justify-center gap-2 font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+    "inline-flex items-center justify-center gap-1.5 font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
 
   buttonPrimary:
     "bg-app-control-bg text-app-control-text hover:bg-app-control-bg-hover",
@@ -62,7 +117,7 @@ export const ui = {
     "border border-app-border-strong bg-app-panel text-app-text hover:bg-app-panel-hover",
 
   buttonAccent:
-    "border border-app-accent-border bg-app-accent-bg text-app-accent-text hover:bg-app-accent-bg-soft",
+    "bg-app-action-accent-bg text-app-action-accent-text shadow-sm hover:bg-app-action-accent-bg-hover",
 
   buttonDark:
     "border border-app-border-strong bg-app-bg text-app-text hover:bg-app-panel",
@@ -71,61 +126,62 @@ export const ui = {
     "border border-app-border bg-app-panel-soft text-app-text hover:bg-app-panel-hover",
 
   buttonDelete:
-    "border border-app-danger-border bg-app-danger-bg text-app-danger-text hover:opacity-80",
+    "bg-app-action-danger-bg text-app-action-danger-text shadow-sm hover:bg-app-action-danger-bg-hover",
 
   buttonAccept:
-    "border border-app-accent-border bg-app-accent-bg text-app-accent-text hover:bg-app-accent-bg-soft",
+    "bg-app-action-accept-bg text-app-action-accept-text shadow-sm hover:bg-app-action-accept-bg-hover",
 
   buttonGhost:
-    "text-app-text-muted hover:bg-app-panel-hover",
+    "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
 
   buttonToggle:
-    "border border-app-border bg-app-panel-soft text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
+    "border border-app-border-strong bg-app-panel text-app-text hover:bg-app-panel-hover",
 
   selectMenuButton:
-    "inline-flex w-full items-center justify-between gap-2 border border-app-border-strong bg-app-panel font-medium text-app-text transition hover:bg-app-panel-hover",
+    "inline-flex w-full items-center justify-between gap-2 border border-app-border-strong bg-app-panel font-normal text-app-text transition hover:bg-app-panel-hover",
+
+  selectMenuButtonEmbedded:
+    "inline-flex h-full w-full items-center justify-between gap-2 border-0 bg-transparent font-normal text-app-text transition hover:bg-app-panel-hover",
 
   selectMenuPanel:
     "absolute z-30 mt-2 max-h-72 min-w-full overflow-auto rounded-md border border-app-border bg-app-panel py-1 shadow-[var(--app-shadow-panel)]",
 
   selectMenuOption:
-    "block w-full px-3 py-2 text-left text-sm transition",
+    "block w-full px-2 py-1.5 text-left text-xs transition",
 
   selectMenuOptionActive:
-    "bg-app-control-bg text-app-control-text",
+    "bg-app-accent-bg text-app-accent-text",
 
   selectMenuOptionIdle:
-    "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
+    "text-app-text hover:bg-app-panel-hover",
 
   toggleGroup:
-    "inline-flex rounded-md border border-app-border-strong bg-app-panel-soft p-0.5",
+    "relative inline-grid grid-cols-2 items-center rounded-md bg-app-panel-soft p-0.5 shadow-[inset_0_0_0_1px_var(--app-border)]",
 
   toggleOption:
-    "rounded-sm border border-transparent font-medium transition",
+    "relative z-10 inline-flex items-center justify-center rounded-sm font-medium leading-none transition-colors duration-150",
 
   toggleOptionActive:
-    "!border-app-border-strong bg-app-control-bg text-app-control-text ring-1 ring-app-border-strong shadow-sm",
+    "text-app-accent-text",
 
   toggleOptionIdle:
-    "text-app-text-muted hover:bg-app-panel-hover hover:text-app-text",
+    "text-app-text-muted hover:text-app-text",
 
-  label: "text-sm font-medium text-app-text-muted",
-  helpText: "text-sm text-app-text-subtle",
+  label: "text-sm font-medium text-app-text",
+  fieldLabel: "text-xs font-medium uppercase text-app-text-muted",
+  helpText: "text-xs text-app-text-muted",
 
   chip:
-    "rounded-md border px-3 py-1.5 text-sm transition border-app-border-strong bg-app-panel text-app-text hover:bg-app-panel-hover",
+    "rounded-md border px-2 py-1 !text-xs transition border-app-border-strong bg-app-panel text-app-text hover:bg-app-panel-hover",
 
   chipSelected:
     "!border-app-border-strong !bg-app-control-bg !text-app-control-text hover:!bg-app-control-bg-hover hover:!text-app-control-text focus:!text-app-control-text active:!text-app-control-text visited:!text-app-control-text",
 
   countChip:
-    "rounded-md border border-app-border-strong bg-app-panel-soft px-2.5 py-1 text-xs font-medium text-app-text-muted",
+    "inline-flex items-center rounded-full bg-app-panel-soft px-2 py-0.5 text-[11px] font-medium leading-4 text-app-text-muted",
 
   badge:
-    "rounded-md border border-app-border-strong bg-app-panel-soft px-2 py-1 text-xs font-medium text-app-text",
-
-  badgeSelected:
-    "rounded-md border border-app-border-strong bg-app-control-bg px-2 py-1 text-xs font-medium text-app-control-text",
+    "inline-flex max-w-full items-start whitespace-normal break-words text-xs font-medium leading-5 text-app-text-muted",
 
   divider: "border-app-border",
 };

@@ -1,11 +1,30 @@
-import { getCompany, getCompanyTurnoverHistory } from "@/src/lib/api";
-import type { Company, CompanyNotFound, CompanyResponse } from "@/src/lib/types";
+import {
+  getCompany,
+  getCompanyEventHistory,
+  getCompanyTurnoverHistory,
+} from "@/src/lib/api";
+import { notFound } from "next/navigation";
 
 import { CompanyHeaderCard } from "@/src/components/company/CompanyHeaderCard";
 import { CompanyInsightSections } from "@/src/components/company/CompanyInsightSections";
+import { Page } from "@/src/components/ui/Page";
+import type { Metadata } from "next";
+import { formatOrganizationNumber } from "@/src/lib/organizationNumber";
 
-function isCompanyNotFound(company: CompanyResponse): company is CompanyNotFound {
-  return "error" in company && company.error === "not_found";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ org_nr: string }>;
+}): Promise<Metadata> {
+  const { org_nr } = await params;
+  const identifier = decodeURIComponent(org_nr);
+  const displayIdentifier = identifier.startsWith("id:")
+    ? "Företag"
+    : formatOrganizationNumber(identifier);
+  return {
+    title: displayIdentifier,
+    description: `Företagsinformation och händelser för ${displayIdentifier}.`,
+  };
 }
 
 export default async function CompanyPage({
@@ -16,37 +35,22 @@ export default async function CompanyPage({
   const { org_nr } = await params;
 
   const orgNr = decodeURIComponent(org_nr);
-  const [data, turnoverHistory] = await Promise.all([
-    getCompany(orgNr),
+  const company = await getCompany(orgNr);
+  if (!company) notFound();
+
+  const [turnoverHistory, eventHistory] = await Promise.all([
     getCompanyTurnoverHistory(orgNr),
+    getCompanyEventHistory(orgNr),
   ]);
 
-  if (isCompanyNotFound(data)) {
-    return (
-      <main className="min-h-screen bg-app-bg p-6 text-app-text">
-        <div className="mx-auto max-w-7xl space-y-4">
-          <div className="border-b border-app-border pb-5">
-            <h1 className="text-2xl font-semibold">Bolag hittades inte</h1>
-            <p className="mt-2 text-sm text-app-text-muted">
-              Ingen företagsinformation kunde hämtas för organisationsnumret.
-            </p>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  const company: Company = data;
-
   return (
-    <main className="min-h-screen bg-app-bg px-5 py-4 text-app-text sm:p-6">
-      <div className="mx-auto max-w-7xl space-y-5">
-        <CompanyHeaderCard company={company} />
-        <CompanyInsightSections
-          company={company}
-          turnoverHistory={turnoverHistory.items}
-        />
-      </div>
-    </main>
+    <Page>
+      <CompanyHeaderCard company={company} />
+      <CompanyInsightSections
+        company={company}
+        turnoverHistory={turnoverHistory.items}
+        eventHistory={eventHistory.items}
+      />
+    </Page>
   );
 }

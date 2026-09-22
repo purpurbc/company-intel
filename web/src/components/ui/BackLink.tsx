@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { TextLink } from "@/src/components/ui/TextLink";
 
 type BackLinkProps = {
   href: string;
@@ -8,8 +8,8 @@ type BackLinkProps = {
 
 export function BackLink({ href, children }: BackLinkProps) {
   return (
-    <Link href={href} className="hover:underline">
+    <TextLink href={href}>
       {children}
-    </Link>
+    </TextLink>
   );
 }

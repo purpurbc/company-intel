@@ -1,59 +1,318 @@
-1. Stabil företagsdatabas + sök/filter
-   Grundfunktionen måste vara snabb, korrekt och användbar.
+# Cintela – aktuell produkt- och teknikroadmap
 
-2. Företagssida
-   Visa tydlig företagsdata, status, bransch, plats, storlek och signaler.
+Senast reviderad: 2026-09-22
 
-3. Historik och förändringsdetektion
-   Spara ändringar från SCB direkt. Detta blir din moat.
+Det här är den aktiva roadmapen. Den beskriver nuläge, beslut och nästa
+värdeskapande steg. Avklarade detaljbuggar och äldre experiment hör inte hemma
+här.
 
-4. Business Signals
-   Skapa events som nystartat, ny arbetsgivare, ändrad storlek, moms/F-skatt, ny kommun.
+Kärnflödet är:
 
-5. Sparade segment
-   Användare kan spara filter som “Bygg Stockholm 1–10 anställda”.
+`hitta rätt företag -> förstå vad som förändrats -> agera vid rätt tidpunkt`
 
-6. Opportunity Feed
-   Visa “nya företag och signaler sedan sist” för varje sparat segment.
+## Produktmål
 
-7. User Profile / ICP Setup
-   Användaren beskriver sitt bolag, erbjudande, målgrupp och geografi.
+Cintela ska vara en förklarbar förändrings- och möjlighetsradar för svenska
+företag. Officiella källor, källmedveten historik och användarens målmarknad ska
+besvara fyra frågor:
 
-8. Current Customers
-   Användaren väljer befintliga kunder och markerar varför de är bra/dåliga.
+1. Vilka företag passar målgruppen?
+2. Vad har förändrats sedan sist?
+3. Varför kan förändringen vara relevant nu?
+4. Vilka fakta, datum, källor och beräkningar stödjer slutsatsen?
 
-9. AI Segment Generator
-   AI föreslår filter/segment utifrån profil + kunder. AI ska skapa filter, inte välja företag direkt.
+Sök och företagsfakta är ingången. Det långsiktigt betalbara värdet är
+förändringsdetektion, prioritering, kontext och ett återkommande arbetsflöde.
 
-10. Lead / Match Score
-   Regelbaserad score först. AI senare. Visa varför ett företag matchar.
+### Tidig målgrupp
 
-11. AI Business Summary
-   Kort sammanfattning per företag, cachad och endast genererad vid behov.
+Svenska B2B-företag med en tydlig bransch- eller geografisk målmarknad och ett
+mindre försäljnings- eller affärsutvecklingsteam. Primär användare är ägare,
+försäljningschef eller säljare som i dag arbetar med manuella företagslistor och
+registerkontroller.
 
-12. AI Outreach Recommendation
-   Rekommenderad pitch, kontaktvinkel och möjliga behov.
+### Produktgränser
 
-13. Similar Companies
-   Hitta företag som liknar ett bra lead eller en befintlig kund.
+Cintela ska inte bli:
 
-14. Website Enrichment
-   Användaren kan lägga in hemsida och köra analys på utvalda företag.
+- ett generellt CRM, outreachverktyg eller kontaktregister;
+- en katalog med så många öppna API:er som möjligt;
+- en leverantör av individuella kredit- eller riskbetyg utan rätt data och metod;
+- en svart AI-box som rekommenderar företag utan spårbar evidens;
+- en produkt som drar slutsatser om ett företag från aggregerad statistik.
 
-15. PageSpeed / Website Opportunity Score
-   Extra starkt för webbyråer, SEO, marketing och digitala tjänster.
+## Nuläge
 
-16. Weekly Email / Report
-   Skicka “veckans nya möjligheter” från sparade segment.
+### Levererat
 
-17. Lists / CRM-lite
-   Spara leads, status, anteckningar och enkel pipeline.
+- [x] SCB- och Bolagsverksdata med immutable raw, källager, SCD2-historik,
+  kanonisk företagsidentitet, proveniens och händelser.
+- [x] Företagssök med namn, alias, organisationsnummer, korta prefix,
+  segmentfilter, URL-state, separat totalräkning och begränsat resultatfönster.
+- [x] Enhetlig företagsprofil med översikt, händelser, kontakt och källor.
+- [x] Sparade segment med redigering och applicering från Arbetsytan.
+- [x] Sverigedata med nationell överblick, samlad geografi och karta.
+- [x] Bolagsverkets fyra aggregerade statistikfiler med versionshanterad import,
+  historik, datakvalitetsskydd samt interaktiva tabell- och diagramvyer under
+  Sverigedata med serieval, linjer/spline/staplar och anpassningsbara axlar.
+- [x] Teknisk adminsida för importkörningar och datatäckning.
+- [x] Gemensamt UI-paket med komponentkatalog, teman, responsiva mönster och
+  centrala tokens för typografi, färg, spacing och motion.
+- [x] Tidiga prototyper för kunder, erbjudanden och bevakningslistor är borttagna
+  ur UI, API och databas.
+- [x] Databasscheman har tydliga ansvar: `raw`, `src_*`, `core`, `app`, `mart`
+  och `meta`. Det tomma `public`-schemat tas bort i migrationskedjan.
 
-18. Export
-   CSV/export för betalande användare.
+### Statistikens faktiska täckning
 
-19. Team / Workspace
-   Flera användare per bolag, delade segment och listor.
+- Företag och föreningar: januari 1984–augusti 2026.
+- Företrädare: 2003–2026.
+- Revisorsförbehåll: 2012–2026.
+- Årsredovisningar och förseningsavgifter: 2003–2026.
+- Nuvarande fil för årsredovisningar är en nationell årsserie. Den saknar län
+  och räkenskapsperiodgrupp och får inte presenteras som mer detaljerad än så.
 
-20. Billing / Subscription
-   Sätt betalvägg kring saved segments, opportunity feed, AI-insikter, export och website enrichment.
+### Kända produkt- och driftsluckor
+
+- [ ] Ingen riktig autentisering, workspace-isolering eller betalmodell.
+- [ ] Admin och rådata är ännu inte rollskyddade på produktionsnivå.
+- [ ] Importer är inte schemalagda och övervakade som en sammanhängande tjänst.
+- [ ] CI täcker ännu inte hela kedjan migration, import, API, frontend och
+  kritiska browserflöden.
+- [ ] Sparade segment är främst sparade filter; produkten saknar fortfarande
+  ett starkt “nytt sedan sist”-flöde.
+- [ ] Företagshistoriken är informativ men saknar grupperade förändringsepisoder
+  och tydlig, förklarbar prioritering.
+- [ ] Centrala begrepp som företag, verksamhetsstatus, bolagsläge och signal
+  behöver ett gemensamt kontrakt i SQL, API och UI.
+
+## Sidstruktur
+
+- **Hem:** snabb sök och på sikt en personlig förändringspuls.
+- **Företag:** sök, filter, segment och resultat.
+- **Sverigedata:** ingång till Överblick, Geografi, Statistik och Karta.
+- **Arbetsyta:** användarens sparade segment.
+- **Profil och Inställningar:** konto, eget företag, målgrupp och tema.
+- **Admin:** import, kvalitet och rådata; ska vara rollskyddat och ligga utanför
+  den vanliga produktresan.
+
+Överblick och Statistik ska inte duplicera varandra. Överblick sammanfattar det
+aktuella företagsbeståndet. Statistik visar Bolagsverkets aggregerade tidsserier
+för företagsdynamik, företrädare, revision och årsredovisning.
+
+## Prioriterad roadmap
+
+### P0 – säker och driftbar kärna
+
+Säkerhet och integritet:
+
+- [ ] Inför autentisering och serverledd användar-/workspace-identitet.
+- [ ] Lägg workspace-isolering och behörighetstest på sparade segment.
+- [ ] Ta bort klientstyrd `user_id` och möjligheten att själv styra roll.
+- [ ] Rollskydda admin och flytta vanlig åtkomst till rådata dit.
+- [ ] Maskera personnummer i listor och loggar samt dokumentera hanteringen av
+  enskilda näringsidkare.
+- [ ] Inför rate limits, samtidighetsgränser och kostnadsbudget för dyra sök- och
+  analysanrop.
+
+Drift och datatillit:
+
+- [ ] Schemalägg Bolagsverkets veckofiler, SCB-import och Bolagsverkets
+  månadsstatistik.
+- [ ] Larma på misslyckad import, källschemaändring, oväntat bortfall och gammal
+  data.
+- [ ] Lägg strukturerad loggning, request-id och frågetider utan söktext,
+  personnummer eller råa personpayloads.
+- [ ] Skapa reproducerbar installation och CI för Python, frontend, migration,
+  databasintegration och kritiska browserflöden.
+- [ ] Lägg prestandaregressioner för namn, organisationsnummer, korta prefix,
+  sena sidor och tunga filterkombinationer.
+- [ ] Dokumentera backup, återställning och rollback för metadata, produktdata
+  och importer.
+
+Kvalitet:
+
+- [ ] Definiera “företag”, “verksamt”, “bolagsläge”, “målgruppsträff” och
+  “signal” centralt och återanvänd definitionerna över alla lager.
+- [ ] Lägg automatiska rimlighetskontroller per källa och period, med tydlig
+  status i Admin.
+- [ ] Säkerställ att varje KPI skiljer saknat värde från noll och visar källa,
+  period och definition där det påverkar tolkningen.
+
+Klarkriterier P0:
+
+- Ingen korsanvändaråtkomst eller oskyddad admin-/rådataåtkomst.
+- Vanlig namnsökning p95 under 500 ms och ingen stödd sökning över 2 sekunder.
+- Importer kan återstartas utan historikförlust och larmar vid fel.
+- Alla produktkritiska kontroller körs automatiskt i CI.
+
+### P1 – återkommande värde och privat beta
+
+- [ ] Skapa ett versionsstyrt signalkontrakt med företag, signaltyp,
+  `effective_at`, `observed_at`, styrka, confidence, källor och formelversion.
+- [ ] Ta snapshots av sparade segment och beräkna deterministisk diff: nya,
+  lämnade och förändrade företag.
+- [ ] Gruppera relaterade händelser till begripliga förändringsepisoder i stället
+  för en lång lista med tekniska fältändringar.
+- [ ] Bygg Hem som “Nytt sedan sist” med orsak, evidens, datum och nästa
+  tillåtna handling.
+- [ ] Lägg en förklarbar “Varför nu?”-bedömning som visar positiva skäl,
+  diskvalificerande fakta och datatäckning.
+- [ ] Samla enkel feedback: relevant, irrelevant, sparad och agerad på. Detta är
+  signalmätning, inte början på ett CRM.
+- [ ] Rekrytera 10 designpartners och leverera en manuell veckosammanfattning
+  parallellt tills relevans och betalvilja är bevisade.
+
+Klarkriterier privat beta:
+
+- Minst 6 av 10 designpartners använder produkten varje vecka i fyra veckor.
+- Minst 3 accepterar minst 990 kr/månad för fortsatt användning.
+- Minst 70 procent av öppnade toppsignaler markeras relevanta.
+- Median tid till första sparade segment understiger 10 minuter.
+
+### P1.5 – djupare företagsspecifik insikt
+
+Bolagsverkets digitala årsredovisningar är prioriterad kandidat eftersom de kan
+ge faktiska företagssignaler, till skillnad från aggregerad statistik.
+
+- [ ] Gör täckningsstudie per år, företagsform och storlek före produktlöften.
+- [ ] Bygg återupptagningsbar iXBRL-import med originalfil, checksumma och
+  taxonomiversion.
+- [ ] Normalisera period, omsättning, resultat, tillgångar, eget kapital,
+  skulder och medelantal anställda med versionsstyrd konceptmappning.
+- [ ] Beräkna tillväxt, marginal och soliditet med synlig formelversion.
+- [ ] Skapa signaler för ny rapport, acceleration, marginalvändning,
+  personalförändring och kapitalförändring.
+- [ ] Lägg utveckling, signaler och jämförelse på företagssidan först när
+  täckningen är tillräcklig; dölj alltid innehåll som saknar data.
+
+### P2 – bättre timing och distribution
+
+- [ ] Gör JobTech-täckningsstudie: organisationsnummer, matchgrad, dubbletter
+  och branschbias i aktuella och historiska annonser.
+- [ ] Skapa rekryteringssignaler först efter studien; frånvaro av annons får
+  aldrig tolkas som frånvaro av rekrytering.
+- [ ] Välj högst 3–5 SCB PxWeb-tabeller kopplade till tydliga beslut, exempelvis
+  branschstruktur och sysselsättning.
+- [ ] Skapa transparenta peer groups av SNI, storlek, geografi och utveckling,
+  med minsta gruppstorlek och begriplig metod.
+- [ ] Lägg e-postnotifieringar först när “nytt sedan sist” används återkommande.
+- [ ] Lägg CSV-export och CRM-webhook först när användare faktiskt behöver
+  flytta prioriterade företag till ett annat arbetsflöde.
+
+### P3 – validerade vertikaler
+
+Implementera endast efter dokumenterat behov och betalvilja:
+
+- Offentlig affär: tilldelningar med leverantörs-ID, CPV, köpare, värde och tid.
+- Platsintelligens: relevanta Lantmäteri-/Trafikverksmått för logistik och
+  industri.
+- Miljö och anläggning: tillstånds- och utsläppsdata för en avgränsad vertikal.
+- Externt signal-API när interna signaldefinitioner är stabila och efterfrågade.
+
+## Differentierande produktidéer
+
+### Segmentdiff
+
+Visa exakt vilka företag som kom in, lämnade eller ändrades och vilken datapunkt
+som ändrade medlemskapet. Det gör dagens segment till ett återkommande värde.
+
+### Förändringsepisoder
+
+Samla verifierade händelser inom ett tidsfönster, exempelvis ny årsredovisning,
+fler anställda och ny adress. Visa samtidighet och evidens utan att påstå en
+orsak som källorna inte bevisar.
+
+### Förklarbar “Varför nu?”
+
+Matcha förändringen mot användarens målmarknad. Visa en kort tes, stödjande
+fakta, invändningar, täckning och möjlighet att öppna varje källfaktum.
+
+### Marknad till företag
+
+Låt användaren gå från en aggregerad trend i Sverigedata till ett separat
+företagsurval. UI och metod ska tydligt skilja marknadstrenden från urvalet så
+att statistiken aldrig framstår som evidens om ett enskilt bolag.
+
+### Signalrecept
+
+Låt användaren beskriva ett köpfönster på svenska men översätt det till synliga,
+versionerade filter och regler. Varje regel ska kunna granskas, ändras och
+testas mot känd datatäckning.
+
+## Kommersiell validering
+
+Prissättning är en hypotes tills återkommande värde har bevisats:
+
+- **Gratis:** grundsökning, företagsprofil och begränsad historik.
+- **Pro, 990–1 490 kr/månad:** segmentdiff, nytt sedan sist, full historik och
+  varför-nu.
+- **Team, 3 900–7 900 kr/månad:** gemensamma segment, fler användare, feedback,
+  högre gränser och senare integrationer.
+- **Data/API, senare:** endast stabila, versionerade Cintela-signaler – inte
+  vidareförsäljning av osorterad offentlig rådata.
+
+Valideringsordning:
+
+1. Intervjua 20 målgruppsanvändare om deras senaste verkliga prospektering.
+2. Bygg segment och manuella veckosammanfattningar med 10 designpartners.
+3. Mät om signalerna leder till återkommande öppning och handling.
+4. Be om betalning innan billing, teamfunktioner och integrationer byggs.
+5. Välj den vertikal där retention, relevans och betalvilja är högst.
+
+Viktigaste affärsmåttet är antal workspaces som varje vecka agerar på minst en
+relevant, källbelagd förändring. Sökningar och sidvisningar är stödmått.
+
+## Prioritering av nya datakällor
+
+| Prioritet | Källa | Möjligt värde | Grind före implementation |
+| --- | --- | --- | --- |
+| 1 | Bolagsverket iXBRL | Exakta finanser och förändringssignaler | Täckning och taxonomistudie |
+| 2 | JobTech | Rekrytering, kompetens och expansion | Orgnr-matchning och biasstudie |
+| 3 | SCB PxWeb | Peer- och marknadskontext | Högst 3–5 beslutssituationer |
+| 4 | Upphandlingsdata | Offentlig affär och kontraktstiming | Leverantörs-ID och täckning |
+| 5 | Lantmäteriet/Trafikverket | Vertikal platsintelligens | Betalande vertikalbehov |
+| 6 | Miljö-/anläggningsdata | Smala industrisignaler | Robust metod och tydlig målgrupp |
+
+Sveriges dataportal används för discovery. Integrera ansvarig myndighets källa
+direkt och bedöm affärsnytta, organisationsnummerkoppling, historik, aktualitet,
+licens, stabilitet och underhållskostnad före implementation.
+
+## Pausat eller bortvalt
+
+- Generellt CRM, kunder, erbjudanden och enkla bevakningslistor.
+- Automatisk AI-outreach och genererade säljlöften.
+- PageSpeed eller website score som generell kärnfunktion.
+- Embeddingbaserade “liknande företag” före transparenta peer groups.
+- Generell export-/listförsäljning som huvudprodukt.
+- Kontakt- och privatprofilskrapning, generella nyheter och sociala flöden.
+- Väder och realtidstrafik utan ett validerat, företagsspecifikt beslut.
+- Individuella slutsatser från aggregerad statistik eller demografi.
+
+## Standard för nya data och funktioner
+
+Dataflöde:
+
+`källa -> immutable raw -> validering -> källnormalisering -> identitetskoppling -> historik -> signal -> mart/API -> UI`
+
+En dataprodukt är inte klar förrän den:
+
+- har dokumenterad ägare, licens, autentisering, begränsningar och frekvens;
+- skiljer källperiod, händelsetid, observationstid och importtid;
+- är idempotent, återupptagningsbar och skyddad mot schema- och bortfallsfel;
+- bevarar historik i stället för att skriva över observationer;
+- skiljer källfakta, Cintela-beräkning och användarens tolkning;
+- visar källa, period, definition, täckning och saknat värde korrekt;
+- har kontrakts-, historik-, fel- och prestandatest;
+- har en tydlig användarsituation och inte bara en tillgänglig datakälla.
+
+En produktfunktion är inte klar förrän den:
+
+- återanvänder komponentbibliotekets primitives eller tillför en generell variant;
+- fungerar i båda teman, smal vy, långa svenska texter och reduced motion;
+- har bounded input, behörighetskontroll och en bedömd worst-case-kostnad;
+- hanterar loading, tomt resultat, partiellt fel och gammalt async-svar;
+- är begriplig utan onödig förklarande text.
+
+Byggordning: observera problemet, testa värdet manuellt, verifiera data och
+täckning, få återkommande användning, ta betalt och skala därefter.

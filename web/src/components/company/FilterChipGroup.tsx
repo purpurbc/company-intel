@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { ChevronIcon } from "@/src/components/ui/ChevronIcon";
+import { AnimatedCollapse } from "@/src/components/ui/AnimatedCollapse";
+import { CountChip, FilterChip } from "@/src/components/ui/Chip";
 import type { FilterOption } from "@/src/lib/companyFilterOptions";
 import { ui } from "@/src/lib/uiStyles";
 
@@ -36,41 +39,37 @@ export function FilterChipGroup({
 
   return (
     <div className={ui.card}>
-      <div className="px-4 py-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="px-3 py-2.5">
+        <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
+            aria-expanded={open}
             className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
           >
             <div className="flex items-center gap-3">
-              <h3 className="text-sm font-semibold text-slate-100">{title}</h3>
+              <h3 className={ui.label}>{title}</h3>
 
               {selectedValues.length > 0 && (
-                <span className={ui.countChip}>
+                <CountChip>
                   {selectedValues.length} valda
-                </span>
+                </CountChip>
               )}
             </div>
 
-            <span
-              className={[
-                "text-sm text-slate-500 transition-transform",
-                open ? "rotate-180" : "",
-              ].join(" ")}
-            >
-              v
+            <span className="text-app-text-subtle">
+              <ChevronIcon expanded={open} />
             </span>
           </button>
 
           {headerControl ? (
-            <div className="min-w-0 lg:w-96">{headerControl}</div>
+            <div className="min-w-0 w-full">{headerControl}</div>
           ) : null}
         </div>
       </div>
 
-      {open && (
-        <div className={`border-t px-4 py-4 ${ui.divider}`}>
+      <AnimatedCollapse expanded={open} unmountWhenClosed>
+        <div className={`border-t px-3 py-3 ${ui.divider}`}>
           <div className="space-y-3">
             {searchable && onSearchChange && (
               <input
@@ -85,22 +84,20 @@ export function FilterChipGroup({
               <div className="flex flex-wrap gap-2">
                 {options.map((option) => {
                   const selected = selectedValues.includes(option.value);
-                  const label = showOptionValues
-                    ? `${option.value} ${option.label}`
-                    : option.label;
 
                   return (
-                    <button
+                    <FilterChip
                       key={option.value}
-                      type="button"
+                      selected={selected}
                       onClick={() => onToggle(option.value)}
-                      className={[
-                        ui.chip,
-                        selected ? ui.chipSelected : "",
-                      ].join(" ")}
                     >
-                      <span className="block leading-snug">{label}</span>
-                    </button>
+                      <span className="flex items-baseline gap-1.5 leading-snug">
+                        {showOptionValues ? (
+                          <strong className="font-bold">{option.value}</strong>
+                        ) : null}
+                        <span>{option.label}</span>
+                      </span>
+                    </FilterChip>
                   );
                 })}
               </div>
@@ -113,7 +110,7 @@ export function FilterChipGroup({
             )}
           </div>
         </div>
-      )}
+      </AnimatedCollapse>
     </div>
   );
 }

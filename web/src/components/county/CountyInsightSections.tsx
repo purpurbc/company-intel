@@ -1,22 +1,26 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
+import { AnimatedContent } from "@/src/components/ui/AnimatedContent";
+import { HorizontalBarList } from "@/src/components/ui/HorizontalBarList";
+import { TextLink } from "@/src/components/ui/TextLink";
+import { Section } from "@/src/components/ui/Surface";
+import { Tabs } from "@/src/components/ui/Tabs";
 import type { CountByName, CountyOverview } from "@/src/lib/types";
+import { ui } from "@/src/lib/uiStyles";
 
 type CountyInsightSectionsProps = {
   county: CountyOverview;
 };
 
-type TabKey = "overview" | "mix" | "geography" | "insights" | "raw";
+type TabKey = "overview" | "mix" | "geography" | "raw";
 
 const tabs: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Översikt" },
   { key: "mix", label: "Företagsmix" },
   { key: "geography", label: "Geografi" },
-  { key: "insights", label: "Insikter" },
-  { key: "raw", label: "Raw payload" },
+  { key: "raw", label: "Rådata" },
 ];
 
 function formatNumber(value: number) {
@@ -46,7 +50,7 @@ function topName(rows: CountByName[]) {
 function countByCodes(rows: CountByName[] = [], codes: string[]) {
   const codeSet = new Set(codes);
   return rows.reduce(
-    (sum, row) => (codeSet.has(row.code) ? sum + row.count : sum),
+    (sum, row) => (row.code && codeSet.has(row.code) ? sum + row.count : sum),
     0,
   );
 }
@@ -55,21 +59,17 @@ function SectionBlock({
   title,
   children,
   className = "",
+  source,
 }: {
   title: string;
   children: ReactNode;
   className?: string;
+  source?: string;
 }) {
   return (
-    <section
-      className={[
-        "rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3",
-        className,
-      ].join(" ")}
-    >
-      <h2 className="text-base font-bold text-app-text">{title}</h2>
-      <div className="mt-2">{children}</div>
-    </section>
+    <Section title={title} source={source} className={className}>
+      {children}
+    </Section>
   );
 }
 
@@ -114,12 +114,9 @@ function LinkedValue({
   if (!href || !children) return children;
 
   return (
-    <Link
-      href={href}
-      className="font-medium text-app-text underline decoration-app-border-strong underline-offset-4 hover:text-app-accent-text"
-    >
+    <TextLink href={href}>
       {children}
-    </Link>
+    </TextLink>
   );
 }
 
@@ -129,71 +126,26 @@ function BarList({
   hrefPrefix,
   initialItems = 8,
   className = "",
+  missingLabel,
 }: {
   title: string;
   items: CountByName[];
   hrefPrefix?: string;
   initialItems?: number;
   className?: string;
+  missingLabel?: string;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  const sortedItems = useMemo(
-    () => [...items].sort((a, b) => b.count - a.count),
-    [items],
-  );
-  const visibleItems = expanded ? sortedItems : sortedItems.slice(0, initialItems);
-  const total = sortedItems.reduce((sum, item) => sum + item.count, 0);
-  const hasMore = sortedItems.length > initialItems;
-
   return (
-    <SectionBlock title={title} className={className}>
-      {visibleItems.length ? (
-        <div className="space-y-3">
-          {visibleItems.map((item) => {
-            const href = hrefPrefix
-              ? `${hrefPrefix}/${encodeURIComponent(item.code)}`
-              : null;
-            const width = Math.max(
-              item.count > 0 ? 2 : 0,
-              shareValue(item.count, total),
-            );
-
-            return (
-              <div key={`${item.code}-${item.name}`} className="space-y-1.5">
-                <div className="flex items-baseline justify-between gap-3 text-xs">
-                  <div className="min-w-0 truncate font-medium text-app-text">
-                    <LinkedValue href={href}>{item.name}</LinkedValue>
-                  </div>
-                  <div className="shrink-0 tabular-nums text-app-text-muted">
-                    {formatNumber(item.count)} · {formatShare(item.count, total)}
-                  </div>
-                </div>
-                <div className="h-1.5 bg-app-panel-muted">
-                  <div
-                    className="h-full bg-app-accent-text"
-                    style={{ width: `${width}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="border border-dashed border-app-border bg-app-panel-muted p-3 text-sm text-app-text-muted">
-          Ingen data finns i underlaget.
-        </div>
-      )}
-
-      {hasMore ? (
-        <button
-          type="button"
-          onClick={() => setExpanded((current) => !current)}
-          className="mt-3 h-8 rounded-sm border border-app-border bg-app-panel-muted px-3 text-xs font-medium text-app-text transition hover:border-app-border-strong hover:bg-app-panel-hover"
-        >
-          {expanded ? "Visa färre" : `Visa alla ${sortedItems.length}`}
-        </button>
-      ) : null}
-    </SectionBlock>
+    <HorizontalBarList
+      title={title}
+      items={items}
+      hrefPrefix={hrefPrefix}
+      previewItems={initialItems}
+      maxItems={100}
+      className={className}
+      missingLabel={missingLabel}
+      source="SCB"
+    />
   );
 }
 
@@ -219,34 +171,40 @@ function StatusTile({
 
 function StatusConcentration({ county }: CountyInsightSectionsProps) {
   const total = county.totals.companies;
-  const statusItems = [
+  const activityItems = [
     {
-      label: "Normalläge",
-      value: countByCodes(county.by_state, ["0"]),
-    },
-    {
-      label: "Konkurs inledd",
-      value: countByCodes(county.by_state, ["20"]),
-    },
-    {
-      label: "Likvidation beslutad/pågår",
-      value: countByCodes(county.by_state, ["32", "33"]),
-    },
-    {
-      label: "Företagsrekonstruktion",
-      value: countByCodes(county.by_state, ["80"]),
+      label: "Verksam",
+      value: countByCodes(county.by_activity_status, ["1"]),
     },
     {
       label: "Ej längre verksam",
-      value: countByCodes(county.by_status, ["9"]),
+      value: countByCodes(county.by_activity_status, ["9"]),
     },
     {
       label: "Aldrig verksam",
-      value: countByCodes(county.by_status, ["0"]),
+      value: countByCodes(county.by_activity_status, ["0"]),
+    },
+  ];
+  const companyStateItems = [
+    {
+      label: "Normalläge",
+      value: countByCodes(county.by_company_state, ["0"]),
+    },
+    {
+      label: "Konkurs inledd",
+      value: countByCodes(county.by_company_state, ["20"]),
+    },
+    {
+      label: "Likvidation beslutad/pågår",
+      value: countByCodes(county.by_company_state, ["32", "33"]),
+    },
+    {
+      label: "Företagsrekonstruktion",
+      value: countByCodes(county.by_company_state, ["80"]),
     },
     {
       label: "Avförd/avregistrerad",
-      value: countByCodes(county.by_state, [
+      value: countByCodes(county.by_company_state, [
         "50",
         "51",
         "52",
@@ -266,18 +224,19 @@ function StatusConcentration({ county }: CountyInsightSectionsProps) {
     },
     {
       label: "Fusion/delning pågår",
-      value: countByCodes(county.by_state, ["40", "45", "49", "90", "99"]),
+      value: countByCodes(county.by_company_state, ["40", "45", "49", "90", "99"]),
     },
     {
       label: "Avslutad insolvens",
-      value: countByCodes(county.by_state, ["21", "22", "24", "81", "82"]),
+      value: countByCodes(county.by_company_state, ["21", "22", "24", "81", "82"]),
     },
   ];
 
   return (
-    <SectionBlock title="Statuslägen">
+    <>
+    <SectionBlock title="Verksamhetsstatus" source="SCB">
       <div className="divide-y divide-app-border/70">
-        {statusItems.map((item) => (
+        {activityItems.map((item) => (
           <StatusTile
             key={item.label}
             label={item.label}
@@ -287,6 +246,14 @@ function StatusConcentration({ county }: CountyInsightSectionsProps) {
         ))}
       </div>
     </SectionBlock>
+    <SectionBlock title="Bolagsläge / riskläge" source="Bolagsverket">
+      <div className="divide-y divide-app-border/70">
+        {companyStateItems.map((item) => (
+          <StatusTile key={item.label} label={item.label} value={item.value} total={total} />
+        ))}
+      </div>
+    </SectionBlock>
+    </>
   );
 }
 
@@ -295,14 +262,14 @@ function OverviewTab({ county }: CountyInsightSectionsProps) {
 
   return (
     <div className="space-y-3">
-      <div className="grid gap-3 xl:grid-cols-2">
-        <SectionBlock title="Företagsbas">
+      <div className={ui.detailGrid}>
+        <SectionBlock title="Företagsbas" source="SCB · Bolagsverket">
           <DataGrid
             valueAlign="right"
             rows={[
               { label: "Företag", value: formatNumber(county.totals.companies) },
               {
-                label: "Aktiva",
+                label: "Verksamma",
                 value: `${formatNumber(county.totals.active)} · ${share(
                   county.totals.active,
                   county.totals.companies,
@@ -320,7 +287,7 @@ function OverviewTab({ county }: CountyInsightSectionsProps) {
           />
         </SectionBlock>
 
-        <SectionBlock title="Geografisk täckning">
+        <SectionBlock title="Geografisk täckning" source="SCB">
           <DataGrid
             valueAlign="right"
             rows={[
@@ -337,7 +304,7 @@ function OverviewTab({ county }: CountyInsightSectionsProps) {
                 value: (
                   <LinkedValue
                     href={
-                      largestMunicipality
+                      largestMunicipality?.code
                         ? `/municipality/${encodeURIComponent(
                             largestMunicipality.code,
                           )}`
@@ -353,7 +320,7 @@ function OverviewTab({ county }: CountyInsightSectionsProps) {
         </SectionBlock>
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className={ui.detailGrid}>
         <StatusConcentration county={county} />
       </div>
     </div>
@@ -362,17 +329,23 @@ function OverviewTab({ county }: CountyInsightSectionsProps) {
 
 function MixTab({ county }: CountyInsightSectionsProps) {
   return (
-    <div className="grid gap-3 xl:grid-cols-2">
-      <BarList title="Storleksklasser" items={county.by_size} />
+    <div className={ui.detailGrid}>
+      <BarList
+        title="Storleksklasser"
+        items={county.by_size}
+        missingLabel="Storleksklass saknas"
+      />
       <BarList
         title="Omsättningsklasser"
         items={county.by_turnover}
         initialItems={10}
+        missingLabel="Omsättning saknas"
       />
       <BarList
         title="Branschfördelning"
         items={county.by_industry}
         className="xl:col-span-2"
+        missingLabel="Branschgrupp saknas"
       />
     </div>
   );
@@ -380,99 +353,26 @@ function MixTab({ county }: CountyInsightSectionsProps) {
 
 function GeographyTab({ county }: CountyInsightSectionsProps) {
   return (
-    <div className="grid gap-3 xl:grid-cols-2">
+    <div className={ui.detailGrid}>
       <BarList
         title="Kommuner"
         items={county.by_municipality}
         hrefPrefix="/municipality"
         initialItems={10}
+        missingLabel="Kommun saknas"
       />
-      <BarList title="A-regioner" items={county.by_aregion} />
-    </div>
-  );
-}
-
-function InsightPlaceholder({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="border-b border-app-border py-3 last:border-b-0">
-      <div className="text-sm font-semibold text-app-text">{title}</div>
-      <p className="mt-1 text-sm leading-6 text-app-text-muted">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function InsightsTab() {
-  const insightItems = [
-    {
-      title: "Prioriterade kommuner",
-      description:
-        "Rangordnar kommuner i länet efter match mot användarens profil, erbjudanden, befintliga kunder och önskade segment.",
-    },
-    {
-      title: "Segmentkoncentration",
-      description:
-        "Identifierar branscher och storleksklasser där länet har hög koncentration av relevanta företag för säljarens erbjudande.",
-    },
-    {
-      title: "Erbjudandematch",
-      description:
-        "Kopplar länets företagsmix mot användarens erbjudanden och föreslår vilka marknader som bör bearbetas först.",
-    },
-    {
-      title: "Liknande bästa kunder",
-      description:
-        "Jämför länets bolag med användarens bästa kunder och lyfter var det finns flest lookalike-prospects.",
-    },
-    {
-      title: "Prospect-expansion",
-      description:
-        "Bygger förslag på nya prospektlistor utifrån befintliga kunder, segment, geografi och signaler i länets företagsbas.",
-    },
-    {
-      title: "Territory-prioritering",
-      description:
-        "Föreslår en praktisk bearbetningsordning för säljteam: kommuner, segment och företagsstorlekar att börja med.",
-    },
-    {
-      title: "Outreach-vinkel",
-      description:
-        "Tar fram korta säljvinklar per segment och kommun baserat på vad som sannolikt är relevant för företagen där.",
-    },
-    {
-      title: "Bevakning",
-      description:
-        "Pekar ut segment och geografier som bör följas över tid när fler signaler, kunder och manuella kalkyler kopplas in.",
-    },
-  ];
-
-  return (
-    <div className="max-w-3xl">
-      <SectionBlock title="Länsinsikter">
-        <div className="divide-y divide-app-border">
-          {insightItems.map((item) => (
-            <InsightPlaceholder
-              key={item.title}
-              title={item.title}
-              description={item.description}
-            />
-          ))}
-        </div>
-      </SectionBlock>
+      <BarList
+        title="A-regioner"
+        items={county.by_aregion}
+        missingLabel="A-region saknas"
+      />
     </div>
   );
 }
 
 function RawTab({ county }: CountyInsightSectionsProps) {
   return (
-    <SectionBlock title="Raw payload">
+    <SectionBlock title="Rådata">
       <pre className="max-h-[32rem] overflow-auto rounded-sm bg-app-panel-muted p-3 text-xs leading-5 text-app-text-muted">
         {JSON.stringify(county, null, 2)}
       </pre>
@@ -485,37 +385,19 @@ export function CountyInsightSections({ county }: CountyInsightSectionsProps) {
 
   return (
     <div className="space-y-3">
-      <nav
-        className="flex gap-1 overflow-x-auto border-b border-app-border"
-        aria-label="Länsvy"
-      >
-        {tabs.map((tab) => {
-          const active = tab.key === activeTab;
+      <Tabs
+        items={tabs}
+        value={activeTab}
+        onChange={setActiveTab}
+        ariaLabel="Länsvy"
+      />
 
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={[
-                "border-b-2 px-3 py-2 text-sm font-medium transition",
-                active
-                  ? "border-app-accent-border text-app-accent-text"
-                  : "border-transparent text-app-text-muted hover:text-app-text",
-              ].join(" ")}
-              aria-pressed={active}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </nav>
-
-      {activeTab === "overview" ? <OverviewTab county={county} /> : null}
-      {activeTab === "mix" ? <MixTab county={county} /> : null}
-      {activeTab === "geography" ? <GeographyTab county={county} /> : null}
-      {activeTab === "insights" ? <InsightsTab /> : null}
-      {activeTab === "raw" ? <RawTab county={county} /> : null}
+      <AnimatedContent key={activeTab}>
+        {activeTab === "overview" ? <OverviewTab county={county} /> : null}
+        {activeTab === "mix" ? <MixTab county={county} /> : null}
+        {activeTab === "geography" ? <GeographyTab county={county} /> : null}
+        {activeTab === "raw" ? <RawTab county={county} /> : null}
+      </AnimatedContent>
     </div>
   );
 }

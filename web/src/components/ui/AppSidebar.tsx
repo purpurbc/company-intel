@@ -3,7 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { AnimatedCollapse } from "@/src/components/ui/AnimatedCollapse";
 import { buttonClassName } from "@/src/components/ui/Button";
+import { ChevronIcon } from "@/src/components/ui/ChevronIcon";
 import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
 import type { AppUserProfile } from "@/src/lib/types";
 
@@ -14,6 +17,7 @@ type NavItem = {
   icon: string;
   fallback?: string;
   rail?: boolean;
+  activePrefixes?: readonly string[];
 };
 
 const defaultProfileItem: NavItem = {
@@ -24,22 +28,52 @@ const defaultProfileItem: NavItem = {
   rail: true,
 };
 
-const primaryItems: NavItem[] = [
+const primaryItemsBeforeInformation: NavItem[] = [
   {
-    label: "Dashboard",
+    label: "Hem",
     href: "/",
     icon: "/icons/menu/house-chimney-blank-svgrepo-com.svg",
     fallback: "H",
     rail: true,
   },
   {
-    label: "Sök företag",
+    label: "Företag",
     href: "/companies",
     icon: "/icons/menu/user-search-svgrepo-com.svg",
     fallback: "SF",
     rail: true,
   },
-  { label: "Överblick", href: "/sweden", icon: "S", rail: true },
+];
+
+const informationItems: NavItem[] = [
+  {
+    label: "Överblick",
+    href: "/sweden",
+    icon: "/icons/menu/globe-svgrepo-com.svg",
+    fallback: "Ö",
+    rail: true,
+  },
+  {
+    label: "Statistik",
+    href: "/sverigedata/statistik",
+    icon: "/icons/menu/landmark-svgrepo-com.svg",
+    fallback: "S",
+    rail: true,
+  },
+  {
+    label: "Geografi",
+    href: "/geography",
+    icon: "/icons/menu/map-location-pin-svgrepo-com.svg",
+    fallback: "G",
+    rail: true,
+    activePrefixes: [
+      "/geography",
+      "/counties",
+      "/county/",
+      "/municipalities",
+      "/municipality/",
+    ],
+  },
   {
     label: "Karta",
     href: "/map",
@@ -47,15 +81,65 @@ const primaryItems: NavItem[] = [
     fallback: "K",
     rail: true,
   },
-  { label: "Alla län", href: "/counties", icon: "L" },
-  { label: "Alla kommuner", href: "/municipalities", icon: "M" },
 ];
 
-const futureItems: NavItem[] = [
-  { label: "Möjligheter", badge: "Senare", icon: "OF" },
-  { label: "Kundbas", badge: "Senare", icon: "KB" },
-  { label: "Leads", badge: "Senare", icon: "LL" },
+const primaryItemsAfterInformation: NavItem[] = [
+  {
+    label: "Arbetsyta",
+    href: "/workspace",
+    icon: "/icons/menu/industry-svgrepo-com.svg",
+    fallback: "A",
+    rail: true,
+  },
 ];
+
+const informationGroupItem: NavItem = {
+  label: "Sverigedata",
+  href: "/sverigedata",
+  icon: "/icons/menu/globe-svgrepo-com.svg",
+  fallback: "S",
+  rail: true,
+  activePrefixes: [
+    "/sverigedata",
+    "/sverigedata/statistik",
+    "/sweden",
+    "/geography",
+    "/counties",
+    "/county/",
+    "/municipalities",
+    "/municipality/",
+    "/map",
+  ],
+};
+
+const railItems = [
+  ...primaryItemsBeforeInformation,
+  informationGroupItem,
+  ...primaryItemsAfterInformation,
+];
+
+const settingsItem: NavItem = {
+  label: "Inställningar",
+  href: "/settings",
+  icon: "/icons/menu/gear.svg",
+  fallback: "I",
+};
+
+const adminItem: NavItem = {
+  label: "Admin",
+  href: "/admin",
+  icon: "/icons/menu/king.svg",
+  fallback: "A",
+};
+
+const componentLibraryItem: NavItem = {
+  label: "Komponenter",
+  href: "/components",
+  icon: "/icons/menu/filter.svg",
+  fallback: "K",
+};
+
+const utilityItems = [componentLibraryItem, adminItem, settingsItem];
 
 const iconByFallback: Record<string, string> = {
   H: "/icons/menu/house-chimney-blank-svgrepo-com.svg",
@@ -71,8 +155,19 @@ const iconByFallback: Record<string, string> = {
   P: "/icons/menu/image-user-svgrepo-com.svg",
 };
 
-function isActive(pathname: string, href?: string) {
+function isActive(
+  pathname: string,
+  href?: string,
+  activePrefixes: readonly string[] = [],
+) {
   if (!href) return false;
+  if (
+    activePrefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(prefix),
+    )
+  ) {
+    return true;
+  }
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -81,7 +176,7 @@ function profileDisplayName(userProfile: AppUserProfile | null) {
   return (
     userProfile?.display_name?.trim() ||
     userProfile?.company_name?.trim() ||
-    "" // or Profil
+    "Profil"
   );
 }
 
@@ -137,32 +232,26 @@ function BrandLogo({ compact = false }: { compact?: boolean }) {
         compact ? "h-8 w-8" : "h-6 w-32",
       ].join(" ")}
     >
-      <Image
-        src={darkLogoSrc}
-        alt="Cintela"
-        width={compact ? 24 : 128}
-        height={24}
-        priority
-        unoptimized
-        className={[
-          "theme-logo-dark absolute object-contain",
-          compact ? "w-5" : "w-32",
-          compact ? "h-5" : "h-6",
-        ].join(" ")}
-      />
-      <Image
-        src={lightLogoSrc}
-        alt="Cintela"
-        width={compact ? 24 : 128}
-        height={24}
-        priority
-        unoptimized
-        className={[
-          "theme-logo-light absolute object-contain",
-          compact ? "w-5" : "w-32",
-          compact ? "h-5" : "h-6",
-        ].join(" ")}
-      />
+      <span className={compact ? "relative h-5 w-6" : "relative h-6 w-[113px]"}>
+        <Image
+          src={darkLogoSrc}
+          alt="Cintela"
+          fill
+          sizes={compact ? "24px" : "113px"}
+          priority
+          unoptimized
+          className="theme-logo-dark object-contain"
+        />
+        <Image
+          src={lightLogoSrc}
+          alt="Cintela"
+          fill
+          sizes={compact ? "24px" : "113px"}
+          priority
+          unoptimized
+          className="theme-logo-light object-contain"
+        />
+      </span>
 
     </span>
   );
@@ -172,13 +261,19 @@ function SidebarLink({
   item,
   pathname,
   compact = false,
+  nested = false,
 }: {
   item: NavItem;
   pathname: string;
   compact?: boolean;
+  nested?: boolean;
 }) {
-  const active = isActive(pathname, item.href);
-  const content = (
+  const active = isActive(pathname, item.href, item.activePrefixes);
+  const content = nested ? (
+    <span className="min-w-0 flex-1 truncate whitespace-nowrap">
+      {item.label}
+    </span>
+  ) : (
     <>
       <span className="flex min-w-0 flex-1 items-center gap-2.5">
         <span className="flex w-10 shrink-0 justify-center">
@@ -204,7 +299,8 @@ function SidebarLink({
   );
 
   const className = [
-    "flex h-9 min-w-0 items-center justify-between gap-2 rounded-md py-0 pl-0 text-sm transition",
+    "flex min-w-0 items-center justify-between gap-2 rounded-md py-0 text-xs transition",
+    nested ? "h-7 pl-8" : "h-8 pl-0",
     compact ? "w-10 pr-0" : "w-full pr-2.5",
     active
       ? "bg-app-panel-muted text-app-text"
@@ -226,6 +322,91 @@ function SidebarLink({
   );
 }
 
+function SidebarNavigation({
+  pathname,
+  compact,
+  informationOpen,
+  onInformationToggle,
+}: {
+  pathname: string;
+  compact: boolean;
+  informationOpen: boolean;
+  onInformationToggle: () => void;
+}) {
+  if (compact) {
+    return railItems.map((item) => (
+      <SidebarLink
+        key={item.label || item.href}
+        item={item}
+        pathname={pathname}
+        compact
+      />
+    ));
+  }
+
+  const informationActive = isActive(
+    pathname,
+    informationGroupItem.href,
+    informationGroupItem.activePrefixes,
+  );
+
+  return (
+    <>
+      {primaryItemsBeforeInformation.map((item) => (
+        <SidebarLink key={item.href} item={item} pathname={pathname} />
+      ))}
+
+      <div>
+        <div
+          className={[
+            "flex h-8 w-full min-w-0 items-center rounded-md text-xs transition",
+            informationActive
+              ? "bg-app-panel-muted text-app-text"
+              : "text-app-text-muted hover:bg-app-panel-muted hover:text-app-text",
+          ].join(" ")}
+        >
+          <Link
+            href={informationGroupItem.href ?? "/sverigedata"}
+            className="flex h-full min-w-0 flex-1 items-center gap-2.5"
+          >
+            <span className="flex w-10 shrink-0 justify-center">
+              <NavIcon item={informationGroupItem} active={informationActive} />
+            </span>
+            <span className="truncate">{informationGroupItem.label}</span>
+          </Link>
+          <button
+            type="button"
+            aria-expanded={informationOpen}
+            aria-label={informationOpen ? "Dölj undersidor" : "Visa undersidor"}
+            title={informationOpen ? "Dölj undersidor" : "Visa undersidor"}
+            onClick={onInformationToggle}
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm text-app-text-muted transition hover:bg-app-panel-hover hover:text-app-text"
+          >
+            <ChevronIcon expanded={informationOpen} className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <AnimatedCollapse expanded={informationOpen}>
+          <div className="mt-1 space-y-1">
+            {informationItems.map((item) => (
+              <SidebarLink
+                key={item.href}
+                item={item}
+                pathname={pathname}
+                nested
+              />
+            ))}
+          </div>
+        </AnimatedCollapse>
+      </div>
+
+      {primaryItemsAfterInformation.map((item) => (
+        <SidebarLink key={item.href} item={item} pathname={pathname} />
+      ))}
+    </>
+  );
+}
+
 export function AppSidebar({
   open,
   onOpen,
@@ -238,24 +419,28 @@ export function AppSidebar({
   userProfile: AppUserProfile | null;
 }) {
   const pathname = usePathname();
+  const informationActive = isActive(
+    pathname,
+    informationGroupItem.href,
+    informationGroupItem.activePrefixes,
+  );
+  const [informationMenuState, setInformationMenuState] = useState({
+    pathname,
+    open: informationActive,
+  });
+  const informationOpen =
+    informationMenuState.pathname === pathname
+      ? informationMenuState.open
+      : informationActive;
+  const toggleInformation = () =>
+    setInformationMenuState({ pathname, open: !informationOpen });
   const profileName = profileDisplayName(userProfile);
   const profileItem: NavItem = {
     ...defaultProfileItem,
     label: profileName,
     fallback: profileFallback(profileName),
   };
-  const dashboardItem = primaryItems[0]!;
-  const secondaryPrimaryItems = primaryItems.slice(1);
-  const orderedPrimaryItems: NavItem[] = [
-    dashboardItem,
-    profileItem,
-    ...secondaryPrimaryItems,
-  ];
-  const railItems: NavItem[] = [
-    dashboardItem,
-    profileItem,
-    ...secondaryPrimaryItems.filter((item) => item.rail),
-  ];
+  const orderedUtilityItems = [profileItem, ...utilityItems];
 
   return (
     <>
@@ -278,9 +463,9 @@ export function AppSidebar({
           <div className="flex h-10 items-center gap-2">
             <Link
               href="/"
-              aria-label="Cintela dashboard"
+              aria-label="Cintela startsida"
               title="Cintela"
-              className="flex h-9 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel-muted"
+              className="flex h-8 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel-muted"
             >
               <BrandLogo />
             </Link>
@@ -291,42 +476,29 @@ export function AppSidebar({
               aria-label="Stäng sidomeny"
               title="Stäng sidomeny"
               className={buttonClassName({
-                variant: "secondary",
+                variant: "ghost",
                 size: "icon",
-                className: "h-9 w-9 shrink-0 p-0",
+                className: "h-7 w-7 shrink-0 bg-transparent p-0 hover:bg-app-panel-muted",
               })}
             >
-              {"<"}
+              <MaskedIcon src="/icons/menu/hide_sidebar.svg" />
             </button>
           </div>
 
           <nav className="mt-4 flex flex-col gap-1.5" aria-label="Huvudmeny">
-            {orderedPrimaryItems.map((item) => (
-              <SidebarLink
-                key={item.label || item.href}
-                item={item}
-                pathname={pathname}
-              />
-            ))}
+            <SidebarNavigation
+              pathname={pathname}
+              compact={false}
+              informationOpen={informationOpen}
+              onInformationToggle={toggleInformation}
+            />
           </nav>
 
-          <div className="mt-6">
-            <div className="px-3 text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-              Kommande
-            </div>
-            <nav className="mt-2 flex flex-col gap-1.5" aria-label="Kommande vyer">
-              {futureItems.map((item) => (
-                <SidebarLink key={item.label} item={item} pathname={pathname} />
-              ))}
-            </nav>
-          </div>
-
-          <div className="mt-auto rounded-md border border-app-border bg-app-panel-muted p-3">
-            <div className="text-xs font-medium text-app-text-muted">MVP focus</div>
-            <p className="mt-1 text-xs leading-5 text-app-text-subtle">
-              Stabil sök, tydliga företagssidor och regionala vyer först.
-            </p>
-          </div>
+          <nav className="mt-auto flex flex-col gap-1.5 pt-4" aria-label="Administration och inställningar">
+            {orderedUtilityItems.map((item) => (
+              <SidebarLink key={item.href} item={item} pathname={pathname} />
+            ))}
+          </nav>
         </div>
       </aside>
 
@@ -345,8 +517,8 @@ export function AppSidebar({
               title="Öppna sidomeny"
               tabIndex={open ? -1 : 0}
               className={[
-                buttonClassName({ variant: "secondary", size: "icon" }),
-                "group absolute left-0 top-0 h-10 w-10 p-0 transition-[opacity,transform] duration-100",
+                buttonClassName({ variant: "ghost", size: "icon" }),
+                "group absolute left-0 top-0 h-10 w-10 bg-transparent p-0 transition-[opacity,transform] duration-100 hover:bg-app-panel-muted",
                 open
                   ? "pointer-events-none -translate-x-1 opacity-0"
                   : "translate-x-0 opacity-100 delay-75",
@@ -355,8 +527,8 @@ export function AppSidebar({
               <span className="absolute inset-0 flex items-center justify-center transition-opacity group-hover:opacity-0">
                 <BrandLogo compact />
               </span>
-              <span className="absolute opacity-0 transition-opacity group-hover:opacity-100">
-                {">"}
+              <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
+                <MaskedIcon src="/icons/menu/show_sidebar.svg" />
               </span>
             </button>
 
@@ -370,10 +542,10 @@ export function AppSidebar({
             >
               <Link
                 href="/"
-                aria-label="Cintela dashboard"
+                aria-label="Cintela startsida"
                 title="Cintela"
                 tabIndex={open ? 0 : -1}
-                className="flex h-9 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel-muted"
+                className="flex h-8 min-w-0 flex-1 items-center rounded-md px-2 text-app-text transition hover:bg-app-panel-muted"
               >
                 <BrandLogo />
               </Link>
@@ -385,61 +557,48 @@ export function AppSidebar({
                 title="Stäng sidomeny"
                 tabIndex={open ? 0 : -1}
                 className={buttonClassName({
-                  variant: "secondary",
+                  variant: "ghost",
                   size: "icon",
-                  className: "h-9 w-9 shrink-0 p-0",
+                  className: "h-7 w-7 shrink-0 bg-transparent p-0 hover:bg-app-panel-muted",
                 })}
               >
-                {"<"}
+                <MaskedIcon src="/icons/menu/hide_sidebar.svg" />
               </button>
             </div>
           </div>
 
           <nav className="mt-4 flex flex-col gap-1.5" aria-label={open ? "Huvudmeny" : "Snabbmeny"}>
-            {(open ? orderedPrimaryItems : railItems).map((item) => (
+            {open ? (
+              <SidebarNavigation
+                pathname={pathname}
+                compact={false}
+                informationOpen={informationOpen}
+                onInformationToggle={toggleInformation}
+              />
+            ) : (
+              railItems.map((item) => (
+                <SidebarLink
+                  key={item.label || item.href}
+                  item={item}
+                  pathname={pathname}
+                  compact
+                />
+              ))
+            )}
+          </nav>
+
+          <nav className="mt-auto flex flex-col gap-1.5 pt-4" aria-label="Administration och inställningar">
+            {orderedUtilityItems.map((item) => (
               <SidebarLink
-                key={item.label || item.href}
+                key={item.href}
                 item={item}
                 pathname={pathname}
                 compact={!open}
               />
             ))}
           </nav>
-
-          <div
-            className={[
-              "mt-6 transition-[opacity,transform] duration-100",
-              open
-                ? "translate-x-0 opacity-100 delay-75"
-                : "pointer-events-none -translate-x-1 opacity-0",
-            ].join(" ")}
-          >
-            <div className="px-3 text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-              Kommande
-            </div>
-            <nav className="mt-2 flex flex-col gap-1.5" aria-label="Kommande vyer">
-              {futureItems.map((item) => (
-                <SidebarLink key={item.label} item={item} pathname={pathname} />
-              ))}
-            </nav>
-          </div>
-
-          <div
-            className={[
-              "mt-auto rounded-md border border-app-border bg-app-panel-muted p-3 transition-[opacity,transform] duration-100",
-              open
-                ? "translate-x-0 opacity-100 delay-75"
-                : "pointer-events-none translate-y-1 opacity-0",
-            ].join(" ")}
-          >
-            <div className="text-xs font-medium text-app-text-muted">MVP focus</div>
-            <p className="mt-1 text-xs leading-5 text-app-text-subtle">
-              Stabil sök, tydliga företagssidor och regionala vyer först.
-            </p>
-          </div>
         </div>
       </aside>
     </>
   );
 }
-

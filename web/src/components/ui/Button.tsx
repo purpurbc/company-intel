@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import {
   ui,
+  uiControlSize,
   uiHeight,
   uiRadius,
   uiTextSize,
@@ -63,20 +64,11 @@ export function buttonClassName({
   textSize?: UiTextSize;
   className?: string;
 }) {
-  const sizeClass =
-    size === "icon"
-      ? "h-8 min-w-8 px-2 text-sm"
-      : size === "xs"
-        ? "px-2.5 py-1 text-xs"
-      : size === "sm"
-        ? "px-3 py-1.5 text-xs"
-        : "px-3.5 py-2 text-sm";
-
   return [
     ui.buttonBase,
     uiRadius[radius],
     buttonVariantClass(variant),
-    sizeClass,
+    uiControlSize.button[size],
     textSize ? uiTextSize[textSize] : "",
     width ? uiWidth[width] : "",
     height ? uiHeight[height] : "",

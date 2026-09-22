@@ -1,11 +1,16 @@
 import { CompanySearch } from "@/src/components/company/CompanySearch";
+import { Page } from "@/src/components/ui/Page";
+import { pageMetadata } from "@/src/lib/pageMetadata";
+
+export const metadata = pageMetadata(
+  "Företag",
+  "Sök och filtrera svenska företag.",
+);
 
 export default function CompaniesPage() {
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
-      <div className="mx-auto max-w-7xl">
-        <CompanySearch />
-      </div>
-    </main>
+    <Page>
+      <CompanySearch />
+    </Page>
   );
 }

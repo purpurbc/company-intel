@@ -1,12 +1,19 @@
-import { BackLink } from "@/src/components/ui/BackLink";
 import { SwedenBoundaryMap } from "@/src/components/map/SwedenBoundaryMap";
+import { Page } from "@/src/components/ui/Page";
+import { pageMetadata } from "@/src/lib/pageMetadata";
+
+export const metadata = pageMetadata(
+  "Karta",
+  "Utforska svenska län och kommuner på karta.",
+);
 
 export default function MapPage() {
   return (
-    <main className="min-h-screen bg-slate-950 p-4 text-slate-100 sm:p-6">
-      <div className="mx-auto max-w-7xl space-y-5">
-        <SwedenBoundaryMap />
-      </div>
-    </main>
+    <Page
+      className="!min-h-0 !p-0"
+      contentClassName="!max-w-none !space-y-0"
+    >
+      <SwedenBoundaryMap />
+    </Page>
   );
 }

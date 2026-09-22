@@ -1,4 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
+import { Page } from "@/src/components/ui/Page";
+import { ui } from "@/src/lib/uiStyles";
 
 type SkeletonProps = {
   className?: string;
@@ -33,12 +35,8 @@ export function SkeletonLine({ className = "", style }: SkeletonProps) {
 
 function HeaderSkeleton() {
   return (
-    <header className="border-b border-app-border pb-5">
+    <header className={ui.pageHeader}>
       <SkeletonLine className="h-6 w-56 max-w-[72%]" />
-      <div className="mt-3 space-y-2">
-        <SkeletonLine className="w-32" />
-        <SkeletonLine className="w-full max-w-xl" />
-      </div>
     </header>
   );
 }
@@ -91,7 +89,8 @@ function SectionSkeleton({
   return (
     <section
       className={[
-        "rounded-sm border border-app-border bg-app-panel p-3.5 sm:p-3",
+        ui.card,
+        ui.panelPaddingCompact,
         className,
       ].join(" ")}
     >
@@ -105,7 +104,7 @@ function SectionSkeleton({
 
 function ChartSkeleton() {
   return (
-    <div className="border border-app-border bg-app-panel-muted p-3">
+    <div className={ui.inset}>
       <div className="flex items-center justify-between">
         <SkeletonLine className="w-32" />
         <SkeletonLine className="h-7 w-20" />
@@ -145,7 +144,7 @@ function CompanySkeletonBody() {
   return (
     <div className="space-y-3">
       <TabSkeleton />
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className={ui.detailGrid}>
         <SectionSkeleton rows={8} />
         <SectionSkeleton rows={6} />
       </div>
@@ -189,7 +188,15 @@ export function RegionDataSkeleton() {
 }
 
 export function SwedenDataSkeleton() {
-  return <RegionSkeletonBody sweden />;
+  return (
+    <div className="space-y-4">
+      <TabSkeleton />
+      <div className={ui.detailGrid}>
+        <SectionSkeleton rows={5} />
+        <SectionSkeleton rows={5} />
+      </div>
+    </div>
+  );
 }
 
 function DashboardSkeletonBody() {
@@ -210,21 +217,19 @@ export function PageSkeleton({
   variant?: PageSkeletonVariant;
 }) {
   return (
-    <main className="min-h-screen bg-app-bg px-5 py-4 text-app-text sm:p-6">
-      <div className="mx-auto max-w-7xl space-y-5">
+    <Page>
         {variant !== "dashboard" ? <HeaderSkeleton /> : null}
         {variant === "company" ? <CompanySkeletonBody /> : null}
         {variant === "region" ? <RegionSkeletonBody /> : null}
         {variant === "sweden" ? <RegionSkeletonBody sweden /> : null}
         {variant === "dashboard" ? <DashboardSkeletonBody /> : null}
-      </div>
-    </main>
+    </Page>
   );
 }
 
 export function SkeletonList({ rows = 6 }: { rows?: number }) {
   return (
-    <section className="rounded-sm border border-app-border bg-app-panel">
+    <section className={[ui.card, "overflow-hidden"].join(" ")}>
       <div className="border-b border-app-border p-4">
         <SkeletonLine className="h-4 w-32" />
         <SkeletonLine className="mt-2 w-56 max-w-full" />

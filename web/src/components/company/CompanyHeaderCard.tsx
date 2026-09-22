@@ -1,12 +1,22 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { TextLink } from "@/src/components/ui/TextLink";
+import { companyDisplayName } from "@/src/lib/companyNames";
+import { companyTypeIcon } from "@/src/lib/companyTypeIcons";
+import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
+import { PageHeader } from "@/src/components/ui/PageHeader";
 import type { Company } from "@/src/lib/types";
+import { formatPostalAddress } from "@/src/lib/postalAddress";
+import {
+  formatOrganizationNumber,
+  organizationNumberDigits,
+} from "@/src/lib/organizationNumber";
+import { CopyToClipboardButton } from "@/src/components/ui/CopyToClipboardButton";
 
 type CompanyHeaderCardProps = {
   company: Company;
 };
 
-function text(company: Company, ...keys: string[]) {
+function text(company: Company, ...keys: (keyof Company)[]) {
   for (const key of keys) {
     const value = company[key];
     if (typeof value === "string" && value.trim()) return value;
@@ -32,28 +42,30 @@ function AddressLink({
   if (!href) return children;
 
   return (
-    <Link
-      href={href}
-      className="font-medium text-app-text underline decoration-app-border-strong underline-offset-4 hover:text-app-accent-text"
-    >
+    <TextLink href={href}>
       {children}
-    </Link>
+    </TextLink>
   );
 }
 
 export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
-  const street = text(company, "post_address", "co_address");
-  const postNr = text(company, "post_nr");
-  const municipality = text(company, "seat_municipality_name", "seat_municipality");
-  const county = text(company, "seat_county_name", "seat_county");
+  const title = companyDisplayName(company);
+  const icon = companyTypeIcon(company);
+  const postalAddress = formatPostalAddress({
+    careOf: company.care_of_address,
+    street: company.postal_address,
+    postalCode: company.postal_code,
+    city: company.postal_city,
+  });
+  const municipality = text(company, "municipality_name");
+  const county = text(company, "county_name");
   const municipalityHref = hrefFromValue(
-    company.seat_municipality_code,
+    company.municipality_code,
     "/municipality",
   );
-  const countyHref = hrefFromValue(company.seat_county_code, "/county");
+  const countyHref = hrefFromValue(company.county_code, "/county");
   const addressParts = [
-    street !== "-" ? street : null,
-    postNr !== "-" ? postNr : null,
+    postalAddress || null,
     municipality !== "-" ? (
       <AddressLink key="municipality" href={municipalityHref}>
         {municipality}
@@ -67,14 +79,37 @@ export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
   ].filter(Boolean);
 
   return (
-    <header className="border-b border-app-border pb-5">
-      <h1 className="text-2xl font-semibold text-app-text">
-        {company.company_name}
-      </h1>
-      <div className="mt-2 space-y-0.5 text-sm leading-5 text-app-text-muted">
-        <div>Org.nr {company.org_nr}</div>
+    <PageHeader
+      title={
+        <>
+        <span className="min-w-0">{title.primary}</span>
+        {title.secondary ? (
+          <span className="min-w-0 font-normal text-app-text-muted">
+            {title.secondary}
+          </span>
+        ) : null}
+        </>
+      }
+      titleAdornment={
+        <span
+          className="inline-flex translate-y-0.5 text-app-text-subtle"
+          title={icon.label}
+          aria-label={icon.label}
+        >
+          <MaskedIcon src={icon.src} className="h-5 w-5" />
+        </span>
+      }
+      meta={
+        <>
+        <div className="flex items-center gap-1">
+          <span>Org.nr {formatOrganizationNumber(company.org_nr)}</span>
+          <CopyToClipboardButton
+            value={organizationNumberDigits(company.org_nr)}
+            ariaLabel="Kopiera organisationsnummer"
+          />
+        </div>
         <div>
-          <span className="font-medium text-app-text-subtle">Adress:</span>{" "}
+          <span className="font-medium text-app-text-subtle">Postadress:</span>{" "}
           {addressParts.length
             ? addressParts.map((part, index) => (
                 <span key={index}>
@@ -84,7 +119,8 @@ export function CompanyHeaderCard({ company }: CompanyHeaderCardProps) {
               ))
             : "-"}
         </div>
-      </div>
-    </header>
+        </>
+      }
+    />
   );
 }

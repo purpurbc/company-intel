@@ -1,26 +1,30 @@
 @import "tailwindcss";
-@import "@xyflow/react/dist/style.css";
-
 :root {
   /* Core palette: most UI colors below intentionally alias these roles. */
-  --app-canvas: #111315;
-  --app-surface: #171a1d;
-  --app-surface-soft: rgb(255 255 255 / 0.035);
-  --app-surface-hover: #202428;
-  --app-line: #2c3237;
-  --app-line-strong: #394148;
-  --app-ink: #f4f5f5;
-  --app-ink-muted: #a1aaa8;
-  --app-inverse: #111315;
-  --app-inverse-bg: #f4f5f5;
-  --app-inverse-hover: #e4e8e6;
+  --app-canvas: #0d1214;
+  --app-surface: #151b1d;
+  --app-surface-soft: #1c2426;
+  --app-surface-hover: #263033;
+  --app-line: #354145;
+  --app-line-strong: #5b6c71;
+  --app-ink: #f4f7f6;
+  --app-ink-muted: #b1bcba;
+  --app-inverse: #0d1214;
+  --app-inverse-bg: #f4f7f6;
+  --app-inverse-hover: #dfe7e5;
 
-  --app-font-family: var(--font-app-sans), "IBM Plex Sans", "Aptos",
-    "Segoe UI Variable", "Segoe UI", sans-serif;
-  --app-font-mono: var(--font-geist-mono), "SFMono-Regular", Consolas,
-    "Liberation Mono", monospace;
+  --app-font-family: var(
+    --font-app-sans,
+    "Geist Sans", "Geist", "Inter", "Segoe UI Variable", "Segoe UI", Arial,
+    sans-serif
+  );
+  --app-font-mono: var(
+    --font-geist-mono,
+    "Geist Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace
+  );
 
-  --app-text-xs: 0.71875rem;
+  /* Control copy uses 12 px; emphasized control labels use 13 px. */
+  --app-text-xs: 0.75rem;
   --app-text-sm: 0.8125rem;
   --app-text-md: 0.875rem;
   --app-text-lg: 1rem;
@@ -32,13 +36,14 @@
   --app-leading-md: 1.55;
   --app-leading-heading: 1.2;
 
-  --app-radius-sm: 0.125rem;
-  --app-radius-md: 0.25rem;
-  --app-radius-lg: 0.375rem;
-  --app-radius-xl: 0.5rem;
-  --app-radius-2xl: 0.625rem;
+  --app-radius-sm: 0.25rem;
+  --app-radius-md: 0.375rem;
+  --app-radius-lg: 0.5rem;
+  --app-radius-xl: 0.625rem;
+  --app-radius-2xl: 0.75rem;
   --app-shadow-panel: 0 1px 2px rgb(0 0 0 / 0.18);
   --app-shadow-float: 0 12px 32px rgb(0 0 0 / 0.32);
+  --app-shadow-sticky: 0 9px 14px -12px rgb(0 0 0 / 0.78);
 
   --background: var(--app-canvas);
   --foreground: var(--app-ink);
@@ -49,7 +54,8 @@
   --app-panel-muted: var(--app-surface-soft);
   --app-panel-soft: var(--app-surface-soft);
   --app-panel-hover: var(--app-surface-hover);
-  --app-panel-hover-soft: var(--app-surface-hover);
+  --app-panel-hover-soft: color-mix(in srgb, var(--app-panel) 98.5%, var(--app-text) 1.5%);
+  --app-summary-bg: color-mix(in srgb, var(--app-panel) 95.5%, var(--app-text) 4.5%);
   --app-border: var(--app-line);
   --app-border-strong: var(--app-line-strong);
   --app-text: var(--app-ink);
@@ -61,57 +67,236 @@
   --app-control-bg: var(--app-inverse-bg);
   --app-control-bg-hover: var(--app-inverse-hover);
   --app-control-text: var(--app-inverse);
-  --app-accent: #2dd4bf;
+  --app-accent: #57dccb;
   --app-accent-strong: var(--app-accent);
   --app-accent-bg: rgb(45 212 191 / 0.12);
   --app-accent-bg-soft: var(--app-accent-bg);
-  --app-accent-border: rgb(45 212 191 / 0.32);
+  --app-accent-border: rgb(87 220 203 / 0.52);
   --app-accent-border-soft: var(--app-accent-border);
   --app-accent-text: var(--app-accent);
-  --app-warning-bg: rgb(245 158 11 / 0.14);
-  --app-warning-border: rgb(245 158 11 / 0.38);
-  --app-warning-text: #fcd34d;
-  --app-danger-bg: rgb(239 68 68 / 0.14);
-  --app-danger-border: rgb(239 68 68 / 0.38);
-  --app-danger-text: #fecaca;
-  --app-focus: var(--app-line);
-  --app-range-track: var(--app-line);
-  --app-range-tick: var(--app-line);
-  --app-range-thumb-bg: var(--app-surface);
-  --app-range-thumb-border: var(--app-ink);
+  --app-chart-font-size: var(--app-text-xs);
+  --app-chart-line-width: 2;
+  --app-chart-grid-width: 1;
+  --app-chart-1: #57dccb;
+  --app-chart-2: #8ea7ff;
+  --app-chart-3: #f6c85f;
+  --app-chart-4: #ff8a80;
+  --app-chart-5: #cfa2f3;
+  --app-chart-6: #63c7ff;
+  --app-chart-7: #a8d96f;
+  --app-chart-8: #f08fbd;
+  --app-chart-9: #ffad66;
+  --app-chart-10: #a8b4c8;
+  --app-chart-11: #c1c75a;
+  --app-chart-12: #7ae2aa;
+  --app-action-accent-bg: #5264b6;
+  --app-action-accent-bg-hover: #6075cf;
+  --app-action-accent-border: #6075cf;
+  --app-action-accent-text: #ffffff;
+  --app-action-accept-bg: #0d765c;
+  --app-action-accept-bg-hover: #11866a;
+  --app-action-accept-border: #11866a;
+  --app-action-accept-text: #ffffff;
+  --app-action-danger-bg: #a83d52;
+  --app-action-danger-bg-hover: #bd4960;
+  --app-action-danger-border: #bd4960;
+  --app-action-danger-text: #ffffff;
+  --app-event-registration-bg: #4e609f;
+  --app-event-registration-text: #ffffff;
+  --app-positive-bg: #0a956e;
+  --app-positive-border: #0a956e;
+  --app-positive-text: #ffffff;
+  --app-info-bg: #334845;
+  --app-info-border: #334845;
+  --app-info-text: #eef8f6;
+  --app-warning-bg: #b4780b;
+  --app-warning-border: #b4780b;
+  --app-warning-text: #ffffff;
+  --app-danger-bg: #ba3e55;
+  --app-danger-border: #ba3e55;
+  --app-danger-text: #ffffff;
+  --app-brown-bg: #985428;
+  --app-brown-border: #985428;
+  --app-brown-text: #ffffff;
+  --app-focus: var(--app-accent-border);
+  --app-map-background: var(--app-canvas);
+  --app-map-silhouette: #536964;
+  --app-map-region-fill: var(--app-accent);
+  --app-map-region-hover: var(--app-accent-strong);
+  --app-map-region-selected: var(--app-ink);
+  --app-map-municipality-fill: var(--app-accent);
+  --app-map-municipality-hover: var(--app-accent-strong);
+  --app-map-municipality-selected: var(--app-ink);
+  --app-map-municipality-line: var(--app-accent);
+  --app-map-region-line: var(--app-accent-strong);
   color-scheme: dark;
 }
 
 :root[data-theme="light"] {
-  --app-canvas: #f6f7f6;
+  --app-canvas: #f2f5f4;
   --app-surface: #ffffff;
-  --app-surface-soft: #eef1ef;
-  --app-surface-hover: #e5e9e7;
-  --app-line: #d7ddda;
-  --app-line-strong: #c3ccc8;
-  --app-ink: #17201d;
-  --app-ink-muted: #68736f;
+  --app-surface-soft: #e8eeeb;
+  --app-surface-hover: #dce5e1;
+  --app-line: #c1cdc8;
+  --app-line-strong: #768c83;
+  --app-ink: #14201c;
+  --app-ink-muted: #4f615a;
   --app-inverse: #f7faf8;
   --app-inverse-bg: #16211d;
   --app-inverse-hover: #24322d;
   --app-shadow-panel: 0 1px 2px rgb(23 32 29 / 0.06);
   --app-shadow-float: 0 18px 42px rgb(23 32 29 / 0.12);
+  --app-shadow-sticky: 0 9px 14px -12px rgb(23 32 29 / 0.34);
 
   --background: var(--app-canvas);
   --foreground: var(--app-ink);
   --app-overlay: rgb(23 32 29 / 0.36);
   --app-overlay-soft: rgb(246 247 246 / 0.9);
-  --app-accent: #0f8f7a;
-  --app-accent-bg: rgb(15 143 122 / 0.1);
-  --app-accent-border: rgb(15 143 122 / 0.28);
-  --app-accent-text: #0f6f5f;
-  --app-warning-bg: rgb(245 158 11 / 0.16);
-  --app-warning-border: rgb(245 158 11 / 0.38);
-  --app-warning-text: #92400e;
-  --app-danger-bg: rgb(239 68 68 / 0.14);
-  --app-danger-border: rgb(239 68 68 / 0.36);
-  --app-danger-text: #991b1b;
+  --app-accent: #006b5d;
+  --app-accent-bg: rgb(0 107 93 / 0.12);
+  --app-accent-border: #167e6e;
+  --app-accent-text: #00594e;
+  --app-chart-1: #00a68b;
+  --app-chart-2: #5265f5;
+  --app-chart-3: #e59a00;
+  --app-chart-4: #ef4963;
+  --app-chart-5: #a344e6;
+  --app-chart-6: #009de0;
+  --app-chart-7: #70a819;
+  --app-chart-8: #e239a1;
+  --app-chart-9: #f27316;
+  --app-chart-10: #687caa;
+  --app-chart-11: #999b00;
+  --app-chart-12: #00a35c;
+  --app-action-accent-bg: #43539a;
+  --app-action-accent-bg-hover: #35447f;
+  --app-action-accent-border: #43539a;
+  --app-action-accent-text: #ffffff;
+  --app-action-accept-bg: #086b53;
+  --app-action-accept-bg-hover: #075843;
+  --app-action-accept-border: #086b53;
+  --app-action-accept-text: #ffffff;
+  --app-action-danger-bg: #a23549;
+  --app-action-danger-bg-hover: #892b3d;
+  --app-action-danger-border: #a23549;
+  --app-action-danger-text: #ffffff;
+  --app-event-registration-bg: #46599d;
+  --app-event-registration-text: #ffffff;
+  --app-positive-bg: #078760;
+  --app-positive-border: #078760;
+  --app-positive-text: #ffffff;
+  --app-info-bg: #dfe9e6;
+  --app-info-border: #dfe9e6;
+  --app-info-text: #30443f;
+  --app-warning-bg: #9a6500;
+  --app-warning-border: #9a6500;
+  --app-warning-text: #ffffff;
+  --app-danger-bg: #a92d47;
+  --app-danger-border: #a92d47;
+  --app-danger-text: #ffffff;
+  --app-brown-bg: #8c4a20;
+  --app-brown-border: #8c4a20;
+  --app-brown-text: #ffffff;
+  --app-map-silhouette: #516e65;
   color-scheme: light;
+}
+
+/*
+ * Color themes only redefine shared semantic tokens. Components and the map
+ * consume the same roles, so every palette stays coordinated in both modes.
+ */
+:root[data-color-theme="ocean"] {
+  --app-canvas: #0b121a;
+  --app-surface: #121c26;
+  --app-surface-soft: #1a2733;
+  --app-surface-hover: #223343;
+  --app-line: #35495a;
+  --app-line-strong: #536a7d;
+  --app-ink: #f1f7fc;
+  --app-ink-muted: #adbdcc;
+  --app-inverse: #0b121a;
+  --app-inverse-bg: #f1f7fc;
+  --app-inverse-hover: #dce9f3;
+  --app-accent: #69b9ff;
+  --app-accent-bg: rgb(59 130 246 / 0.14);
+  --app-accent-border: rgb(105 185 255 / 0.54);
+  --app-accent-text: #8ac9ff;
+  --app-map-silhouette: #526f86;
+}
+
+:root[data-theme="light"][data-color-theme="ocean"] {
+  --app-canvas: #f1f6fa;
+  --app-surface: #ffffff;
+  --app-surface-soft: #e4eef5;
+  --app-surface-hover: #d7e6f0;
+  --app-line: #bacbd9;
+  --app-line-strong: #718da2;
+  --app-ink: #122435;
+  --app-ink-muted: #4e687d;
+  --app-inverse: #f6faff;
+  --app-inverse-bg: #172536;
+  --app-inverse-hover: #26394c;
+  --app-accent: #075e9c;
+  --app-accent-bg: rgb(7 94 156 / 0.12);
+  --app-accent-border: #2877ad;
+  --app-accent-text: #064e82;
+  --app-map-silhouette: #55758d;
+}
+
+:root[data-color-theme="plum"] {
+  --app-canvas: #141116;
+  --app-surface: #1d1820;
+  --app-surface-soft: #27202c;
+  --app-surface-hover: #31283a;
+  --app-line: #44374b;
+  --app-line-strong: #705c79;
+  --app-ink: #f7f3f8;
+  --app-ink-muted: #c0b0c5;
+  --app-inverse: #141116;
+  --app-inverse-bg: #f7f3f8;
+  --app-inverse-hover: #e9dfee;
+  --app-accent: #cfa2f3;
+  --app-accent-bg: rgb(168 85 247 / 0.13);
+  --app-accent-border: rgb(207 162 243 / 0.54);
+  --app-accent-text: #ddbafa;
+  --app-map-silhouette: #79677e;
+}
+
+:root[data-theme="light"][data-color-theme="plum"] {
+  --app-canvas: #f8f3f9;
+  --app-surface: #ffffff;
+  --app-surface-soft: #efe5f1;
+  --app-surface-hover: #e5d9e8;
+  --app-line: #d2c0d6;
+  --app-line-strong: #94779c;
+  --app-ink: #2a1930;
+  --app-ink-muted: #69536f;
+  --app-inverse: #fcf8fd;
+  --app-inverse-bg: #2b1d2f;
+  --app-inverse-hover: #413047;
+  --app-accent: #6e3695;
+  --app-accent-bg: rgb(110 54 149 / 0.12);
+  --app-accent-border: #8957aa;
+  --app-accent-text: #5c2a7e;
+  --app-map-silhouette: #79667e;
+}
+
+/*
+ * Search fields are composite controls. Highlight the complete control when
+ * any of its interactive parts has focus, instead of outlining only the input.
+ */
+.app-search-frame {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: var(--app-shadow-panel);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    outline-color 150ms ease;
+}
+
+.app-search-frame:focus-within {
+  outline-color: var(--app-focus);
 }
 
 @theme inline {
@@ -125,6 +310,7 @@
   --color-app-panel-soft: var(--app-panel-soft);
   --color-app-panel-hover: var(--app-panel-hover);
   --color-app-panel-hover-soft: var(--app-panel-hover-soft);
+  --color-app-summary-bg: var(--app-summary-bg);
   --color-app-border: var(--app-border);
   --color-app-border-strong: var(--app-border-strong);
   --color-app-text: var(--app-text);
@@ -142,12 +328,35 @@
   --color-app-accent-border: var(--app-accent-border);
   --color-app-accent-border-soft: var(--app-accent-border-soft);
   --color-app-accent-text: var(--app-accent-text);
+  --color-app-action-accent-bg: var(--app-action-accent-bg);
+  --color-app-action-accent-bg-hover: var(--app-action-accent-bg-hover);
+  --color-app-action-accent-border: var(--app-action-accent-border);
+  --color-app-action-accent-text: var(--app-action-accent-text);
+  --color-app-action-accept-bg: var(--app-action-accept-bg);
+  --color-app-action-accept-bg-hover: var(--app-action-accept-bg-hover);
+  --color-app-action-accept-border: var(--app-action-accept-border);
+  --color-app-action-accept-text: var(--app-action-accept-text);
+  --color-app-action-danger-bg: var(--app-action-danger-bg);
+  --color-app-action-danger-bg-hover: var(--app-action-danger-bg-hover);
+  --color-app-action-danger-border: var(--app-action-danger-border);
+  --color-app-action-danger-text: var(--app-action-danger-text);
+  --color-app-event-registration-bg: var(--app-event-registration-bg);
+  --color-app-event-registration-text: var(--app-event-registration-text);
+  --color-app-positive-bg: var(--app-positive-bg);
+  --color-app-positive-border: var(--app-positive-border);
+  --color-app-positive-text: var(--app-positive-text);
+  --color-app-info-bg: var(--app-info-bg);
+  --color-app-info-border: var(--app-info-border);
+  --color-app-info-text: var(--app-info-text);
   --color-app-warning-bg: var(--app-warning-bg);
   --color-app-warning-border: var(--app-warning-border);
   --color-app-warning-text: var(--app-warning-text);
   --color-app-danger-bg: var(--app-danger-bg);
   --color-app-danger-border: var(--app-danger-border);
   --color-app-danger-text: var(--app-danger-text);
+  --color-app-brown-bg: var(--app-brown-bg);
+  --color-app-brown-border: var(--app-brown-border);
+  --color-app-brown-text: var(--app-brown-text);
   --color-app-focus: var(--app-focus);
   --font-sans: var(--app-font-family);
   --font-mono: var(--app-font-mono);
@@ -176,8 +385,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--app-font-family);
-  font-size: var(--app-text-md);
-  line-height: var(--app-leading-md);
+  font-size: var(--app-text-xs);
+  line-height: var(--app-leading-sm);
   letter-spacing: 0;
 }
 
@@ -185,7 +394,16 @@ button,
 input,
 select,
 textarea {
-  font: inherit;
+  font-family: inherit;
+  font-size: var(--app-text-xs);
+}
+
+.app-scrollbar-hidden {
+  scrollbar-width: none;
+}
+
+.app-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }
 
 h1,
@@ -248,96 +466,91 @@ h3 {
   padding: 6px 8px;
 }
 
+.app-content-enter {
+  animation: app-content-enter 180ms ease-out both;
+}
+
+.app-popover-enter {
+  animation: app-popover-enter 150ms ease-out both;
+}
+
+.app-popover-exit {
+  pointer-events: none;
+  animation: app-popover-exit 90ms ease-in both;
+}
+
+@keyframes app-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-popover-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes app-popover-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-content-enter {
+    animation: none;
+  }
+
+  .app-popover-enter,
+  .app-popover-exit {
+    animation-duration: 1ms;
+    transform: none;
+  }
+}
+
 .clean-map-popup .maplibregl-popup-tip {
   border-top-color: var(--app-panel);
   border-bottom-color: var(--app-panel);
 }
 
-.range-filter input[type="range"] {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 28px;
-  appearance: none;
-  background: transparent;
-  pointer-events: none;
-  z-index: 3;
+.maplibregl-ctrl-group {
+  overflow: hidden;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--app-radius-md);
+  background: var(--app-panel);
+  box-shadow: var(--app-shadow-panel);
 }
 
-.range-filter input[type="range"]:focus {
-  z-index: 4;
+.maplibregl-ctrl-group button {
+  background-color: var(--app-panel);
 }
 
-.range-filter-track {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  top: 12px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--app-range-track);
-  z-index: 1;
+.maplibregl-ctrl-group button:hover {
+  background-color: var(--app-panel-hover);
 }
 
-.range-filter-selection {
-  position: absolute;
-  top: 12px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--app-accent);
-  z-index: 2;
+.maplibregl-ctrl-group button + button {
+  border-top-color: var(--app-border-strong);
 }
 
-.range-filter-ticks {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  top: 8px;
-  display: flex;
-  justify-content: space-between;
-  z-index: 3;
-}
-
-.range-filter-tick {
-  width: 1px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--app-range-tick);
-  opacity: 0.55;
-}
-
-.range-filter input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px;
-  background: transparent;
-}
-
-.range-filter input[type="range"]::-webkit-slider-thumb {
-  width: 16px;
-  height: 16px;
-  margin-top: -6px;
-  appearance: none;
-  border: 2px solid var(--app-range-thumb-border);
-  border-radius: 999px;
-  background: var(--app-range-thumb-bg);
-  cursor: pointer;
-  pointer-events: auto;
-  position: relative;
-  z-index: 5;
-}
-
-.range-filter input[type="range"]::-moz-range-track {
-  height: 4px;
-  background: transparent;
-}
-
-.range-filter input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--app-range-thumb-border);
-  border-radius: 999px;
-  background: var(--app-range-thumb-bg);
-  cursor: pointer;
-  pointer-events: auto;
+:root:not([data-theme="light"]) .maplibregl-ctrl-group .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.35);
 }
 
 /* Legacy Tailwind color bridge. New code should prefer app-* tokens. */

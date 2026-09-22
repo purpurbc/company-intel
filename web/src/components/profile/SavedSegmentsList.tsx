@@ -1,29 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
+  createSavedSegment,
   deleteSavedSegment,
   refreshSavedSegmentCount,
   touchSavedSegment,
   updateSavedSegment,
 } from "@/src/lib/api";
 import type {
-  CompanyMetricSort,
-  CompanyNameSort,
-  CompanySearchBy,
   SavedSegment,
   SavedSegmentPayload,
 } from "@/src/lib/types";
+import { companyFilterStateFromRecord } from "@/src/lib/companyFilterState";
+import {
+  companyMetricSortValue,
+  companyNameSortValue,
+} from "@/src/lib/companySearchOptions";
 import { ConfirmDialog } from "@/src/components/ui/ConfirmDialog";
 import { SavedSegmentDialog } from "@/src/components/profile/SavedSegmentDialog";
 import { Button } from "@/src/components/ui/Button";
 import { List, ListItem } from "@/src/components/ui/List";
+import { ListViewToggle } from "@/src/components/ui/ListViewToggle";
 import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
-import { ToggleButton } from "@/src/components/ui/ToggleButton";
+import { Feedback } from "@/src/components/ui/Feedback";
+import { SummaryGrid, SummaryItem } from "@/src/components/ui/SummaryGrid";
+import { WorkspaceItemActions } from "@/src/components/workspace/WorkspaceItemActions";
 import {
-  FILTER_LABELS,
-  filterValueLabel,
-} from "@/src/lib/companyFilterLabels";
+  sortWorkspaceItems,
+  WorkspaceListSort,
+  type WorkspaceListSortValue,
+} from "@/src/components/workspace/WorkspaceListSort";
 
 const COMPANY_SEARCH_SESSION_KEY = "company-intel-company-search";
 
@@ -49,23 +56,6 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function filledEntries(record: Record<string, unknown>) {
-  return Object.entries(record).filter(([, value]) => {
-    if (Array.isArray(value)) return value.length > 0;
-    return value !== undefined && value !== null && value !== "";
-  });
-}
-
-function asStringArray(value: unknown) {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string")
-    : [];
-}
-
-function asString(value: unknown) {
-  return typeof value === "string" ? value : "";
-}
-
 function asNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
@@ -75,59 +65,18 @@ function asLimit(value: unknown) {
   return numberValue && numberValue > 0 ? numberValue : 100;
 }
 
-function asSearchBy(value: unknown): CompanySearchBy {
-  return value === "company_name" || value === "org_nr" || value === "all"
-    ? value
-    : "all";
-}
-
-function asNameSort(value: unknown): CompanyNameSort {
-  return value === "desc" ? "desc" : "asc";
-}
-
-function asMetricSort(value: unknown): CompanyMetricSort {
-  return value === "turnover_asc" ||
-    value === "turnover_desc" ||
-    value === "size_asc" ||
-    value === "size_desc"
-    ? value
-    : "none";
-}
-
 function applySegmentFilters(segment: SavedSegment) {
   const filters = segment.filters ?? {};
   const sort = segment.sort ?? {};
-  const ageMin = asNumber(filters.age_min);
-  const ageMax = asNumber(filters.age_max);
 
   sessionStorage.setItem(
     COMPANY_SEARCH_SESSION_KEY,
     JSON.stringify({
-      q: asString(filters.q),
-      searchBy: asSearchBy(filters.search_by),
+      ...companyFilterStateFromRecord(filters),
       limit: asLimit(sort.limit),
       compactList: false,
-      countyCodes: asStringArray(filters.county_codes),
-      municipalityCodes: asStringArray(filters.municipality_codes),
-      companyStatusCodes: asStringArray(filters.company_status_codes),
-      companyStateCodes: asStringArray(filters.company_state_codes),
-      employerStatusCodes: asStringArray(filters.employer_status_codes),
-      vatStatusCodes: asStringArray(filters.vat_status_codes),
-      fTaxStatusCodes: asStringArray(filters.f_tax_status_codes),
-      marketingStatusCodes: asStringArray(filters.marketing_status_codes),
-      sizeClassCodes: asStringArray(filters.size_class_codes),
-      companyAgeRange: [ageMin ?? 0, ageMax ?? 100],
-      postOrt: asString(filters.post_ort),
-      postNr: asString(filters.post_nr),
-      ownerCategoryCodes: asStringArray(filters.owner_category_codes),
-      smeSizeCodes: asStringArray(filters.sme_size_codes),
-      exportImportMarks: asStringArray(filters.export_import_marks),
-      sectionCodes: asStringArray(filters.section_codes),
-      industryCodes: asStringArray(filters.industry_codes),
-      industryDetailCodes: asStringArray(filters.industry_detail_codes),
-      turnoverSizeCodes: asStringArray(filters.turnover_size_codes),
-      nameSort: asNameSort(sort.name_sort),
-      metricSort: asMetricSort(sort.metric_sort),
+      nameSort: companyNameSortValue(sort.name_sort),
+      metricSort: companyMetricSortValue(sort.metric_sort),
       offset: 0,
       resultCount: segment.result_count,
       activeSegment: {
@@ -202,72 +151,69 @@ function syncActiveSegmentIfMatches(segment: SavedSegment) {
 }
 
 function SegmentDetails({ segment }: { segment: SavedSegment }) {
-  const filters = filledEntries(segment.filters);
-  const sort = filledEntries(segment.sort);
-
   return (
-    <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_0.55fr]">
-      <div>
-        <div className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-          Filter
-        </div>
-        {filters.length > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {filters.map(([key, value]) => (
-              <span
-                key={key}
-                className="rounded-md border border-app-border bg-app-panel-soft px-2.5 py-1.5 text-xs text-app-text-muted"
-              >
-                <span className="font-medium text-app-text">
-                  {FILTER_LABELS[key] ?? key}
-                </span>
-                : {filterValueLabel(key, value)}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-2 text-sm text-app-text-subtle">
-            Inga filter sparade ännu.
-          </div>
-        )}
-      </div>
-
-      <div>
-        <div className="text-xs font-medium uppercase tracking-wide text-app-text-subtle">
-          Sortering
-        </div>
-        {sort.length > 0 ? (
-          <div className="mt-2 space-y-2">
-            {sort.map(([key, value]) => (
-              <div
-                key={key}
-                className="flex items-center justify-between gap-3 rounded-md border border-app-border bg-app-panel-soft px-3 py-2 text-sm"
-              >
-                <span className="text-app-text-muted">{key}</span>
-                <span className="font-medium text-app-text">
-                  {filterValueLabel(key, value)}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-2 text-sm text-app-text-subtle">
-            Standard sortering.
-          </div>
-        )}
-      </div>
+    <div className="mt-2 space-y-2">
+      <SummaryGrid columns={2}>
+        <SummaryItem label="Antal träffar">
+          {typeof segment.result_count === "number"
+            ? segment.result_count.toLocaleString("sv-SE")
+            : "Inte beräknat"}
+        </SummaryItem>
+        <SummaryItem label="Senast uppdaterat">
+          {formatDate(segment.updated_at)}
+        </SummaryItem>
+      </SummaryGrid>
+      <SummaryGrid columns={2}>
+        <SummaryItem
+          label="Beskrivning"
+          className="col-span-2"
+          valueClassName="font-normal text-app-text-muted"
+        >
+          {segment.description || "Ingen beskrivning angiven."}
+        </SummaryItem>
+      </SummaryGrid>
     </div>
   );
 }
 
 export function SavedSegmentsList({ segments }: SavedSegmentsListProps) {
-  const [compact, setCompact] = useState(true);
-  const [collapsed, setCollapsed] = useState(false);
+  const [compact, setCompact] = useState(false);
+  const [sort, setSort] = useState<WorkspaceListSortValue>("name_asc");
   const [items, setItems] = useState(segments);
+  const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<SavedSegment | null>(null);
   const [deleting, setDeleting] = useState<SavedSegment | null>(null);
   const [saving, setSaving] = useState(false);
+  const [refreshingSegmentIds, setRefreshingSegmentIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [actionError, setActionError] = useState<string | null>(null);
+  const sortedItems = useMemo(
+    () =>
+      sortWorkspaceItems(
+        items,
+        sort,
+        (segment) => segment.name,
+        (segment) => segment.created_at,
+      ),
+    [items, sort],
+  );
+
+  async function saveNewSegment(payload: SavedSegmentPayload) {
+    setSaving(true);
+    setActionError(null);
+    try {
+      const created = await createSavedSegment(payload);
+      setItems((current) => [created, ...current]);
+      setCreating(false);
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : "Kunde inte skapa segmentet.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function saveEditedSegment(payload: SavedSegmentPayload) {
     if (!editing) return;
@@ -291,7 +237,7 @@ export function SavedSegmentsList({ segments }: SavedSegmentsListProps) {
   }
 
   async function updateSegmentFromDashboard(segment: SavedSegment) {
-    setSaving(true);
+    setRefreshingSegmentIds((current) => new Set(current).add(segment.id));
     setActionError(null);
 
     try {
@@ -307,7 +253,11 @@ export function SavedSegmentsList({ segments }: SavedSegmentsListProps) {
           : "Kunde inte uppdatera segmentet.",
       );
     } finally {
-      setSaving(false);
+      setRefreshingSegmentIds((current) => {
+        const next = new Set(current);
+        next.delete(segment.id);
+        return next;
+      });
     }
   }
 
@@ -332,47 +282,88 @@ export function SavedSegmentsList({ segments }: SavedSegmentsListProps) {
   return (
     <>
       <List
-        eyebrow="Segment"
         title="Mina sparade segment"
-        collapsed={collapsed}
         empty={
           items.length === 0
-            ? "Inga sparade segment ännu. Senare kan dashboardens aktiva filter sparas hit."
+            ? "Inga sparade segment ännu. Filter från företagssökningen kan sparas hit."
             : null
         }
         actions={
           <>
-            <Button
-              type="button"
-              onClick={() => setCollapsed((value) => !value)}
-              variant="secondary"
-              size="sm"
-            >
-              {collapsed ? "Visa" : "Minimera"}
-            </Button>
-            <ToggleButton
+            <WorkspaceListSort value={sort} onChange={setSort} />
+            <ListViewToggle
               value={compact ? "compact" : "card"}
-              options={[
-                { value: "card", label: "Kort" },
-                { value: "compact", label: "Kompakt" },
-              ]}
               onChange={(value) => setCompact(value === "compact")}
               ariaLabel="Visningsläge för segment"
             />
+            <Button
+              type="button"
+              onClick={() => {
+                setActionError(null);
+                setCreating(true);
+              }}
+              variant="primary"
+              size="icon"
+              className="!h-7 !w-7 !min-w-7 !p-0"
+              aria-label="Skapa nytt segment"
+              title="Skapa nytt segment"
+            >
+              <MaskedIcon src="/icons/utility/add.svg" />
+            </Button>
           </>
         }
       >
-        {!collapsed && actionError ? (
-          <div className="border-b border-app-border px-5 py-3 text-sm text-app-danger-text">
-            {actionError}
+        {actionError ? (
+          <div className="border-b border-app-border p-4">
+            <Feedback tone="danger">{actionError}</Feedback>
           </div>
         ) : null}
 
-        {items.map((segment, index) => {
+        {sortedItems.map((segment) => {
+          const refreshing = refreshingSegmentIds.has(segment.id);
+          const actions = [
+            {
+              key: "apply",
+              label: "Applicera",
+              menuLabel: "Applicera",
+              buttonText: "Applicera",
+              variant: "secondary" as const,
+              onSelect: () => applySegmentFilters(segment),
+            },
+            {
+              key: "refresh",
+              label: "Uppdatera",
+              menuLabel: "Uppdatera",
+              onSelect: () => updateSegmentFromDashboard(segment),
+              disabled: refreshing,
+              busy: refreshing,
+              iconSrc: UTILITY_ICONS.update,
+            },
+            {
+              key: "edit",
+              label: "Redigera",
+              menuLabel: "Redigera",
+              onSelect: () => {
+                setActionError(null);
+                setEditing(segment);
+              },
+              iconSrc: UTILITY_ICONS.edit,
+            },
+            {
+              key: "delete",
+              label: "Ta bort",
+              menuLabel: "Ta bort",
+              onSelect: () => setDeleting(segment),
+              iconSrc: UTILITY_ICONS.delete,
+              variant: "delete" as const,
+              separatorBefore: true,
+            },
+          ];
+
           if (compact) {
             return (
-              <ListItem key={segment.id} compact numbered index={index + 1}>
-                <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+              <ListItem key={segment.id} compact>
+                <div className="flex min-w-0 items-center justify-between gap-3">
                   <div className="flex min-w-0 flex-col gap-1 lg:flex-row lg:items-center lg:gap-3">
                     <h3 className="truncate text-sm font-semibold text-app-text">
                       {segment.name}
@@ -382,137 +373,44 @@ export function SavedSegmentsList({ segments }: SavedSegmentsListProps) {
                         {segment.result_count?.toLocaleString("sv-SE") ?? "-"} företag
                       </span>
                       <span>Uppdaterad {formatDate(segment.updated_at)}</span>
-                      <span>{segment.visibility}</span>
                     </div>
                   </div>
-                  <div className="flex shrink-0 gap-2">
-                    <Button
-                      type="button"
-                      onClick={() => applySegmentFilters(segment)}
-                      variant="primary"
-                      size="xs"
-                    >
-                      Applicera
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => updateSegmentFromDashboard(segment)}
-                      disabled={saving}
-                      variant="secondary"
-                      size="icon"
-                      className="h-8 min-w-8 px-2 py-0"
-                      aria-label={`Uppdatera segment ${segment.name}`}
-                      title="Uppdatera segment"
-                    >
-                      <MaskedIcon src={UTILITY_ICONS.update} />
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setActionError(null);
-                        setEditing(segment);
-                      }}
-                      variant="secondary"
-                      size="icon"
-                      className="h-8 min-w-8 px-2 py-0"
-                      aria-label={`Redigera segment ${segment.name}`}
-                      title="Redigera segment"
-                    >
-                      <MaskedIcon src={UTILITY_ICONS.edit} />
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => setDeleting(segment)}
-                      variant="delete"
-                      size="icon"
-                      className="h-8 min-w-8 px-2 py-0"
-                      aria-label={`Ta bort segment ${segment.name}`}
-                      title="Ta bort segment"
-                    >
-                      <MaskedIcon src={UTILITY_ICONS.delete} />
-                    </Button>
-                  </div>
+                  <WorkspaceItemActions
+                    menuLabel={`Åtgärder för ${segment.name}`}
+                    actions={actions}
+                  />
                 </div>
               </ListItem>
             );
           }
 
           return (
-            <ListItem key={segment.id} numbered index={index + 1}>
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <ListItem key={segment.id}>
+              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                 <div className="min-w-0">
                   <h3 className="truncate text-sm font-semibold text-app-text">
                     {segment.name}
                   </h3>
-                  {segment.description ? (
-                    <p className="mt-1 text-sm text-app-text-muted">
-                      {segment.description}
-                    </p>
-                  ) : null}
+                  <SegmentDetails segment={segment} />
                 </div>
-                <div className="flex shrink-0 flex-col gap-2 md:items-end">
-                  <div className="flex flex-wrap gap-2 text-xs text-app-text-subtle md:justify-end">
-                    <span>
-                      {segment.result_count?.toLocaleString("sv-SE") ?? "-"} företag
-                    </span>
-                    <span>Uppdaterad {formatDate(segment.updated_at)}</span>
-                    <span>{segment.visibility}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      onClick={() => applySegmentFilters(segment)}
-                      variant="primary"
-                      size="xs"
-                    >
-                      Applicera
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => updateSegmentFromDashboard(segment)}
-                      disabled={saving}
-                      variant="secondary"
-                      size="icon"
-                      className="h-8 min-w-8 px-2 py-0"
-                      aria-label={`Uppdatera segment ${segment.name}`}
-                      title="Uppdatera segment"
-                    >
-                      <MaskedIcon src={UTILITY_ICONS.update} />
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setActionError(null);
-                        setEditing(segment);
-                      }}
-                      variant="secondary"
-                      size="icon"
-                      className="h-8 min-w-8 px-2 py-0"
-                      aria-label={`Redigera segment ${segment.name}`}
-                      title="Redigera segment"
-                    >
-                      <MaskedIcon src={UTILITY_ICONS.edit} />
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => setDeleting(segment)}
-                      variant="delete"
-                      size="icon"
-                      className="h-8 min-w-8 px-2 py-0"
-                      aria-label={`Ta bort segment ${segment.name}`}
-                      title="Ta bort segment"
-                    >
-                      <MaskedIcon src={UTILITY_ICONS.delete} />
-                    </Button>
-                  </div>
-                </div>
+                <WorkspaceItemActions
+                  menuLabel={`Åtgärder för ${segment.name}`}
+                  actions={actions}
+                />
               </div>
 
-              <SegmentDetails segment={segment} />
             </ListItem>
           );
         })}
       </List>
+      <SavedSegmentDialog
+        open={creating}
+        mode="create"
+        saving={saving}
+        error={actionError}
+        onCancel={() => setCreating(false)}
+        onSave={saveNewSegment}
+      />
       <SavedSegmentDialog
         open={Boolean(editing)}
         mode="edit"

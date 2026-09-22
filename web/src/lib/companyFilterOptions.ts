@@ -3,6 +3,59 @@ export type FilterOption = {
   label: string;
 };
 
+export const EMPLOYER_STATUS_OPTIONS: FilterOption[] = [
+  { value: "0", label: "Har aldrig varit registrerad som arbetsgivare" },
+  { value: "1", label: "Är registrerad som vanlig arbetsgivare" },
+  { value: "2", label: "Är registrerad som privatarbetsgivare" },
+  { value: "3", label: "Är registrerad som arbetsgivare via representant" },
+  { value: "4", label: "Är registrerad som ambassad eller konsulat" },
+  { value: "9", label: "Är avregistrerad som arbetsgivare" },
+];
+
+export const VAT_STATUS_OPTIONS: FilterOption[] = [
+  { value: "0", label: "Har aldrig varit registrerad för moms" },
+  { value: "1", label: "Är registrerad för moms" },
+  { value: "3", label: "Är registrerad för moms via representant" },
+  { value: "9", label: "Är avregistrerad för moms" },
+];
+
+export const F_TAX_STATUS_OPTIONS: FilterOption[] = [
+  { value: "0", label: "Har aldrig varit registrerad för F-skatt" },
+  { value: "1", label: "Är registrerad för F-skatt" },
+  { value: "9", label: "Är avregistrerad för F-skatt" },
+];
+
+export const MARKETING_STATUS_OPTIONS: FilterOption[] = [
+  { value: "11", label: "Tar emot reklam, ej telefonnummerspärrat" },
+  { value: "12", label: "Tar emot reklam, telefonnummerspärr telemarketing" },
+  { value: "13", label: "Tar emot reklam, nix-telefon" },
+  { value: "21", label: "Har frånsagt sig reklam, ej telefonnummerspärrat" },
+  { value: "22", label: "Har frånsagt sig reklam, telefonnummerspärr telemarketing" },
+  { value: "23", label: "Har frånsagt sig reklam, nix-telefon" },
+];
+
+export const OWNER_CATEGORY_OPTIONS: FilterOption[] = [
+  { value: "10", label: "Statligt" },
+  { value: "20", label: "Kommunalt" },
+  { value: "30", label: "Regioner" },
+  { value: "41", label: "Privat svenskt utan koncern" },
+  { value: "42", label: "Privat svenskt med koncern" },
+  { value: "50", label: "Utländska" },
+];
+
+export const SME_SIZE_OPTIONS: FilterOption[] = [
+  { value: "0", label: "0 anställda" },
+  { value: "1", label: "1-9 anställda" },
+  { value: "2", label: "10-49 anställda" },
+  { value: "3", label: "50-249 anställda" },
+  { value: "4", label: "250-499 anställda" },
+  { value: "5", label: "Minst 500 anställda" },
+];
+
+export const EXPORT_IMPORT_OPTIONS: FilterOption[] = [
+  { value: "J", label: "Har export/import-markering" },
+];
+
 export const COUNTY_OPTIONS: FilterOption[] = [
   {
     "value": "01",

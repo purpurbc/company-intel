@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev": "npm --prefix web run dev",
+    "dev:api": "python -m uvicorn api.main:app --app-dir . --reload --host 127.0.0.1 --port 8000",
     "build": "npm --prefix web run build",
     "lint": "npm --prefix web run lint"
   },

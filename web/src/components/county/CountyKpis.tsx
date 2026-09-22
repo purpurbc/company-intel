@@ -1,3 +1,5 @@
+import { KpiCard, KpiGrid } from "@/src/components/ui/KpiCard";
+
 type CountyKpisProps = {
   totals: {
     companies: number;
@@ -7,26 +9,6 @@ type CountyKpisProps = {
     aregions: number;
   };
 };
-
-function KpiCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-}) {
-  return (
-    <div className="rounded-md border border-slate-800 bg-slate-900 p-4">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
-        {label}
-      </div>
-      <div className="mt-2 text-xl font-semibold text-slate-50">{value}</div>
-      {sub ? <div className="mt-1 text-xs text-slate-500">{sub}</div> : null}
-    </div>
-  );
-}
 
 export function CountyKpis({ totals }: CountyKpisProps) {
   const activeShare =
@@ -40,23 +22,23 @@ export function CountyKpis({ totals }: CountyKpisProps) {
       : 0;
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+    <KpiGrid>
       <KpiCard
         label="Företag"
         value={totals.companies.toLocaleString("sv-SE")}
       />
       <KpiCard
-        label="Aktiva"
+        label="Verksamma"
         value={totals.active.toLocaleString("sv-SE")}
-        sub={`${activeShare}% av totalt`}
+        detail={`${activeShare}% av totalt`}
       />
       <KpiCard
         label="Arbetsgivare"
         value={totals.employers.toLocaleString("sv-SE")}
-        sub={`${employerShare}% av totalt`}
+        detail={`${employerShare}% av totalt`}
       />
       <KpiCard label="Kommuner" value={totals.municipalities} />
       <KpiCard label="A-regioner" value={totals.aregions} />
-    </div>
+    </KpiGrid>
   );
 }

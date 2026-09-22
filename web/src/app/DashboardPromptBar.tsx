@@ -1,9 +1,22 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { buttonClassName } from "@/src/components/ui/Button";
+import { SearchExamples } from "@/src/components/ui/SearchExamples";
+import { companySearchHref } from "@/src/lib/companySearchUrl";
+import { ui } from "@/src/lib/uiStyles";
+
+const DASHBOARD_SEARCH_EXAMPLES = [
+  "Vium Företagen",
+  "Jäderblom Anton",
+  "ILF Maskin",
+] as const;
 
 export function DashboardPromptBar() {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const measureRef = useRef<HTMLTextAreaElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const lastContainerWidthRef = useRef(0);
@@ -11,6 +24,22 @@ export function DashboardPromptBar() {
   const [expanded, setExpanded] = useState(false);
   const [scrollable, setScrollable] = useState(false);
   const [height, setHeight] = useState("36px");
+
+  function selectExample(example: string) {
+    setValue(example);
+    window.requestAnimationFrame(() => {
+      const input = inputRef.current;
+      if (!input) return;
+      input.focus();
+      input.setSelectionRange(example.length, example.length);
+    });
+  }
+
+  function submitSearch() {
+    const query = value.trim();
+    if (!query) return;
+    router.push(companySearchHref({ q: query, search_by: "all" }));
+  }
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -71,58 +100,79 @@ export function DashboardPromptBar() {
   }, [value]);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative mx-auto mt-5 w-full max-w-3xl rounded-md border border-app-border bg-app-panel px-2 py-2 text-left shadow-[var(--app-shadow-soft)] transition-[border-color,background-color,box-shadow] focus-within:border-app-border-strong focus-within:bg-app-panel-hover"
-    >
+    <>
       <div
-        className={[
-          "flex gap-2 transition-[gap] duration-150 ease-out",
-          expanded ? "flex-col items-stretch" : "items-end",
-        ].join(" ")}
+        ref={containerRef}
+        className={[ui.searchFrame, "relative mx-auto mt-5 w-full max-w-3xl"].join(" ")}
       >
-        <label className="sr-only" htmlFor="dashboard-prompt">
-          Sök
-        </label>
         <div
-          style={{ height }}
           className={[
-            "min-h-9 overflow-hidden transition-[height] duration-150 ease-out",
-            expanded ? "w-full" : "flex-1",
+            "flex gap-2 transition-[gap] duration-150 ease-out",
+            expanded ? "flex-col items-stretch" : "items-end",
           ].join(" ")}
         >
-          <textarea
-            id="dashboard-prompt"
-            rows={1}
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            placeholder="Hitta nya kunder, segment och insikter..."
-            className={[
-              "h-full w-full resize-none rounded-sm border-0 bg-transparent px-2 py-2 text-sm leading-5 text-app-text outline-none placeholder:text-app-text-subtle focus:ring-0",
-              scrollable
-                ? "[direction:rtl] [scrollbar-gutter:stable] [unicode-bidi:plaintext] text-left"
-                : "overflow-hidden",
-            ].join(" ")}
-          />
-        </div>
-        <div className={expanded ? "flex justify-end" : "contents"}>
-          <button
-            ref={buttonRef}
-            type="button"
-            className="h-9 shrink-0 rounded-sm border border-app-accent-border bg-app-accent-bg px-3 text-xs font-medium text-app-accent-text transition hover:border-app-accent-text hover:bg-app-panel-muted"
-          >
+          <label className="sr-only" htmlFor="dashboard-prompt">
             Sök
-          </button>
+          </label>
+          <div
+            style={{ height }}
+            className={[
+              "min-h-7 overflow-hidden transition-[height] duration-150 ease-out",
+              expanded ? "w-full" : "flex-1",
+            ].join(" ")}
+          >
+            <textarea
+              ref={inputRef}
+              id="dashboard-prompt"
+              rows={1}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  submitSearch();
+                }
+              }}
+              placeholder="Sök företagsnamn eller organisationsnummer"
+              className={[
+                "h-full w-full resize-none rounded-sm border-0 bg-transparent px-1.5 py-1 text-xs leading-5 text-app-text outline-none placeholder:text-app-text-subtle focus:ring-0",
+                scrollable
+                  ? "[direction:rtl] [scrollbar-gutter:stable] [unicode-bidi:plaintext] text-left"
+                  : "overflow-hidden",
+              ].join(" ")}
+            />
+          </div>
+          <div className={expanded ? "flex justify-end" : "contents"}>
+            <button
+              ref={buttonRef}
+              type="button"
+              onClick={submitSearch}
+              disabled={!value.trim()}
+              className={buttonClassName({
+                variant: "primary",
+                size: "sm",
+                className: "h-7 shrink-0",
+              })}
+            >
+              Sök
+            </button>
+          </div>
         </div>
+        <textarea
+          ref={measureRef}
+          aria-hidden="true"
+          tabIndex={-1}
+          rows={1}
+          readOnly
+          className="pointer-events-none absolute left-1 top-1 h-0 resize-none overflow-hidden rounded-sm border-0 bg-transparent px-1.5 py-1 text-xs leading-5 opacity-0"
+        />
       </div>
-      <textarea
-        ref={measureRef}
-        aria-hidden="true"
-        tabIndex={-1}
-        rows={1}
-        readOnly
-        className="pointer-events-none absolute left-2 top-2 h-0 resize-none overflow-hidden rounded-sm border-0 bg-transparent px-2 py-2 text-sm leading-5 opacity-0"
+
+      <SearchExamples
+        examples={DASHBOARD_SEARCH_EXAMPLES}
+        onSelect={selectExample}
+        className="mx-auto mt-3 max-w-3xl"
       />
-    </div>
+    </>
   );
 }

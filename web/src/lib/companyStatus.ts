@@ -1,4 +1,6 @@
-export type StatusTone = "positive" | "warning" | "danger" | "neutral";
+import type { StatusTone } from "@/src/lib/statusTone";
+
+export type { StatusTone } from "@/src/lib/statusTone";
 
 export const COMPANY_STATUS_OPTIONS = [
   { value: "1", label: "Är verksam" },
@@ -66,17 +68,36 @@ export function companyStatusLabel(
   );
 }
 
+/** Short aliases intended for space-constrained search result cards. */
+export function companyStatusCardLabel(code?: string | null) {
+  if (code === "1") return "Verksam";
+  if (code === "9") return "Ej längre verksam";
+  if (code === "0") return "Aldrig varit verksam";
+  return "Status saknas";
+}
+
+export function companyStateLabel(
+  code?: string | null,
+  label?: string | null,
+) {
+  if (label?.trim()) return label;
+  return (
+    COMPANY_STATE_OPTIONS.find((option) => option.value === code)?.label ??
+    "Bolagsläge saknas"
+  );
+}
+
 export function companyStatusTone(code?: string | null): StatusTone {
   if (code === "1") return "positive";
   if (code === "9") return "danger";
-  if (code === "0") return "warning";
+  if (code === "0") return "brown";
   return "neutral";
 }
 
 export function companyStateTone(code?: string | null): StatusTone {
   if (!code) return "neutral";
   if (code === "0") return "positive";
-  return "danger";
+  return "warning";
 }
 
 export function marketingTone(code?: string | null): StatusTone {
@@ -84,17 +105,4 @@ export function marketingTone(code?: string | null): StatusTone {
   if (["11", "12", "13"].includes(code)) return "positive";
   if (["21", "22", "23"].includes(code)) return "warning";
   return "neutral";
-}
-
-export function statusToneClass(tone: StatusTone) {
-  if (tone === "positive") {
-    return "border-app-accent-border bg-app-accent-bg text-app-accent-text";
-  }
-  if (tone === "warning") {
-    return "border-app-warning-border bg-app-warning-bg text-app-warning-text";
-  }
-  if (tone === "danger") {
-    return "border-app-danger-border bg-app-danger-bg text-app-danger-text";
-  }
-  return "border-app-border-strong bg-app-panel-soft text-app-text-muted";
 }

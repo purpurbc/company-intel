@@ -1,5 +1,7 @@
 import { HorizontalBarList } from "@/src/components/ui/HorizontalBarList";
+import { SectionHeading } from "@/src/components/ui/PageHeader";
 import type { CountByName } from "@/src/lib/types";
+import { ui } from "@/src/lib/uiStyles";
 
 type CountyBusinessMixProps = {
   byIndustry: CountByName[];
@@ -14,16 +16,9 @@ export function CountyBusinessMix({
 }: CountyBusinessMixProps) {
   return (
     <section className="space-y-4">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          Företagsmix
-        </p>
-        <h2 className="text-lg font-semibold text-slate-100">
-          Regional företagsmix
-        </h2>
-      </div>
+      <SectionHeading eyebrow="Företagsmix" title="Regional företagsmix" />
 
-      <div className="grid min-w-0 gap-5 lg:grid-cols-2">
+      <div className={ui.sectionGrid}>
         <HorizontalBarList
           title="Företag per branschgrupp"
           items={byIndustry}

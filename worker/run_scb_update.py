@@ -39,6 +39,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="When using --include-inactive, also import active/default company status 1.",
     )
+    parser.add_argument('--sni-version', default='unknown', help='SNI edition of this API contract; set explicitly when known.')
     return parser.parse_args()
 
 
@@ -64,9 +65,11 @@ def get_company_statuses(client, include_inactive: bool, include_active: bool) -
 def main() -> None:
     args = parse_args()
 
-    from worker.scb.scb_custom_client import SCBCustomClient
+    from worker.scb.company_importer import SCBCompanyImporter
+    from worker.scb.scb_base_client import LegacyCertScbClient
 
-    client = SCBCustomClient()
+    client = LegacyCertScbClient()
+    importer = SCBCompanyImporter(client, sni_version=args.sni_version)
     statuses = args.company_status or (
         [DEFAULT_ACTIVE_COMPANY_STATUS]
         if not args.include_inactive or args.include_active
@@ -87,7 +90,7 @@ def main() -> None:
             f"registration_status={args.registration_status} "
             f"company_status={company_status}"
         )
-        client.seed_all_companies(
+        importer.seed_all_companies(
             reg_status=args.registration_status,
             co_status=company_status,
         )

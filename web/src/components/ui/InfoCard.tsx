@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Section } from "@/src/components/ui/Surface";
 
 type InfoCardProps = {
   title?: string;
@@ -8,18 +9,8 @@ type InfoCardProps = {
 
 export function InfoCard({ title, children, className = "" }: InfoCardProps) {
   return (
-    <section
-      className={[
-        "rounded-md border border-app-border bg-app-panel p-5 shadow-sm",
-        className,
-      ].join(" ")}
-    >
-      {title ? (
-        <h2 className="mb-3 text-sm font-semibold text-app-text">
-          {title}
-        </h2>
-      ) : null}
+    <Section title={title} className={className}>
       {children}
-    </section>
+    </Section>
   );
 }

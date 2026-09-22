@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
+from ..schemas import DeleteResponse, SavedSegment, SavedSegmentsResponse
 
 from ..services.saved_segment_service import (
     DEFAULT_USER_ID,
@@ -24,24 +25,22 @@ class SavedSegmentCreate(BaseModel):
     filters: dict[str, Any] = Field(default_factory=dict)
     sort: dict[str, Any] = Field(default_factory=dict)
     visibility: str = "private"
-    intent: str | None = None
-    notes: str | None = None
     match_profile_id: UUID | None = None
     source: str = "manual"
     result_count: int | None = None
 
 
-@router.get("/saved-segments")
+@router.get("/saved-segments", response_model=SavedSegmentsResponse)
 def saved_segments(user_id: UUID = DEFAULT_USER_ID):
     return {"items": list_saved_segments(user_id=user_id)}
 
 
-@router.post("/saved-segments")
+@router.post("/saved-segments", response_model=SavedSegment)
 def create_segment(payload: SavedSegmentCreate, user_id: UUID = DEFAULT_USER_ID):
     return create_saved_segment(payload.model_dump(), user_id=user_id)
 
 
-@router.put("/saved-segments/{segment_id}")
+@router.put("/saved-segments/{segment_id}", response_model=SavedSegment)
 def update_segment(
     segment_id: UUID,
     payload: SavedSegmentCreate,
@@ -53,7 +52,7 @@ def update_segment(
     return row
 
 
-@router.delete("/saved-segments/{segment_id}")
+@router.delete("/saved-segments/{segment_id}", response_model=DeleteResponse)
 def delete_segment(segment_id: UUID, user_id: UUID = DEFAULT_USER_ID):
     row = delete_saved_segment(segment_id, user_id=user_id)
     if not row:
@@ -61,7 +60,10 @@ def delete_segment(segment_id: UUID, user_id: UUID = DEFAULT_USER_ID):
     return {"ok": True, "id": str(row["id"])}
 
 
-@router.post("/saved-segments/{segment_id}/refresh-count")
+@router.post(
+    "/saved-segments/{segment_id}/refresh-count",
+    response_model=SavedSegment,
+)
 def refresh_segment_count(segment_id: UUID, user_id: UUID = DEFAULT_USER_ID):
     row = refresh_saved_segment_count(segment_id, user_id=user_id)
     if not row:
@@ -69,7 +71,7 @@ def refresh_segment_count(segment_id: UUID, user_id: UUID = DEFAULT_USER_ID):
     return row
 
 
-@router.post("/saved-segments/{segment_id}/touch")
+@router.post("/saved-segments/{segment_id}/touch", response_model=SavedSegment)
 def touch_segment(segment_id: UUID, user_id: UUID = DEFAULT_USER_ID):
     row = touch_saved_segment(segment_id, user_id=user_id)
     if not row:

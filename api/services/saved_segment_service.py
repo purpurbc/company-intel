@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from fastapi import HTTPException
 from psycopg.errors import UndefinedTable
 from psycopg.types.json import Jsonb
 
@@ -18,156 +19,8 @@ def _int_or_none(value):
     return value if isinstance(value, int) else None
 
 
-def list_saved_segments(user_id: UUID = DEFAULT_USER_ID):
-    sql = """
-    SELECT
-      id,
-      user_id,
-      name,
-      description,
-      filters,
-      sort,
-      visibility,
-      intent,
-      notes,
-      match_profile_id,
-      source,
-      result_count,
-      last_result_count_at,
-      last_used_at,
-      created_at,
-      updated_at
-    FROM saved_segment
-    WHERE user_id = %(user_id)s
-    ORDER BY updated_at DESC, name ASC;
-    """
-
-    try:
-        with get_db_connection() as conn, conn.cursor() as cur:
-            cur.execute(sql, {"user_id": user_id})
-            return cur.fetchall()
-    except UndefinedTable:
-        return []
-
-
-def create_saved_segment(payload: dict, user_id: UUID = DEFAULT_USER_ID):
-    sql = """
-    INSERT INTO saved_segment (
-      user_id,
-      name,
-      description,
-      filters,
-      sort,
-      visibility,
-      intent,
-      notes,
-      match_profile_id,
-      source,
-      result_count,
-      last_result_count_at
-    )
-    VALUES (
-      %(user_id)s,
-      %(name)s,
-      %(description)s,
-      %(filters)s,
-      %(sort)s,
-      %(visibility)s,
-      %(intent)s,
-      %(notes)s,
-      %(match_profile_id)s,
-      %(source)s,
-      %(result_count)s,
-      CASE WHEN %(result_count)s IS NULL THEN NULL ELSE now() END
-    )
-    RETURNING *;
-    """
-    params = {
-        "user_id": user_id,
-        "name": payload["name"],
-        "description": payload.get("description"),
-        "filters": Jsonb(payload.get("filters") or {}),
-        "sort": Jsonb(payload.get("sort") or {}),
-        "visibility": payload.get("visibility") or "private",
-        "intent": payload.get("intent"),
-        "notes": payload.get("notes"),
-        "match_profile_id": payload.get("match_profile_id"),
-        "source": payload.get("source") or "manual",
-        "result_count": payload.get("result_count"),
-    }
-
-    with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute(sql, params)
-        conn.commit()
-        return cur.fetchone()
-
-
-def update_saved_segment(
-    segment_id: UUID,
-    payload: dict,
-    user_id: UUID = DEFAULT_USER_ID,
-):
-    sql = """
-    UPDATE saved_segment
-    SET
-      name = %(name)s,
-      description = %(description)s,
-      filters = %(filters)s,
-      sort = %(sort)s,
-      visibility = %(visibility)s,
-      intent = %(intent)s,
-      notes = %(notes)s,
-      match_profile_id = %(match_profile_id)s,
-      source = %(source)s,
-      result_count = %(result_count)s,
-      last_result_count_at = CASE
-        WHEN %(result_count)s IS NULL THEN last_result_count_at
-        ELSE now()
-      END,
-      updated_at = now()
-    WHERE id = %(segment_id)s AND user_id = %(user_id)s
-    RETURNING *;
-    """
-    params = {
-        "segment_id": segment_id,
-        "user_id": user_id,
-        "name": payload["name"],
-        "description": payload.get("description"),
-        "filters": Jsonb(payload.get("filters") or {}),
-        "sort": Jsonb(payload.get("sort") or {}),
-        "visibility": payload.get("visibility") or "private",
-        "intent": payload.get("intent"),
-        "notes": payload.get("notes"),
-        "match_profile_id": payload.get("match_profile_id"),
-        "source": payload.get("source") or "manual",
-        "result_count": payload.get("result_count"),
-    }
-
-    with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute(sql, params)
-        conn.commit()
-        return cur.fetchone()
-
-
-def refresh_saved_segment_count(
-    segment_id: UUID,
-    user_id: UUID = DEFAULT_USER_ID,
-):
-    with get_db_connection() as conn, conn.cursor() as cur:
-        cur.execute(
-            """
-            SELECT id, filters
-            FROM saved_segment
-            WHERE id = %(segment_id)s AND user_id = %(user_id)s;
-            """,
-            {"segment_id": segment_id, "user_id": user_id},
-        )
-        segment = cur.fetchone()
-
-    if not segment:
-        return None
-
-    filters = segment.get("filters") or {}
+def _count_saved_segment_companies(filters: dict) -> int:
+    """Count a segment without paying for result rows, sorting or pagination."""
     result = get_companies(
         q=filters.get("q") if isinstance(filters.get("q"), str) else None,
         search_by=filters.get("search_by")
@@ -201,7 +54,157 @@ def refresh_saved_segment_count(
         metric_sort="none",
         limit=1,
         offset=0,
+        include_total=True,
+        count_only=True,
+        allow_estimated_total=False,
     )
+    total = result["total"]
+    if total is None or result.get("total_kind", "exact") != "exact":
+        raise HTTPException(
+            status_code=504,
+            detail="Antalet företag hann inte räknas. Försök igen om en stund.",
+        )
+    return total
+
+
+def list_saved_segments(user_id: UUID = DEFAULT_USER_ID):
+    sql = """
+    SELECT
+      id,
+      user_id,
+      name,
+      description,
+      filters,
+      sort,
+      visibility,
+      match_profile_id,
+      source,
+      result_count,
+      last_result_count_at,
+      last_used_at,
+      created_at,
+      updated_at
+    FROM saved_segment
+    WHERE user_id = %(user_id)s
+    ORDER BY updated_at DESC, name ASC;
+    """
+
+    try:
+        with get_db_connection() as conn, conn.cursor() as cur:
+            cur.execute(sql, {"user_id": user_id})
+            return cur.fetchall()
+    except UndefinedTable:
+        return []
+
+
+def create_saved_segment(payload: dict, user_id: UUID = DEFAULT_USER_ID):
+    sql = """
+    INSERT INTO saved_segment (
+      user_id,
+      name,
+      description,
+      filters,
+      sort,
+      visibility,
+      match_profile_id,
+      source,
+      result_count,
+      last_result_count_at
+    )
+    VALUES (
+      %(user_id)s,
+      %(name)s,
+      %(description)s,
+      %(filters)s,
+      %(sort)s,
+      %(visibility)s,
+      %(match_profile_id)s,
+      %(source)s,
+      %(result_count)s,
+      CASE WHEN %(result_count)s IS NULL THEN NULL ELSE now() END
+    )
+    RETURNING *;
+    """
+    params = {
+        "user_id": user_id,
+        "name": payload["name"],
+        "description": payload.get("description"),
+        "filters": Jsonb(payload.get("filters") or {}),
+        "sort": Jsonb(payload.get("sort") or {}),
+        "visibility": payload.get("visibility") or "private",
+        "match_profile_id": payload.get("match_profile_id"),
+        "source": payload.get("source") or "manual",
+        "result_count": payload.get("result_count"),
+    }
+
+    with get_db_connection() as conn, conn.cursor() as cur:
+        cur.execute(sql, params)
+        conn.commit()
+        return cur.fetchone()
+
+
+def update_saved_segment(
+    segment_id: UUID,
+    payload: dict,
+    user_id: UUID = DEFAULT_USER_ID,
+):
+    sql = """
+    UPDATE saved_segment
+    SET
+      name = %(name)s,
+      description = %(description)s,
+      filters = %(filters)s,
+      sort = %(sort)s,
+      visibility = %(visibility)s,
+      match_profile_id = %(match_profile_id)s,
+      source = %(source)s,
+      result_count = %(result_count)s,
+      last_result_count_at = CASE
+        WHEN %(result_count)s IS NULL THEN last_result_count_at
+        ELSE now()
+      END,
+      updated_at = now()
+    WHERE id = %(segment_id)s AND user_id = %(user_id)s
+    RETURNING *;
+    """
+    params = {
+        "segment_id": segment_id,
+        "user_id": user_id,
+        "name": payload["name"],
+        "description": payload.get("description"),
+        "filters": Jsonb(payload.get("filters") or {}),
+        "sort": Jsonb(payload.get("sort") or {}),
+        "visibility": payload.get("visibility") or "private",
+        "match_profile_id": payload.get("match_profile_id"),
+        "source": payload.get("source") or "manual",
+        "result_count": payload.get("result_count"),
+    }
+
+    with get_db_connection() as conn, conn.cursor() as cur:
+        cur.execute(sql, params)
+        conn.commit()
+        return cur.fetchone()
+
+
+def refresh_saved_segment_count(
+    segment_id: UUID,
+    user_id: UUID = DEFAULT_USER_ID,
+):
+    with get_db_connection() as conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, filters
+            FROM saved_segment
+            WHERE id = %(segment_id)s AND user_id = %(user_id)s;
+            """,
+            {"segment_id": segment_id, "user_id": user_id},
+        )
+        segment = cur.fetchone()
+
+    if not segment:
+        return None
+
+    result_count = _count_saved_segment_companies(segment.get("filters") or {})
 
     with get_db_connection() as conn, conn.cursor() as cur:
         cur.execute(
@@ -217,7 +220,7 @@ def refresh_saved_segment_count(
             {
                 "segment_id": segment_id,
                 "user_id": user_id,
-                "result_count": result["total"],
+                "result_count": result_count,
             },
         )
         conn.commit()

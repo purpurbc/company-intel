@@ -1,4 +1,6 @@
 import { HorizontalBarList } from "@/src/components/ui/HorizontalBarList";
+import { SectionHeading } from "@/src/components/ui/PageHeader";
+import { ui } from "@/src/lib/uiStyles";
 
 type CountyGeographyProps = {
   byMunicipality: {
@@ -20,16 +22,9 @@ export function CountyGeography({
 }: CountyGeographyProps) {
   return (
     <section className="space-y-4">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-          Geografi
-        </p>
-        <h2 className="text-lg font-semibold text-slate-100">
-          Regional fördelning
-        </h2>
-      </div>
+      <SectionHeading eyebrow="Geografi" title="Regional fördelning" />
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className={ui.sectionGrid}>
         <HorizontalBarList
           title="Företag per kommun"
           items={byMunicipality}

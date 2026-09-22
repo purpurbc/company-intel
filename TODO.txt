@@ -88,7 +88,7 @@ Cintela ska inte bli:
 
 ## Sidstruktur
 
-- **Hem:** snabb sök och på sikt en personlig förändringspuls.
+- **Hem: ** snabb sök och på sikt en personlig förändringspuls.
 - **Företag:** sök, filter, segment och resultat.
 - **Sverigedata:** ingång till Överblick, Geografi, Statistik och Karta.
 - **Arbetsyta:** användarens sparade segment.

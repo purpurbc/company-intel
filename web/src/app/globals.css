@@ -1,17 +1,17 @@
 @import "tailwindcss";
 :root {
   /* Core palette: most UI colors below intentionally alias these roles. */
-  --app-canvas: #0d1214;
-  --app-surface: #151b1d;
-  --app-surface-soft: #1c2426;
-  --app-surface-hover: #263033;
-  --app-line: #354145;
-  --app-line-strong: #5b6c71;
-  --app-ink: #f4f7f6;
-  --app-ink-muted: #b1bcba;
-  --app-inverse: #0d1214;
-  --app-inverse-bg: #f4f7f6;
-  --app-inverse-hover: #dfe7e5;
+  --app-canvas: #101010;
+  --app-surface: #191919;
+  --app-surface-soft: #222224;
+  --app-surface-hover: #2c2c30;
+  --app-line: #303034;
+  --app-line-strong: #66666e;
+  --app-ink: #ededed;
+  --app-ink-muted: #aaaaaf;
+  --app-inverse: #191919;
+  --app-inverse-bg: #ededed;
+  --app-inverse-hover: #d9d9de;
 
   --app-font-family: var(
     --font-app-sans,
@@ -67,31 +67,31 @@
   --app-control-bg: var(--app-inverse-bg);
   --app-control-bg-hover: var(--app-inverse-hover);
   --app-control-text: var(--app-inverse);
-  --app-accent: #57dccb;
+  --app-accent: #575aff;
   --app-accent-strong: var(--app-accent);
-  --app-accent-bg: rgb(45 212 191 / 0.12);
+  --app-accent-bg: color-mix(in srgb, var(--app-accent) 16%, transparent);
   --app-accent-bg-soft: var(--app-accent-bg);
-  --app-accent-border: rgb(87 220 203 / 0.52);
+  --app-accent-border: color-mix(in srgb, var(--app-accent) 62%, transparent);
   --app-accent-border-soft: var(--app-accent-border);
-  --app-accent-text: var(--app-accent);
+  --app-accent-text: #a2a4ff;
   --app-chart-font-size: var(--app-text-xs);
-  --app-chart-line-width: 2;
+  --app-chart-line-width: 2.25;
   --app-chart-grid-width: 1;
-  --app-chart-1: #57dccb;
-  --app-chart-2: #8ea7ff;
-  --app-chart-3: #f6c85f;
-  --app-chart-4: #ff8a80;
-  --app-chart-5: #cfa2f3;
-  --app-chart-6: #63c7ff;
-  --app-chart-7: #a8d96f;
-  --app-chart-8: #f08fbd;
-  --app-chart-9: #ffad66;
-  --app-chart-10: #a8b4c8;
-  --app-chart-11: #c1c75a;
-  --app-chart-12: #7ae2aa;
-  --app-action-accent-bg: #5264b6;
-  --app-action-accent-bg-hover: #6075cf;
-  --app-action-accent-border: #6075cf;
+  --app-chart-1: #777aff;
+  --app-chart-2: #51c9e8;
+  --app-chart-3: #f4ba69;
+  --app-chart-4: #ff829d;
+  --app-chart-5: #b99aff;
+  --app-chart-6: #70d5ad;
+  --app-chart-7: #df9ad6;
+  --app-chart-8: #d2d972;
+  --app-chart-9: #ffad7b;
+  --app-chart-10: #9bb9ef;
+  --app-chart-11: #c5a9f0;
+  --app-chart-12: #7dd5d0;
+  --app-action-accent-bg: var(--app-accent);
+  --app-action-accent-bg-hover: color-mix(in srgb, var(--app-accent) 82%, var(--app-text) 18%);
+  --app-action-accent-border: var(--app-accent);
   --app-action-accent-text: #ffffff;
   --app-action-accept-bg: #0d765c;
   --app-action-accept-bg-hover: #11866a;
@@ -120,7 +120,8 @@
   --app-brown-text: #ffffff;
   --app-focus: var(--app-accent-border);
   --app-map-background: var(--app-canvas);
-  --app-map-silhouette: #536964;
+  --app-map-grid: #777b85;
+  --app-map-silhouette: #222231;
   --app-map-region-fill: var(--app-accent);
   --app-map-region-hover: var(--app-accent-strong);
   --app-map-region-selected: var(--app-ink);
@@ -133,17 +134,17 @@
 }
 
 :root[data-theme="light"] {
-  --app-canvas: #f2f5f4;
+  --app-canvas: #f4f4f6;
   --app-surface: #ffffff;
-  --app-surface-soft: #e8eeeb;
-  --app-surface-hover: #dce5e1;
-  --app-line: #c1cdc8;
-  --app-line-strong: #768c83;
-  --app-ink: #14201c;
-  --app-ink-muted: #4f615a;
-  --app-inverse: #f7faf8;
-  --app-inverse-bg: #16211d;
-  --app-inverse-hover: #24322d;
+  --app-surface-soft: #ebebef;
+  --app-surface-hover: #e0e0e6;
+  --app-line: #e6e6eb;
+  --app-line-strong: #8c8c99;
+  --app-ink: #24242a;
+  --app-ink-muted: #60606d;
+  --app-inverse: #ffffff;
+  --app-inverse-bg: #24242a;
+  --app-inverse-hover: #3a3a43;
   --app-shadow-panel: 0 1px 2px rgb(23 32 29 / 0.06);
   --app-shadow-float: 0 18px 42px rgb(23 32 29 / 0.12);
   --app-shadow-sticky: 0 9px 14px -12px rgb(23 32 29 / 0.34);
@@ -152,25 +153,20 @@
   --foreground: var(--app-ink);
   --app-overlay: rgb(23 32 29 / 0.36);
   --app-overlay-soft: rgb(246 247 246 / 0.9);
-  --app-accent: #006b5d;
-  --app-accent-bg: rgb(0 107 93 / 0.12);
-  --app-accent-border: #167e6e;
-  --app-accent-text: #00594e;
-  --app-chart-1: #00a68b;
-  --app-chart-2: #5265f5;
-  --app-chart-3: #e59a00;
-  --app-chart-4: #ef4963;
-  --app-chart-5: #a344e6;
-  --app-chart-6: #009de0;
-  --app-chart-7: #70a819;
-  --app-chart-8: #e239a1;
-  --app-chart-9: #f27316;
-  --app-chart-10: #687caa;
-  --app-chart-11: #999b00;
-  --app-chart-12: #00a35c;
-  --app-action-accent-bg: #43539a;
-  --app-action-accent-bg-hover: #35447f;
-  --app-action-accent-border: #43539a;
+  --app-accent: #575aff;
+  --app-accent-text: #484bd9;
+  --app-chart-1: #575aff;
+  --app-chart-2: #008eb8;
+  --app-chart-3: #c27c18;
+  --app-chart-4: #d44871;
+  --app-chart-5: #8d5fd2;
+  --app-chart-6: #169a77;
+  --app-chart-7: #ad4ca2;
+  --app-chart-8: #7b8500;
+  --app-chart-9: #c56128;
+  --app-chart-10: #4774b4;
+  --app-chart-11: #8056ac;
+  --app-chart-12: #078f92;
   --app-action-accent-text: #ffffff;
   --app-action-accept-bg: #086b53;
   --app-action-accept-bg-hover: #075843;
@@ -197,7 +193,8 @@
   --app-brown-bg: #8c4a20;
   --app-brown-border: #8c4a20;
   --app-brown-text: #ffffff;
-  --app-map-silhouette: #516e65;
+  --app-map-silhouette: #e4e4ef;
+  --app-map-grid: #858995;
   color-scheme: light;
 }
 
@@ -205,80 +202,148 @@
  * Color themes only redefine shared semantic tokens. Components and the map
  * consume the same roles, so every palette stays coordinated in both modes.
  */
-:root[data-color-theme="ocean"] {
-  --app-canvas: #0b121a;
-  --app-surface: #121c26;
-  --app-surface-soft: #1a2733;
-  --app-surface-hover: #223343;
-  --app-line: #35495a;
-  --app-line-strong: #536a7d;
-  --app-ink: #f1f7fc;
-  --app-ink-muted: #adbdcc;
-  --app-inverse: #0b121a;
-  --app-inverse-bg: #f1f7fc;
-  --app-inverse-hover: #dce9f3;
-  --app-accent: #69b9ff;
-  --app-accent-bg: rgb(59 130 246 / 0.14);
-  --app-accent-border: rgb(105 185 255 / 0.54);
-  --app-accent-text: #8ac9ff;
-  --app-map-silhouette: #526f86;
+:root[data-color-theme="slate"] {
+  --app-canvas: #0d131c;
+  --app-surface: #17212e;
+  --app-surface-soft: #202d3d;
+  --app-surface-hover: #2b3b4e;
+  --app-line: #2a394b;
+  --app-line-strong: #688098;
+  --app-ink: #edf3fa;
+  --app-ink-muted: #acbfd2;
+  --app-inverse: #101b27;
+  --app-inverse-bg: #edf3fa;
+  --app-inverse-hover: #d8e5f2;
+  --app-accent: #43b8d6;
+  --app-accent-text: #77d5eb;
+  --app-chart-1: #56c7e4;
+  --app-chart-2: #f0b475;
+  --app-chart-3: #bb9df1;
+  --app-chart-4: #e989a6;
+  --app-chart-5: #9edb9b;
+  --app-chart-6: #d7cc74;
+  --app-action-accent-text: #09212a;
+  --app-map-silhouette: #213342;
 }
 
-:root[data-theme="light"][data-color-theme="ocean"] {
-  --app-canvas: #f1f6fa;
+:root[data-theme="light"][data-color-theme="slate"] {
+  --app-canvas: #eff4f8;
   --app-surface: #ffffff;
-  --app-surface-soft: #e4eef5;
-  --app-surface-hover: #d7e6f0;
-  --app-line: #bacbd9;
-  --app-line-strong: #718da2;
-  --app-ink: #122435;
-  --app-ink-muted: #4e687d;
-  --app-inverse: #f6faff;
-  --app-inverse-bg: #172536;
-  --app-inverse-hover: #26394c;
-  --app-accent: #075e9c;
-  --app-accent-bg: rgb(7 94 156 / 0.12);
-  --app-accent-border: #2877ad;
-  --app-accent-text: #064e82;
-  --app-map-silhouette: #55758d;
+  --app-surface-soft: #e5edf3;
+  --app-surface-hover: #d8e5ed;
+  --app-line: #e2eaf0;
+  --app-line-strong: #8195a5;
+  --app-ink: #1a2a38;
+  --app-ink-muted: #566b7d;
+  --app-inverse: #ffffff;
+  --app-inverse-bg: #1a2a38;
+  --app-inverse-hover: #304252;
+  --app-accent: #087f9e;
+  --app-accent-text: #086d88;
+  --app-chart-1: #087f9e;
+  --app-chart-2: #b56c22;
+  --app-chart-3: #7858b9;
+  --app-chart-4: #c44c74;
+  --app-chart-5: #438b46;
+  --app-chart-6: #9b841c;
+  --app-action-accent-text: #ffffff;
+  --app-map-silhouette: #dce9ef;
 }
 
-:root[data-color-theme="plum"] {
-  --app-canvas: #141116;
-  --app-surface: #1d1820;
-  --app-surface-soft: #27202c;
-  --app-surface-hover: #31283a;
-  --app-line: #44374b;
-  --app-line-strong: #705c79;
-  --app-ink: #f7f3f8;
-  --app-ink-muted: #c0b0c5;
-  --app-inverse: #141116;
-  --app-inverse-bg: #f7f3f8;
-  --app-inverse-hover: #e9dfee;
-  --app-accent: #cfa2f3;
-  --app-accent-bg: rgb(168 85 247 / 0.13);
-  --app-accent-border: rgb(207 162 243 / 0.54);
-  --app-accent-text: #ddbafa;
-  --app-map-silhouette: #79677e;
+:root[data-color-theme="sand"] {
+  --app-canvas: #15110e;
+  --app-surface: #211b17;
+  --app-surface-soft: #2c241e;
+  --app-surface-hover: #392e26;
+  --app-line: #372c25;
+  --app-line-strong: #8b7668;
+  --app-ink: #f3e9dd;
+  --app-ink-muted: #c5b3a2;
+  --app-inverse: #201710;
+  --app-inverse-bg: #f3e9dd;
+  --app-inverse-hover: #e1d4c5;
+  --app-accent: #e1a454;
+  --app-accent-text: #f0bd7c;
+  --app-chart-1: #eab36b;
+  --app-chart-2: #8ac5d1;
+  --app-chart-3: #cb9ce8;
+  --app-chart-4: #df8b88;
+  --app-chart-5: #a7c48c;
+  --app-chart-6: #e0c77c;
+  --app-action-accent-text: #2c1906;
+  --app-map-silhouette: #342a23;
 }
 
-:root[data-theme="light"][data-color-theme="plum"] {
-  --app-canvas: #f8f3f9;
+:root[data-theme="light"][data-color-theme="sand"] {
+  --app-canvas: #f7f3ec;
+  --app-surface: #fffdfa;
+  --app-surface-soft: #efe7dc;
+  --app-surface-hover: #e9dccb;
+  --app-line: #ebe1d4;
+  --app-line-strong: #9d8874;
+  --app-ink: #30251c;
+  --app-ink-muted: #766655;
+  --app-inverse: #fffdfa;
+  --app-inverse-bg: #30251c;
+  --app-inverse-hover: #4a392c;
+  --app-accent: #9d5f13;
+  --app-accent-text: #86500d;
+  --app-chart-1: #9d5f13;
+  --app-chart-2: #26819a;
+  --app-chart-3: #8a55a9;
+  --app-chart-4: #b4524e;
+  --app-chart-5: #598343;
+  --app-chart-6: #a17d1e;
+  --app-action-accent-text: #ffffff;
+  --app-map-silhouette: #eee3d5;
+}
+
+:root[data-color-theme="forest"] {
+  --app-canvas: #0d1411;
+  --app-surface: #19221d;
+  --app-surface-soft: #232e26;
+  --app-surface-hover: #2e3a31;
+  --app-line: #2d3b31;
+  --app-line-strong: #69816f;
+  --app-ink: #edf4ed;
+  --app-ink-muted: #b0c7b3;
+  --app-inverse: #111b13;
+  --app-inverse-bg: #edf4ed;
+  --app-inverse-hover: #dae9dc;
+  --app-accent: #76cf98;
+  --app-accent-text: #91e1ae;
+  --app-chart-1: #76cf98;
+  --app-chart-2: #8dc5e9;
+  --app-chart-3: #e0b971;
+  --app-chart-4: #ce97ca;
+  --app-chart-5: #dd8f8b;
+  --app-chart-6: #b5cc78;
+  --app-action-accent-text: #112019;
+  --app-map-silhouette: #223529;
+}
+
+:root[data-theme="light"][data-color-theme="forest"] {
+  --app-canvas: #f1f6f0;
   --app-surface: #ffffff;
-  --app-surface-soft: #efe5f1;
-  --app-surface-hover: #e5d9e8;
-  --app-line: #d2c0d6;
-  --app-line-strong: #94779c;
-  --app-ink: #2a1930;
-  --app-ink-muted: #69536f;
-  --app-inverse: #fcf8fd;
-  --app-inverse-bg: #2b1d2f;
-  --app-inverse-hover: #413047;
-  --app-accent: #6e3695;
-  --app-accent-bg: rgb(110 54 149 / 0.12);
-  --app-accent-border: #8957aa;
-  --app-accent-text: #5c2a7e;
-  --app-map-silhouette: #79667e;
+  --app-surface-soft: #e5eee4;
+  --app-surface-hover: #d9e8d8;
+  --app-line: #dfe9de;
+  --app-line-strong: #829989;
+  --app-ink: #1e3023;
+  --app-ink-muted: #536e5a;
+  --app-inverse: #ffffff;
+  --app-inverse-bg: #1e3023;
+  --app-inverse-hover: #344938;
+  --app-accent: #258254;
+  --app-accent-text: #1d7047;
+  --app-chart-1: #258254;
+  --app-chart-2: #2d80ae;
+  --app-chart-3: #a1751f;
+  --app-chart-4: #a34a93;
+  --app-chart-5: #b0524c;
+  --app-chart-6: #718827;
+  --app-action-accent-text: #ffffff;
+  --app-map-silhouette: #e1ebe0;
 }
 
 /*

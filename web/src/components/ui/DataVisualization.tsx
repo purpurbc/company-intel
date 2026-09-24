@@ -31,6 +31,7 @@ export type DataChartSeries = {
   label: string;
   axis?: "primary" | "secondary";
   format?: DataChartValueFormat;
+  useCellLabel?: boolean;
 };
 
 export type DataChartConfig = {
@@ -40,8 +41,10 @@ export type DataChartConfig = {
     label: string;
     groupKey?: string;
     categorical?: boolean;
+    aggregate?: "sum";
   }[];
   groupKey?: string;
+  aggregate?: "sum";
   series: readonly DataChartSeries[];
   modes?: readonly DataChartMode[];
   defaultMode?: DataChartMode;
@@ -56,6 +59,7 @@ type DataVisualizationProps = Omit<
   | "onColumnDividerModeChange"
 > & {
   chart: DataChartConfig;
+  defaultView?: "table" | "chart";
 };
 
 type ResolvedSeries = DataChartSeries & {
@@ -68,6 +72,7 @@ type ChartDatum = {
   x: string | number;
   label: string;
   values: Record<string, number | null>;
+  valueLabels: Record<string, string>;
 };
 
 type ChartScale = {
@@ -207,21 +212,38 @@ function resolveChartData(
         ? String(xCell)
         : String(x);
 
+    const seriesValues = series.map((item) => {
+      const matchingRows = rows.filter(
+        (candidate) =>
+          rawValue(candidate, config.xKey) === x &&
+          (item.groupValue === undefined ||
+            rawValue(candidate, config.groupKey!) === item.groupValue),
+      );
+      const values = matchingRows
+        .map((row) => rawValue(row, item.key))
+        .filter((value): value is number => typeof value === "number");
+      const value = values.length === 0
+        ? null
+        : config.aggregate === "sum"
+          ? values.reduce((sum, current) => sum + current, 0)
+          : values[0];
+      const cell = item.useCellLabel && matchingRows.length === 1
+        ? matchingRows[0].cells[item.key]
+        : null;
+      return {
+        id: item.id,
+        value,
+        label: typeof cell === "string" || typeof cell === "number" ? String(cell) : null,
+      };
+    });
+
     return {
       x,
       label,
-      values: Object.fromEntries(
-        series.map((item) => {
-          const row = rows.find(
-            (candidate) =>
-              rawValue(candidate, config.xKey) === x &&
-              (item.groupValue === undefined ||
-                rawValue(candidate, config.groupKey!) === item.groupValue),
-          );
-          const value = row ? rawValue(row, item.key) : null;
-          return [item.id, typeof value === "number" ? value : null];
-        }),
-      ),
+      values: Object.fromEntries(seriesValues.map((item) => [item.id, item.value])),
+      valueLabels: Object.fromEntries(seriesValues.flatMap((item) =>
+        item.label === null ? [] : [[item.id, item.label] as const],
+      )),
     };
   });
 
@@ -265,14 +287,15 @@ function LineMarks({
               key={`${item.id}-${valueId(datum.x)}`}
               cx={xPosition(index)}
               cy={scale.position(value)}
-              r="2.75"
+              r="3.75"
               fill={item.color}
               stroke="var(--app-panel)"
-              strokeWidth="1.5"
+              strokeWidth="1.25"
               vectorEffect="non-scaling-stroke"
+              className="outline-none focus-visible:stroke-app-text focus-visible:stroke-[2.5px]"
               tabIndex={0}
-              aria-label={`${datum.label} · ${item.label}: ${formatValue(value, item.format)}`}
-              data-chart-info={`${datum.label} · ${item.label}: ${formatValue(value, item.format)}`}
+              aria-label={`${datum.label} · ${item.label}: ${datum.valueLabels[item.id] ?? formatValue(value, item.format)}`}
+              data-chart-info={`${datum.label} · ${item.label}: ${datum.valueLabels[item.id] ?? formatValue(value, item.format)}`}
               data-chart-color={item.color}
             >
             </circle>
@@ -320,8 +343,8 @@ function BarMarks({
           rx="1.5"
           fill={item.color}
           tabIndex={0}
-          aria-label={`${datum.label} · ${item.label}: ${formatValue(value, item.format)}`}
-          data-chart-info={`${datum.label} · ${item.label}: ${formatValue(value, item.format)}`}
+          aria-label={`${datum.label} · ${item.label}: ${datum.valueLabels[item.id] ?? formatValue(value, item.format)}`}
+          data-chart-info={`${datum.label} · ${item.label}: ${datum.valueLabels[item.id] ?? formatValue(value, item.format)}`}
           data-chart-color={item.color}
         >
         </rect>
@@ -515,8 +538,9 @@ export function DataVisualization({
   caption,
   emptyText,
   sortable,
+  defaultView = "table",
 }: DataVisualizationProps) {
-  const [view, setView] = useState<"table" | "chart">("table");
+  const [view, setView] = useState<"table" | "chart">(defaultView);
   const [mode, setMode] = useState<DataChartMode>(chart.defaultMode ?? "line");
   const [xKey, setXKey] = useState(chart.xKey);
   const [isReversed, setIsReversed] = useState(false);
@@ -531,6 +555,7 @@ export function DataVisualization({
       ...chart,
       xKey,
       groupKey: xOption ? xOption.groupKey : chart.groupKey,
+      aggregate: xOption?.aggregate,
     }),
     [chart, rows, xKey, xOption],
   );
@@ -551,106 +576,113 @@ export function DataVisualization({
 
   return (
     <div className="min-w-0">
-      <div className="mb-2 flex flex-wrap items-center justify-end gap-1.5">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-1.5">
         {view === "chart" ? (
-          <>
-            <ActionControl
-              label="Anpassa Y-skalan till synliga serier"
-              variant="ghost"
-              size="sm"
-              pressed={isFitted}
-              disabled={!visibleSeries.length}
-              onClick={() => setIsFitted(true)}
-              icon={<MaskedIcon src="/icons/utility/fit.svg" className="h-4 w-4" />}
-            >
-              Anpassa
-            </ActionControl>
-            {chart.xOptions ? (
+          <ActionControl
+            label={isFitted ? "Återställ Y-skalan" : "Anpassa Y-skalan till synliga serier"}
+            variant="ghost"
+            size="sm"
+            pressed={isFitted}
+            disabled={!visibleSeries.length}
+            onClick={() => setIsFitted((current) => !current)}
+            icon={<MaskedIcon src={isFitted ? "/icons/menu/house-chimney-blank-svgrepo-com.svg" : "/icons/utility/fit.svg"} className="h-4 w-4" />}
+          >
+            {isFitted ? "Återställ" : "Anpassa"}
+          </ActionControl>
+        ) : null}
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
+          {view === "chart" ? (
+            <>
+              {chart.xOptions ? (
+                <DropdownMenu
+                  label="X-axel"
+                  triggerText={`X: ${xOption?.label ?? xKey}`}
+                  triggerVariant="ghost"
+                  icon={<MaskedIcon src="/icons/utility/chart_bar.svg" className="h-4 w-4" />}
+                  items={chart.xOptions.map((option) => ({
+                    key: option.key,
+                    label: option.label,
+                    active: xKey === option.key,
+                    onSelect: () => setXKey(option.key),
+                  }))}
+                />
+              ) : null}
               <DropdownMenu
-                label="X-axel"
-                triggerText={`X: ${xOption?.label ?? xKey}`}
+                label="Synliga dataserier"
+                triggerText="Serier"
                 triggerVariant="ghost"
-                icon={<MaskedIcon src="/icons/utility/chart_bar.svg" className="h-4 w-4" />}
-                items={chart.xOptions.map((option) => ({
-                  key: option.key,
-                  label: option.label,
-                  active: xKey === option.key,
-                  onSelect: () => setXKey(option.key),
+                icon={<MaskedIcon src="/icons/menu/filter.svg" className="h-4 w-4" />}
+                items={resolved.series.map((item) => ({
+                  key: item.id,
+                  label: item.label,
+                  active: isSeriesVisible(item),
+                  selectable: true,
+                  closeOnSelect: false,
+                  onSelect: () => toggleSeries(item),
+                  icon: <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} />,
                 }))}
               />
-            ) : null}
-            <ActionControl
-              label={isReversed ? "X-axel: fallande. Byt till stigande" : "X-axel: stigande. Byt till fallande"}
-              variant="ghost"
-              pressed={isReversed}
-              onClick={() => setIsReversed((current) => !current)}
-              icon={<MaskedIcon src="/icons/utility/arrow_right.svg" className={`h-4 w-4 ${isReversed ? "rotate-180" : ""}`} />}
+              <DropdownMenu
+                label="Diagramtyp"
+                triggerText={chartModeLabels[activeMode]}
+                triggerVariant="ghost"
+                icon={<MaskedIcon src={`/icons/utility/chart_${activeMode}.svg`} className="h-4 w-4" />}
+                items={(chart.modes ?? ["line", "spline", "bar"]).map((chartMode) => ({
+                  key: chartMode,
+                  label: chartModeLabels[chartMode],
+                  active: activeMode === chartMode,
+                  disabled: isCategorical && chartMode !== "bar",
+                  onSelect: () => setMode(chartMode),
+                  icon: <MaskedIcon src={`/icons/utility/chart_${chartMode}.svg`} className="h-4 w-4 shrink-0" />,
+                }))}
+              />
+              <ToggleButton<"ascending" | "descending">
+                value={isReversed ? "descending" : "ascending"}
+                onChange={(direction) => setIsReversed(direction === "descending")}
+                iconOnly
+                ariaLabel="X-axelns riktning"
+                options={[
+                  { value: "descending", label: "Fallande X-axel", icon: <MaskedIcon src="/icons/utility/arrow_right.svg" className="h-4 w-4 rotate-180" /> },
+                  { value: "ascending", label: "Stigande X-axel", icon: <MaskedIcon src="/icons/utility/arrow_right.svg" className="h-4 w-4" /> },
+                ]}
+              />
+            </>
+          ) : null}
+          {view === "table" ? (
+            <DataTableColumnDividerToggle
+              value={columnDividerMode}
+              onChange={setColumnDividerMode}
             />
-            <DropdownMenu
-              label="Synliga dataserier"
-              triggerText="Serier"
-              triggerVariant="ghost"
-              icon={<MaskedIcon src="/icons/menu/filter.svg" className="h-4 w-4" />}
-              items={resolved.series.map((item) => ({
-                key: item.id,
-                label: item.label,
-                active: isSeriesVisible(item),
-                selectable: true,
-                closeOnSelect: false,
-                onSelect: () => toggleSeries(item),
-                icon: <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: item.color }} />,
-              }))}
-            />
-            <DropdownMenu
-              label="Diagramtyp"
-              triggerText={chartModeLabels[activeMode]}
-              triggerVariant="ghost"
-              icon={<MaskedIcon src={`/icons/utility/chart_${activeMode}.svg`} className="h-4 w-4" />}
-              items={(chart.modes ?? ["line", "spline", "bar"]).map((chartMode) => ({
-                key: chartMode,
-                label: chartModeLabels[chartMode],
-                active: activeMode === chartMode,
-                disabled: isCategorical && chartMode !== "bar",
-                onSelect: () => setMode(chartMode),
-                icon: <MaskedIcon src={`/icons/utility/chart_${chartMode}.svg`} className="h-4 w-4 shrink-0" />,
-              }))}
-            />
-          </>
-        ) : null}
-        {view === "table" ? (
-          <DataTableColumnDividerToggle
-            value={columnDividerMode}
-            onChange={setColumnDividerMode}
+          ) : null}
+          <ToggleButton<"table" | "chart">
+            value={view}
+            onChange={setView}
+            iconOnly
+            ariaLabel="Visningsläge"
+            options={[
+              {
+                value: "table",
+                label: "Tabell",
+                icon: (
+                  <MaskedIcon
+                    src="/icons/utility/compact_list.svg"
+                    className="h-4 w-4"
+                  />
+                ),
+              },
+              {
+                value: "chart",
+                label: "Diagram",
+                icon: (
+                  <MaskedIcon
+                    src="/icons/utility/chart_line.svg"
+                    className="h-4 w-4"
+                  />
+                ),
+              },
+            ]}
           />
-        ) : null}
-        <ToggleButton<"table" | "chart">
-          value={view}
-          onChange={setView}
-          iconOnly
-          ariaLabel="Visningsläge"
-          options={[
-            {
-              value: "table",
-              label: "Tabell",
-              icon: (
-                <MaskedIcon
-                  src="/icons/utility/compact_list.svg"
-                  className="h-4 w-4"
-                />
-              ),
-            },
-            {
-              value: "chart",
-              label: "Diagram",
-              icon: (
-                <MaskedIcon
-                  src="/icons/utility/chart_line.svg"
-                  className="h-4 w-4"
-                />
-              ),
-            },
-          ]}
-        />
+        </div>
       </div>
 
       <AnimatedContent key={view}>
@@ -665,7 +697,7 @@ export function DataVisualization({
             onColumnDividerModeChange={setColumnDividerMode}
           />
         ) : (
-          <div className="relative">
+          <div>
             <Chart
               caption={caption}
               data={displayedData}
@@ -673,16 +705,6 @@ export function DataVisualization({
               mode={activeMode}
               isFitted={isFitted}
             />
-            {isFitted ? (
-              <div className="absolute bottom-0 left-0">
-                <ActionControl
-                  label="Återställ Y-skalan"
-                  variant="ghost"
-                  onClick={() => setIsFitted(false)}
-                  icon={<MaskedIcon src="/icons/menu/house-chimney-blank-svgrepo-com.svg" className="h-4 w-4" />}
-                />
-              </div>
-            ) : null}
           </div>
         )}
       </AnimatedContent>

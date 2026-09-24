@@ -400,7 +400,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
     : null;
 
   return (
-    <Page>
+    <Page width="compact">
       <PageHeader
         title="Profil"
         actions={
@@ -417,7 +417,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
 
       {error ? <Feedback tone="danger">{error}</Feedback> : null}
 
-      <div className={ui.sectionGrid}>
+      <div className="space-y-3">
         <Section
           title="Konto"
           actions={
@@ -431,7 +431,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
             />
           }
         >
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             <label className="block">
               <span className={ui.fieldLabel}>Visningsnamn</span>
               <input
@@ -445,7 +445,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
                 }
                 className={[
                   editing === "account" ? ui.input : ui.inputReadOnly,
-                  "mt-2",
+                  "mt-1.5",
                 ].join(" ")}
               />
             </label>
@@ -462,7 +462,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
                 }
                 className={[
                   editing === "account" ? ui.input : ui.inputReadOnly,
-                  "mt-2",
+                  "mt-1.5",
                 ].join(" ")}
               />
             </label>
@@ -482,7 +482,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
             />
           }
         >
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="truncate font-semibold text-app-text">
                 {profile.company
@@ -511,7 +511,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
           </div>
 
           {editing === "company" && selectingCompany ? (
-            <div className="mt-3 border-t border-app-border pt-3">
+            <div className="mt-2 border-t border-app-border pt-2">
               <CompanySearchBox
                 onSelect={(company) => {
                   setProfile((current) => ({ ...current, company }));
@@ -521,7 +521,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
             </div>
           ) : null}
 
-          <label className="mt-4 block border-t border-app-border pt-3">
+          <label className="mt-3 block border-t border-app-border pt-2">
             <span className={ui.fieldLabel}>Beskrivning</span>
             <textarea
               readOnly={editing !== "company"}
@@ -534,7 +534,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
               }
               className={[
                 editing === "company" ? ui.textarea : ui.inputReadOnly,
-                "mt-2 min-h-28",
+                "mt-1.5 min-h-24",
               ].join(" ")}
               placeholder="Beskriv företaget med egna ord."
             />
@@ -567,7 +567,7 @@ export function ProfileWorkspace({ userProfile }: { userProfile: AppUserProfile 
               }
               className={[
                 editing === "target" ? ui.textarea : ui.inputReadOnly,
-                "mt-2 min-h-32",
+                "mt-1.5 min-h-24",
               ].join(" ")}
               placeholder="Beskriv vilka kunder ni helst vill nå."
             />

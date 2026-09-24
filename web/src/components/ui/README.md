@@ -5,6 +5,7 @@ compose these components instead of repeating Tailwind strings for layout,
 spacing, typography or controls.
 
 - `Page` owns the canvas, responsive page gutter, maximum width and page gap.
+  Use `width="compact"` for centered destination lists and settings pages.
 - `PageHeader` and `SectionHeading` own page navigation,
   heading hierarchy and metadata spacing.
 - `Surface`, `Section` and `Inset` own panel radius, border, padding and surface tone.
@@ -12,6 +13,7 @@ spacing, typography or controls.
 - `KpiCard` and `KpiGrid` own metric typography, spacing and responsive columns.
 - `Tabs`, `Button`, `SelectMenu`, `DropdownMenu` and `SearchBar` own controls.
 - `ListViewToggle` is the only card/compact switch used by product lists; it builds on `ToggleButton`.
+- `SettingsMenu` owns the desktop sidebar's adjacent destination menu and nested light/dark selection. The mobile sidebar links directly to the settings page.
 - `WorkspaceListSort` owns alphabetical and recency sorting for workspace lists.
 - `Chip` owns selectable filters, metadata labels, count indicators and semantic statuses.
 - `AnimatedCollapse` owns expand/collapse motion and accessibility for mounted content.
@@ -22,14 +24,14 @@ spacing, typography or controls.
 - `DataTable` owns dense, horizontally scrollable tables for comparable time
   series, including optional column sorting and column-divider controls.
 - `DataVisualization` gives the same table data a coordinated table/chart
-  switch, a compact series dropdown and straight-line, monotone-spline or
+  switch (with an optional default chart view), a compact series dropdown and straight-line, monotone-spline or
   grouped-bar renderers. Charts fit their container without scrolling; shared
   chart tokens keep axis text and line widths consistent at every size.
   Optional X-axis categories force bars and regroup the original observations;
-  reversing X never changes values. Fit uses the visible series' exact extrema
-  (a small range for constant values), with a home control to restore zero-based
-  scales. Point details support hover, focus and touch. Series and column-line
-  choices use the shared dropdown.
+  reversing X never changes values. The X-direction control uses the same segmented-toggle pattern as the table/chart switch. Fit uses the visible series' exact extrema
+  (a small range for constant values), with the same control restoring zero-based
+  scales. Point details support hover, focus and touch. Series use the shared
+  dropdown; column lines use a pressed button. Category values can sum across periods. Series can use the table cell's exact interval label in point details while plotting a numeric representative value.
 - `ui.stickyHeader` owns the shared sticky surface and lower-edge shadow.
 
 Global sizes and visual tokens live in `src/lib/uiStyles.ts` and

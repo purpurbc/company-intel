@@ -17,6 +17,7 @@ import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { SearchBar } from "@/src/components/ui/SearchBar";
 import { SearchExamples } from "@/src/components/ui/SearchExamples";
+import { SettingsMenu } from "@/src/components/ui/SettingsMenu";
 import { SelectMenu } from "@/src/components/ui/SelectMenu";
 import { SkeletonBlock, SkeletonLine } from "@/src/components/ui/Skeleton";
 import { SummaryGrid, SummaryItem } from "@/src/components/ui/SummaryGrid";
@@ -50,7 +51,7 @@ const buttonVariants: Array<{ value: ButtonVariant; label: string }> = [
 
 const catalogIcons = [
   ["Lägg till", "/icons/utility/add.svg"],
-  ["Bekräfta", "/icons/utility/check-circle.svg"],
+  ["Bekräfta", "/icons/utility/check.svg"],
   ["Kopiera", "/icons/utility/copy-clipboard.svg"],
   ["Stäng", "/icons/utility/cross.svg"],
   ["Mer", "/icons/utility/dots-vertical.svg"],
@@ -210,7 +211,7 @@ export function ComponentLibrary() {
         </div>
       </Section>
 
-      <Section title="Navigation och menyer" description="Tabs · DropdownMenu · WorkspaceListSort · Pagination · TextLink">
+      <Section title="Navigation och menyer" description="Tabs · DropdownMenu · SettingsMenu · WorkspaceListSort · Pagination · TextLink">
         <Tabs<CatalogTab>
           items={[
             { key: "overview", label: "Översikt" },
@@ -236,6 +237,7 @@ export function ComponentLibrary() {
             value={workspaceSort}
             onChange={setWorkspaceSort}
           />
+          <div className="w-44"><SettingsMenu /></div>
           <TextLink href="/companies">Textlänk till företag</TextLink>
           <span className="text-sm text-app-text-muted">Aktiv flik: {tab}</span>
         </div>
@@ -288,6 +290,7 @@ export function ComponentLibrary() {
           <div className="mt-4">
             <DataVisualization
               caption="Exempel på kompakt dataöversikt"
+              defaultView="chart"
               sortable
               chart={{
                 xKey: "period",
@@ -295,7 +298,7 @@ export function ComponentLibrary() {
                 groupKey: "type",
                 xOptions: [
                   { key: "period", label: "Period", groupKey: "type" },
-                  { key: "type", label: "Typ", groupKey: "period", categorical: true },
+                  { key: "type", label: "Typ", categorical: true, aggregate: "sum" },
                 ],
                 series: [
                   { key: "new", label: "Nya" },

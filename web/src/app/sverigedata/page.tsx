@@ -40,7 +40,7 @@ const pages = [
 
 export default function SwedenDataIndexPage() {
   return (
-    <Page width="narrow">
+    <Page width="compact">
       <PageHeader title="Sverigedata" />
       <Surface padding="none" className="overflow-hidden">
         <nav className="divide-y divide-app-border" aria-label="Sverigedata">

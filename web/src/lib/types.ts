@@ -473,13 +473,14 @@ export type BolagsverketStatisticsOverview = {
 // Admin: imports and data health
 // ------------------------------------------------------------
 
-export type IngestionStatus = "running" | "done" | "failed" | "interrupted";
+export type IngestionStatus = "running" | "done" | "partial" | "failed" | "interrupted";
 
 export type AdminSourceSummary = {
   source: string;
   source_name: string;
   runs: number;
   done: number;
+  partial?: number;
   failed: number;
   records_seen: number;
   records_new: number;
@@ -517,6 +518,7 @@ export type AdminDataOverview = {
   summary: {
     runs_total: number;
     done: number;
+    partial?: number;
     failed: number;
     running: number;
     interrupted: number;

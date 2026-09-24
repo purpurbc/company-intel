@@ -1,6 +1,6 @@
 # Cintela – aktuell produkt- och teknikroadmap
 
-Senast reviderad: 2026-09-22
+Senast reviderad: 2026-09-23
 
 Det här är den aktiva roadmapen. Den beskriver nuläge, beslut och nästa
 värdeskapande steg. Avklarade detaljbuggar och äldre experiment hör inte hemma
@@ -56,7 +56,7 @@ Cintela ska inte bli:
   historik, datakvalitetsskydd samt interaktiva tabell- och diagramvyer under
   Sverigedata med serieval, linjer/spline/staplar och anpassningsbara axlar.
 - [x] Teknisk adminsida för importkörningar och datatäckning.
-- [x] Gemensamt UI-paket med komponentkatalog, teman, responsiva mönster och
+- [x] Gemensamt UI-paket med komponentkatalog, fyra färgteman, responsiva mönster och
   centrala tokens för typografi, färg, spacing och motion.
 - [x] Tidiga prototyper för kunder, erbjudanden och bevakningslistor är borttagna
   ur UI, API och databas.

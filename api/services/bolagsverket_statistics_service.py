@@ -6,7 +6,7 @@ from ..database import get_db_connection
 from .overview_cache import get_overview_cache, set_overview_cache
 
 
-STATISTICS_CACHE_KEY = "bolagsverket-statistics:v1"
+STATISTICS_CACHE_KEY = "bolagsverket-statistics:v2"
 _statistics_lock = Lock()
 
 
@@ -197,11 +197,8 @@ def _calculate_statistics_overview(*, connection_factory=None):
             FROM app.bolagsverket_auditor_reservation_statistics statistics
             LEFT JOIN app.dim_bolagsverket_formation_type formation_type
                 ON formation_type.code = statistics.formation_type_code
-            WHERE statistics.registration_year >= (
-                SELECT max(registration_year) - 9
-                FROM app.bolagsverket_auditor_reservation_statistics
-            )
-            ORDER BY statistics.registration_year DESC, formation_type_name;
+            ORDER BY statistics.registration_year DESC, formation_type_name
+            LIMIT 100;
             """
         )
         auditor_reservations = [dict(row) for row in cur.fetchall()]

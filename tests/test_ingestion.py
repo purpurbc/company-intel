@@ -233,8 +233,8 @@ def test_statistics_file_import_preserves_changed_and_removed_history(
     )
     path.write_text(
         header
-        + '2025;Aktiebolag;100;20;30;10;0,3000;0,1250\n'
-        + '2025;Lagerbolag;50;2;4;2;0,0800;0,0417\n',
+        + '2012;Aktiebolag;100;20;30;10;0,3000;0,1250\n'
+        + '2012;Lagerbolag;50;2;4;2;0,0800;0,0417\n',
         encoding='utf-8',
     )
     importer = BolagsverketStatisticsImporter(batch_size=1, progress_every=100)
@@ -250,7 +250,7 @@ def test_statistics_file_import_preserves_changed_and_removed_history(
 
     path.write_text(
         header
-        + '2025;Aktiebolag;110;21;31;10;0,2818;0,1124\n'
+        + '2012;Aktiebolag;110;21;31;10;0,2818;0,1124\n'
         + '2026;Aktiebolag;120;22;32;10;0,2667;0,1020\n',
         encoding='utf-8',
     )
@@ -278,7 +278,7 @@ def test_statistics_file_import_preserves_changed_and_removed_history(
     overview = get_bolagsverket_statistics_overview(
         connection_factory=connect_for_api,
     )
-    assert [row['year'] for row in overview['auditor_reservations']] == [2026, 2025]
+    assert [row['year'] for row in overview['auditor_reservations']] == [2026, 2012]
     assert overview['auditor_reservations'][0]['formation_type_name'] == 'Aktiebolag'
 
 
@@ -480,7 +480,7 @@ def test_scb_incomplete_partition_retains_raw_and_fails_run(db, database_url, mo
 
     monkeypatch.setattr(module, 'get_db_connection', lambda: psycopg.connect(database_url, row_factory=dict_row))
     importer = module.SCBCompanyImporter(Client())
-    monkeypatch.setattr(importer, '_get_company_partitions', lambda **kwargs: ([{'cats': [], 'num_co': 2}], [], [], []))
+    monkeypatch.setattr(importer, '_get_company_partitions', lambda **kwargs: ([{'cats': [], 'num_co': 2}], [], [], [], 2))
     with pytest.raises(RuntimeError, match='expected 2'):
         importer.seed_all_companies()
     assert scalar(db, 'SELECT count(*) FROM raw.scb_api_company') == 1
@@ -608,7 +608,7 @@ def test_api_identity_validated_before_text_cleanup():
     assert record.source_key == '199001010011'
 
 
-def test_missing_population_outside_api_partitions_is_not_marked_done(db, database_url, monkeypatch):
+def test_missing_population_outside_api_partitions_is_imported_as_partial(db, database_url, monkeypatch):
     from worker.scb import company_importer as module
     from worker.scb.models.category import Category
 
@@ -620,13 +620,115 @@ def test_missing_population_outside_api_partitions_is_not_marked_done(db, databa
         def _post_Je_RaknaForetag(self, **kwargs):
             return 3
 
+        def _post_Je_HamtaForetag(self, **kwargs):
+            return [
+                {'PeOrgNr': '199001010011', 'Företagsnamn': 'Test 1'},
+                {'PeOrgNr': '189001010011', 'Företagsnamn': 'Test 2'},
+            ]
+
     monkeypatch.setattr(module, 'PARTITIONS', {0: {
         'cat': Category.SEAT_MUNICIPALITY, 'active_value': 0, 'current_sum': 0,
     }})
     monkeypatch.setattr(module, 'get_db_connection', lambda: psycopg.connect(database_url, row_factory=dict_row))
     importer = module.SCBCompanyImporter(Client())
     monkeypatch.setattr(importer, '_partition', lambda *args, **kwargs: ([{'cats': [], 'num_co': 2}], [], [], []))
-    with pytest.raises(RuntimeError, match='did not cover the full import'):
+    importer.seed_all_companies()
+    run = db.execute('SELECT status, metadata FROM meta.ingestion_run').fetchone()
+    assert run['status'] == 'partial'
+    assert run['metadata']['partition_coverage'] == {
+        'expected': 3, 'covered': 2, 'insufficient_partitions': 1,
+    }
+    assert scalar(db, 'SELECT count(*) FROM core.company') == 2
+
+
+def test_oversized_scb_partition_does_not_block_smaller_partitions(db, database_url, monkeypatch):
+    from worker.scb import company_importer as module
+
+    class Client:
+        def _post_Je_HamtaForetag(self, **kwargs):
+            return [{'PeOrgNr': '199001010011', 'Företagsnamn': 'Test'}]
+
+    monkeypatch.setattr(module, 'get_db_connection', lambda: psycopg.connect(database_url, row_factory=dict_row))
+    importer = module.SCBCompanyImporter(Client())
+    monkeypatch.setattr(importer, '_get_company_partitions', lambda **kwargs: (
+        [{'cats': [], 'num_co': 1}], [], [], [{'cats': [], 'num_co': 2001}], 2002,
+    ))
+    importer.seed_all_companies()
+    assert scalar(db, 'SELECT status FROM meta.ingestion_run') == 'partial'
+    assert scalar(db, 'SELECT count(*) FROM core.company') == 1
+
+
+def test_scb_partial_run_continues_without_database_fixture(monkeypatch):
+    from worker.scb import company_importer as module
+
+    finished_statuses = []
+    executed_queries = []
+
+    class Connection:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def execute(self, query, params):
+            executed_queries.append((query, params))
+
+        def commit(self):
+            pass
+
+    class Client:
+        def _post_Je_HamtaForetag(self, **kwargs):
+            return [{'PeOrgNr': '199001010011', 'Företagsnamn': 'Test'}]
+
+    monkeypatch.setattr(module, 'get_db_connection', Connection)
+    monkeypatch.setattr(module, 'start_run', lambda *args, **kwargs: 7)
+    monkeypatch.setattr(module, 'finish_run', lambda *args, **kwargs: finished_statuses.append(kwargs['status']))
+    monkeypatch.setattr(module, 'archive_api_payloads', lambda *args: None)
+    monkeypatch.setattr(module, 'load_batch', lambda *args: {
+        'records_seen': 1, 'records_new': 1, 'records_changed': 0,
+    })
+    monkeypatch.setattr(module, 'checkpoint', lambda *args: None)
+    monkeypatch.setattr(module, 'invalidate_overview_caches', lambda *args: None)
+    monkeypatch.setattr(module, 'prewarm_overview_caches', lambda *args: None)
+    importer = module.SCBCompanyImporter(Client())
+    monkeypatch.setattr(importer, '_get_company_partitions', lambda **kwargs: (
+        [{'cats': [], 'num_co': 1}], [], [], [{'cats': [], 'num_co': 2001}], 2002,
+    ))
+
+    importer.seed_all_companies()
+
+    assert finished_statuses == ['partial']
+    assert executed_queries[0][1][0].obj['partition_coverage'] == {
+        'expected': 2002, 'covered': 1, 'insufficient_partitions': 1,
+    }
+
+
+def test_scb_keyboard_interrupt_marks_run_interrupted(monkeypatch):
+    from worker.scb import company_importer as module
+
+    finished = []
+
+    class Connection:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def commit(self):
+            pass
+
+    def interrupt(**kwargs):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(module, 'get_db_connection', Connection)
+    monkeypatch.setattr(module, 'start_run', lambda *args, **kwargs: 7)
+    monkeypatch.setattr(module, 'finish_run', lambda *args, **kwargs: finished.append(kwargs))
+    importer = module.SCBCompanyImporter(object())
+    monkeypatch.setattr(importer, '_get_company_partitions', interrupt)
+
+    with pytest.raises(KeyboardInterrupt):
         importer.seed_all_companies()
-    assert scalar(db, 'SELECT status FROM meta.ingestion_run') == 'failed'
-    assert scalar(db, 'SELECT count(*) FROM core.company') == 0
+
+    assert finished == [{'status': 'interrupted', 'error': 'KeyboardInterrupt'}]

@@ -22,41 +22,26 @@ transaktion, med las och checksummor. Redigera inte redan applicerade migratione
 Geografiska kodtabeller seedas fran repots SCB-kodtabeller, oberoende av vilka
 foretag som hunnit importeras.
 
-Den aktiva kedjan ar en kompakt baslinje med fem filer samt samlade
-efterfoljande migrationer:
+Den aktiva kedjan har en nulagesbaslinje och darefter append-only-andringar.
+Baslinjen beskriver slutligt schema direkt, utan de mellanliggande tabeller,
+vyer och index som senare togs bort:
 
 | Fil | Ansvar |
 | --- | --- |
-| `100_platform_baseline.sql` | Scheman, importmetadata, kodtabeller och immutable raw |
-| `110_company_baseline.sql` | Core-identitet, SCD2, events, arbetsstallen och sokindex |
-| `120_source_baseline.sql` | Versionshanterade SCB-/Bolagsverksobservationer |
-| `130_product_baseline.sql` | Anvandare, segment, erbjudanden, kunder och cache |
-| `140_read_models_baseline.sql` | Appens API-kontrakt och mart-vyer |
-| `200_product_and_query_optimizations.sql` | Produktfunktioner, sokindex, planner-statistik och regionala lasningar |
-| `290_extension_prerequisites.sql` | Flyttar tillagg innan standardschemat avvecklas |
-| `300_schema_contract_cleanup.sql` | Normaliserade registreringsvyer, constraints och tydliga schemakontrakt |
-| `310_bolagsverket_statistics.sql` | Versionshanterad aggregerad Bolagsverksstatistik, dimensioner och analysvyer |
-| `320_operational_time_and_cache_contract.sql` | Tidsbegrepp och cachelivslängd |
-| `330_never_active_company_sort.sql` | Sorteringsindex för företag som aldrig varit verksamma |
-| `340_remove_customer_watch_offer_prototypes.sql` | Tar bort tidiga CRM- och bevakningsprototyper |
-| `350_remove_saved_segment_notes.sql` | Avgränsar segment till definierade urval |
-| `360_company_filtered_pagination.sql` | Filterindex och statistik för stabil sidbläddring |
-| `370_remove_redundant_statistics_marts.sql` | Tar bort två oanvända genomgångsvyer utan eget analyskontrakt |
-| `380_statistics_summary_marts.sql` | Förberäknar de nationella statistikserier som produktsidan faktiskt läser |
+| `100_current_baseline.sql` | Slutligt v2-schema, läsvyer, index och fasta kodvärden |
+| `110_scb_partial_import_status.sql` | Separat status för ofullständig SCB API-import |
 
-Den tidigare v2-kedjan till och med `188_company_name_search.sql` inneholl flera
-engangsreparationer och vyer som senare skapades om. En databas som redan har
-hela den kedjan adopterar automatiskt baslinjens checksummor utan att kora DDL
-eller andra dataandringar igen. Gamla rader i `meta.schema_migration` behalls som
-historik och ar ofarliga.
+En befintlig databas som redan har applicerat
+`380_statistics_summary_marts.sql` adopterar den nya baslinjens checksumma utan
+att kora DDL eller andra dataandringar. Gamla rader i
+`meta.schema_migration` behalls som historik.
 
 En databas som bara har delar av den gamla kedjan stoppas med ett tydligt fel.
 Slutfor den med kodrevisionen som fortfarande innehaller de gamla migrationerna,
-eller bygg om databasen fran tomt lage. Detta ar avsiktligt: de borttagna
-datareparationerna far inte hoppas over tyst. Den tidigare serien `200`-`290`
-adopteras pa samma satt om samtliga filer redan ar applicerade; en delvis
-applicerad serie stoppas. Framtida schemaandringar ska alltid laggas efter det
-senaste numret i den aktiva kedjan.
+eller bygg om en disponibel databas fran tomt lage. Historiska datareparationer
+far inte hoppas over tyst. Framtida schemaandringar ska vara nya filer efter
+`100_current_baseline.sql`; andring av en applicerad fil stoppas av checksumme-
+kontrollen.
 
 Starta API:t med den nya koden efter overforingen. Hamta sedan aktuell data:
 
@@ -141,10 +126,17 @@ namn, registreringsdatum och avregistrering ar kvar per registrering.
 - Bulkens reklamkod och API:ts reklam/telefonkod lagras separat.
 
 SCB-partitionernas totalsumma jamfors med ett opartitionerat rakneanrop.
-Otackta eller overlappande partitioner och avvikande antal svarsrader gor korningen
-misslyckad. Delvis committade observationer och raw behalls, men korningen far inte
-status `done`. Det ar fortfarande ett legacy-API utan atomisk nationell snapshot;
-registerforandringar under hamtningen kan darfor ocksa orsaka antalsavvikelser.
+Om API:ts grans pa 2 000 rader eller saknade kategorivarden gor partitionerna
+otillrackliga importeras de hamtbara delarna och korningen far status `partial`.
+Raknat totalantal, partitionernas raknade antal och antalet otillrackliga
+partitioner sparas i korningens metadata. Misslyckade rakneanrop, overlappande
+partitioner och avvikande antal svarsrader stoppar fortfarande korningen.
+Delvis committade observationer och raw behalls vid fel. Legacy-API:t saknar
+atomisk nationell snapshot; registerforandringar under hamtningen kan darfor
+ocksa orsaka antalsavvikelser.
+Ett tangentbordsavbrott markerar SCB-korningen `interrupted`. Vid hard processdod
+kan en `running`-rad bli kvar; kontrollera att ingen worker lever innan den
+markeras avbruten manuellt.
 
 Det finns inga `legal_name` eller `display_name` for foretag. `company_name` och
 `registered_name` skiljer namnet pa personen/organisationen fran SCB:s Firma.

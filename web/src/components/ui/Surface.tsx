@@ -78,7 +78,7 @@ export function Section({
       <div
         className={[
           "min-w-0",
-          hasHeader ? "mt-3" : "",
+          hasHeader ? "mt-2.5" : "",
           source ? "flex-1" : "",
           contentClassName,
         ].join(" ")}

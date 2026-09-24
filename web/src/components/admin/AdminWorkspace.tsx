@@ -29,6 +29,7 @@ const tabs: Array<{ key: TabKey; label: string }> = [
 
 const statusLabels: Record<IngestionStatus, string> = {
   done: "Klar",
+  partial: "Partiell",
   failed: "Misslyckad",
   running: "Pågår",
   interrupted: "Avbruten",
@@ -135,9 +136,10 @@ function OverviewTab({ data }: { data: AdminDataOverview }) {
   const metadata = data.overview_metadata;
   return (
     <div className="space-y-4">
-      <KpiGrid columns="five">
+      <KpiGrid columns="six">
         <KpiCard label="Importkörningar" value={formatNumber(data.summary.runs_total)} />
         <KpiCard label="Klara" value={formatNumber(data.summary.done)} />
+        <KpiCard label="Partiella" value={data.summary.partial === undefined ? "Saknas" : formatNumber(data.summary.partial)} />
         <KpiCard label="Misslyckade" value={formatNumber(data.summary.failed)} />
         <KpiCard label="Datakvalitetsfel" value={formatNumber(data.summary.quality_issues_total)} />
         <KpiCard label="Databasstorlek" value={formatBytes(data.summary.database_size_bytes)} />
@@ -155,7 +157,7 @@ function OverviewTab({ data }: { data: AdminDataOverview }) {
                   </div>
                 </div>
                 <div className="text-xs tabular-nums text-app-text-muted sm:text-right">
-                  <div>{formatNumber(source.runs)} körningar · {formatNumber(source.failed)} fel</div>
+                  <div>{formatNumber(source.runs)} körningar{source.partial === undefined ? "" : ` · ${formatNumber(source.partial)} partiella`} · {formatNumber(source.failed)} fel</div>
                   <div className="mt-1">{formatNumber(source.records_seen)} lästa rader</div>
                 </div>
               </div>
@@ -192,6 +194,16 @@ function OverviewTab({ data }: { data: AdminDataOverview }) {
 }
 
 function RunCard({ run }: { run: AdminIngestionRun }) {
+  const coverage = run.metadata.partition_coverage;
+  const partitionCoverage = coverage && typeof coverage === "object"
+    ? coverage as Record<string, unknown>
+    : null;
+  const coverageDetail = partitionCoverage
+    && typeof partitionCoverage.expected === "number"
+    && typeof partitionCoverage.covered === "number"
+    && typeof partitionCoverage.insufficient_partitions === "number"
+    ? `${formatNumber(partitionCoverage.covered)} av ${formatNumber(partitionCoverage.expected)} enligt SCB:s räkneanrop; ${formatNumber(partitionCoverage.insufficient_partitions)} täckningsavvikelser.`
+    : null;
   return (
     <article className="border-b border-app-border py-4 last:border-0">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -201,7 +213,7 @@ function RunCard({ run }: { run: AdminIngestionRun }) {
             <StatusBadge status={run.status} />
           </div>
           <div className="mt-1 text-xs text-app-text-subtle">
-            {run.dataset} · schema {run.schema_version} · start {formatDate(run.started_at)} · {formatDuration(run.duration_seconds)}
+            {run.dataset} · schema {run.schema_version} · start {formatDate(run.started_at)} · {run.metadata.interruption_reconciled === true ? "stopptid okänd" : formatDuration(run.duration_seconds)}
           </div>
         </div>
         <div className="text-xs tabular-nums text-app-text-muted">
@@ -227,6 +239,7 @@ function RunCard({ run }: { run: AdminIngestionRun }) {
 
       {run.filename ? <div className="mt-3 break-all text-xs text-app-text-muted">Fil: {run.filename}</div> : null}
       {run.file_checksum ? <div className="mt-1 break-all font-mono text-[11px] text-app-text-subtle">Checksumma: {run.file_checksum}</div> : null}
+      {run.status === "partial" ? <Feedback tone="warning" className="mt-3">Ofullständig SCB-import. {coverageDetail}</Feedback> : null}
       {run.error ? <Feedback tone="danger" className="mt-3">{run.error}</Feedback> : null}
     </article>
   );

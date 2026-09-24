@@ -88,7 +88,7 @@ const auditorChart: DataChartConfig = {
   groupKey: "type",
   xOptions: [
     { key: "year", label: "År", groupKey: "type" },
-    { key: "type", label: "Typ", groupKey: "year", categorical: true },
+    { key: "type", label: "Typ", categorical: true, aggregate: "sum" },
   ],
   series: [
     { key: "companies", label: "Bolag" },

@@ -3,6 +3,8 @@ from __future__ import annotations
 import copy
 from typing import Any
 
+from psycopg.types.json import Jsonb
+
 from worker.database import get_db_connection
 from worker.scb.config import PARTITIONS
 from worker.scb.constants import SCB_MAX_ROWS_RETURNED
@@ -207,11 +209,12 @@ class SCBCompanyImporter:
                 'num_co': expected_population, 'covered_num_co': covered_population,
                 'cats': [], 'reason': 'partition_population_count_mismatch',
             })
-        return result
+        return (*result, expected_population)
 
-    def _fail_ingestion_run(
+    def _finish_ingestion_run_on_error(
         self,
         ingestion_run_id: int | None,
+        status: str,
         error: str,
     ) -> None:
         if ingestion_run_id is None:
@@ -222,12 +225,12 @@ class SCBCompanyImporter:
                 finish_run(
                     conn,
                     ingestion_run_id,
-                    status="failed",
+                    status=status,
                     error=error,
                 )
                 conn.commit()
         except Exception as exc:
-            print(f"Failed to mark ingestion_run={ingestion_run_id} as failed: {exc}")
+            print(f"Failed to mark ingestion_run={ingestion_run_id} as {status}: {exc}")
 
     def seed_all_companies(
         self,
@@ -246,17 +249,24 @@ class SCBCompanyImporter:
                 )
                 conn.commit()
 
-            success_list, fail_list, zeros_list, insufficient_list = (
+            success_list, fail_list, _, insufficient_list, expected_population = (
                 self._get_company_partitions(
                     reg_status=reg_status,
                     co_status=co_status,
                 )
             )
 
-            if fail_list or insufficient_list:
+            if fail_list:
                 raise RuntimeError(
-                    "SCB partitioning did not cover the full import: "
-                    f"failed_counts={len(fail_list)}, "
+                    f"SCB partitioning failed: failed_counts={len(fail_list)}"
+                )
+
+            covered_population = sum(item['num_co'] for item in success_list)
+            is_partial = bool(insufficient_list)
+            if is_partial:
+                print(
+                    "SCB partition coverage is partial: "
+                    f"expected={expected_population}, covered={covered_population}, "
                     f"insufficient_partitions={len(insufficient_list)}"
                 )
 
@@ -319,15 +329,26 @@ class SCBCompanyImporter:
                     )
 
             with get_db_connection() as conn:
-                finish_run(conn, ingestion_run_id)
+                conn.execute(
+                    "UPDATE meta.ingestion_run SET metadata = metadata || %s WHERE id = %s",
+                    (Jsonb({'partition_coverage': {
+                        'expected': expected_population,
+                        'covered': covered_population,
+                        'insufficient_partitions': len(insufficient_list),
+                    }}), ingestion_run_id),
+                )
+                finish_run(conn, ingestion_run_id, status='partial' if is_partial else 'done')
                 invalidate_overview_caches(conn)
                 conn.commit()
             prewarm_overview_caches(get_db_connection)
-        except Exception as exc:
-            self._fail_ingestion_run(ingestion_run_id, str(exc))
+        except BaseException as exc:
+            status = 'interrupted' if isinstance(exc, KeyboardInterrupt) else 'failed'
+            self._finish_ingestion_run_on_error(
+                ingestion_run_id, status, str(exc) or type(exc).__name__,
+            )
             raise
 
         print(
-            f"DONE: expected: {expected_total} actual: {actual_total} "
+            f"{'PARTIAL' if is_partial else 'DONE'}: expected: {expected_total} actual: {actual_total} "
             f"diff: {expected_total - actual_total}"
         )

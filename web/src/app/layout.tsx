@@ -35,10 +35,9 @@ export default function RootLayout({
         ? storedTheme
         : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
       var storedColorTheme = localStorage.getItem("company-intel-color-theme");
-      var colorThemes = ["nordic", "ocean", "plum"];
-      var colorTheme = colorThemes.indexOf(storedColorTheme) >= 0
+      var colorTheme = ["signature", "slate", "sand", "forest"].includes(storedColorTheme)
         ? storedColorTheme
-        : "nordic";
+        : "signature";
       document.documentElement.dataset.theme = theme;
       document.documentElement.dataset.colorTheme = colorTheme;
     } catch (_) {}

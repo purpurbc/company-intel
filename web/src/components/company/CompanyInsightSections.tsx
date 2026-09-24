@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Button, buttonClassName } from "@/src/components/ui/Button";
+import { buttonClassName } from "@/src/components/ui/Button";
 import { AnimatedContent } from "@/src/components/ui/AnimatedContent";
+import { DataVisualization, type DataChartSeries } from "@/src/components/ui/DataVisualization";
 import { Feedback } from "@/src/components/ui/Feedback";
 import { TextLink } from "@/src/components/ui/TextLink";
 import { Inset, Section } from "@/src/components/ui/Surface";
@@ -281,7 +282,6 @@ function TurnoverHistory({
 }: {
   items?: CompanyTurnoverHistoryItem[];
 }) {
-  const [newestFirst, setNewestFirst] = useState(false);
   const chartItems = items
     .map((item) => {
       const grossRange = item.turnover_size_code
@@ -298,7 +298,7 @@ function TurnoverHistory({
       };
     })
     .filter((item) => item.grossRange || item.finRange)
-    .sort((a, b) => (newestFirst ? b.year - a.year : a.year - b.year));
+    .sort((a, b) => a.year - b.year);
 
   if (chartItems.length === 0) {
     return (
@@ -308,50 +308,48 @@ function TurnoverHistory({
     );
   }
 
+  const midpoint = (range: TurnoverRange | null) =>
+    range ? (range.min + range.max) / 2 : null;
+  const series: DataChartSeries[] = [
+    ...(chartItems.some((item) => item.finRange)
+      ? [{ key: "fine", label: "Fin klass", useCellLabel: true }]
+      : []),
+    ...(chartItems.some((item) => item.grossRange)
+      ? [{ key: "gross", label: "Grov klass", useCellLabel: true }]
+      : []),
+  ];
+
   return (
     <Inset>
-      <div className="flex items-center justify-between gap-3">
-        <div className="text-xs font-medium uppercase text-app-text-subtle">
-          Omsättningshistorik
-        </div>
-        <Button
-          type="button"
-          onClick={() => setNewestFirst((current) => !current)}
-          variant="secondary"
-          size="xs"
-          aria-pressed={newestFirst}
-        >
-          {newestFirst ? "Äldst först" : "Nyast först"}
-        </Button>
+      <div className="mb-2 text-xs font-medium uppercase text-app-text-subtle">
+        Omsättningshistorik
       </div>
-      <div className="mt-3 divide-y divide-app-border">
-        {chartItems.map((item) => (
-          <div
-            key={item.year}
-            className="grid gap-2 py-2 text-xs sm:grid-cols-[4rem_minmax(0,1fr)_minmax(0,1fr)] sm:items-center"
-          >
-            <div className="font-semibold tabular-nums text-app-text">
-              {item.year}
-            </div>
-            <div>
-              <span className="text-app-text-subtle">Grov klass: </span>
-              <span className="font-medium text-app-text">
-                {item.grossRange?.label ?? item.turnover_size ?? "Saknas"}
-              </span>
-            </div>
-            <div>
-              <span className="text-app-text-subtle">Fin klass: </span>
-              <span className="font-medium text-app-text">
-                {item.finRange?.label ??
-                  item.turnover_financial_size ??
-                  "Saknas"}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <p className="mt-3 text-xs text-app-text-subtle">
-        SCB redovisar intervall, inte exakta omsättningsbelopp.
+      <DataVisualization
+        caption="Omsättningshistorik per år i tusen kronor"
+        defaultView="chart"
+        sortable
+        chart={{ xKey: "year", modes: ["line", "spline", "bar"], series }}
+        columns={[
+          { key: "year", label: "År" },
+          { key: "fine", label: "Fin klass" },
+          { key: "gross", label: "Grov klass" },
+        ]}
+        rows={chartItems.map((item) => ({
+          key: String(item.year),
+          cells: {
+            year: item.year,
+            fine: item.finRange?.label ?? item.turnover_financial_size ?? "Saknas",
+            gross: item.grossRange?.label ?? item.turnover_size ?? "Saknas",
+          },
+          sortValues: {
+            year: item.year,
+            fine: midpoint(item.finRange),
+            gross: midpoint(item.grossRange),
+          },
+        }))}
+      />
+      <p className="mt-2 text-xs text-app-text-subtle">
+        Diagrammet visar klassernas mittpunkter i tkr, inte exakta belopp. Öppna klasser visas vid sin nedre gräns.
       </p>
     </Inset>
   );

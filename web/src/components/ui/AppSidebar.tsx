@@ -8,7 +8,7 @@ import { AnimatedCollapse } from "@/src/components/ui/AnimatedCollapse";
 import { buttonClassName } from "@/src/components/ui/Button";
 import { ChevronIcon } from "@/src/components/ui/ChevronIcon";
 import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
-import type { AppUserProfile } from "@/src/lib/types";
+import { SettingsMenu } from "@/src/components/ui/SettingsMenu";
 
 type NavItem = {
   label: string;
@@ -21,7 +21,7 @@ type NavItem = {
 };
 
 const defaultProfileItem: NavItem = {
-  label: "",
+  label: "Profil",
   href: "/profile",
   icon: "/icons/menu/image-user-svgrepo-com.svg",
   fallback: "P",
@@ -118,29 +118,6 @@ const railItems = [
   ...primaryItemsAfterInformation,
 ];
 
-const settingsItem: NavItem = {
-  label: "Inställningar",
-  href: "/settings",
-  icon: "/icons/menu/gear.svg",
-  fallback: "I",
-};
-
-const adminItem: NavItem = {
-  label: "Admin",
-  href: "/admin",
-  icon: "/icons/menu/king.svg",
-  fallback: "A",
-};
-
-const componentLibraryItem: NavItem = {
-  label: "Komponenter",
-  href: "/components",
-  icon: "/icons/menu/filter.svg",
-  fallback: "K",
-};
-
-const utilityItems = [componentLibraryItem, adminItem, settingsItem];
-
 const iconByFallback: Record<string, string> = {
   H: "/icons/menu/house-chimney-blank-svgrepo-com.svg",
   SF: "/icons/menu/user-search-svgrepo-com.svg",
@@ -170,26 +147,6 @@ function isActive(
   }
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function profileDisplayName(userProfile: AppUserProfile | null) {
-  return (
-    userProfile?.display_name?.trim() ||
-    userProfile?.company_name?.trim() ||
-    "Profil"
-  );
-}
-
-function profileFallback(name: string) {
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-
-  return initials || "P";
 }
 
 function NavIcon({ item, active = false }: { item: NavItem; active?: boolean }) {
@@ -262,11 +219,13 @@ function SidebarLink({
   pathname,
   compact = false,
   nested = false,
+  onNavigate,
 }: {
   item: NavItem;
   pathname: string;
   compact?: boolean;
   nested?: boolean;
+  onNavigate?: () => void;
 }) {
   const active = isActive(pathname, item.href, item.activePrefixes);
   const content = nested ? (
@@ -275,13 +234,13 @@ function SidebarLink({
     </span>
   ) : (
     <>
-      <span className="flex min-w-0 flex-1 items-center gap-2.5">
-        <span className="flex w-10 shrink-0 justify-center">
+      <span className="flex min-w-0 flex-1 items-center gap-1">
+        <span className={`flex shrink-0 justify-center ${compact ? "w-8" : "w-9"}`}>
           <NavIcon item={item} active={active} />
         </span>
         <span
           className={[
-            "min-w-0 truncate whitespace-nowrap transition-[opacity,transform]",
+            "min-w-0 truncate whitespace-nowrap transition-[opacity,transform] motion-reduce:transition-none",
             compact
               ? "pointer-events-none -translate-x-1 opacity-0"
               : "translate-x-0 opacity-100 delay-75",
@@ -299,9 +258,9 @@ function SidebarLink({
   );
 
   const className = [
-    "flex min-w-0 items-center justify-between gap-2 rounded-md py-0 text-xs transition",
+    "flex min-w-0 items-center justify-between gap-2 rounded-md py-0 text-sm transition",
     nested ? "h-7 pl-8" : "h-8 pl-0",
-    compact ? "w-10 pr-0" : "w-full pr-2.5",
+    compact ? "ml-0.5 w-8 pr-0" : "w-full pr-2",
     active
       ? "bg-app-panel-muted text-app-text"
       : "text-app-text-muted hover:bg-app-panel-muted hover:text-app-text",
@@ -316,7 +275,7 @@ function SidebarLink({
   }
 
   return (
-    <Link href={item.href} className={className}>
+    <Link href={item.href} className={className} onClick={onNavigate}>
       {content}
     </Link>
   );
@@ -359,7 +318,7 @@ function SidebarNavigation({
       <div>
         <div
           className={[
-            "flex h-8 w-full min-w-0 items-center rounded-md text-xs transition",
+            "flex h-8 w-full min-w-0 items-center rounded-md text-sm transition",
             informationActive
               ? "bg-app-panel-muted text-app-text"
               : "text-app-text-muted hover:bg-app-panel-muted hover:text-app-text",
@@ -367,9 +326,9 @@ function SidebarNavigation({
         >
           <Link
             href={informationGroupItem.href ?? "/sverigedata"}
-            className="flex h-full min-w-0 flex-1 items-center gap-2.5"
+            className="flex h-full min-w-0 flex-1 items-center gap-1"
           >
-            <span className="flex w-10 shrink-0 justify-center">
+            <span className="flex w-9 shrink-0 justify-center">
               <NavIcon item={informationGroupItem} active={informationActive} />
             </span>
             <span className="truncate">{informationGroupItem.label}</span>
@@ -411,12 +370,10 @@ export function AppSidebar({
   open,
   onOpen,
   onClose,
-  userProfile,
 }: {
   open: boolean;
   onOpen: () => void;
   onClose: () => void;
-  userProfile: AppUserProfile | null;
 }) {
   const pathname = usePathname();
   const informationActive = isActive(
@@ -434,13 +391,7 @@ export function AppSidebar({
       : informationActive;
   const toggleInformation = () =>
     setInformationMenuState({ pathname, open: !informationOpen });
-  const profileName = profileDisplayName(userProfile);
-  const profileItem: NavItem = {
-    ...defaultProfileItem,
-    label: profileName,
-    fallback: profileFallback(profileName),
-  };
-  const orderedUtilityItems = [profileItem, ...utilityItems];
+  const profileItem = defaultProfileItem;
 
   return (
     <>
@@ -448,14 +399,14 @@ export function AppSidebar({
         type="button"
         aria-label="Stäng sidomeny"
         className={[
-          "fixed inset-0 z-40 bg-app-overlay transition-opacity duration-150 ease-out md:hidden",
+          "fixed inset-0 z-40 bg-app-overlay transition-opacity duration-150 ease-out motion-reduce:transition-none md:hidden",
           open ? "opacity-100" : "pointer-events-none opacity-0",
         ].join(" ")}
         onClick={onClose}
       />
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-app-border bg-app-panel px-2 py-3 shadow-[var(--app-shadow-panel)] transition-transform duration-150 ease-out md:hidden",
+          "fixed inset-y-0 left-0 z-50 w-60 max-w-[85vw] border-r border-app-border bg-app-panel px-1.5 py-2 shadow-[var(--app-shadow-panel)] transition-transform duration-150 ease-out motion-reduce:transition-none md:hidden",
           open ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
@@ -478,14 +429,14 @@ export function AppSidebar({
               className={buttonClassName({
                 variant: "ghost",
                 size: "icon",
-                className: "h-7 w-7 shrink-0 bg-transparent p-0 hover:bg-app-panel-muted",
+                className: "h-8 w-8 shrink-0 bg-transparent p-0 hover:bg-app-panel-muted",
               })}
             >
               <MaskedIcon src="/icons/menu/hide_sidebar.svg" />
             </button>
           </div>
 
-          <nav className="mt-4 flex flex-col gap-1.5" aria-label="Huvudmeny">
+          <nav className="mt-2 flex flex-col gap-0.5" aria-label="Huvudmeny">
             <SidebarNavigation
               pathname={pathname}
               compact={false}
@@ -494,18 +445,21 @@ export function AppSidebar({
             />
           </nav>
 
-          <nav className="mt-auto flex flex-col gap-1.5 pt-4" aria-label="Administration och inställningar">
-            {orderedUtilityItems.map((item) => (
-              <SidebarLink key={item.href} item={item} pathname={pathname} />
-            ))}
+          <nav className="mt-auto flex flex-col gap-0.5 pt-3" aria-label="Profil och inställningar">
+            <SidebarLink item={profileItem} pathname={pathname} />
+            <SidebarLink
+              item={{ label: "Inställningar", href: "/settings", icon: "/icons/menu/gear.svg", fallback: "I" }}
+              pathname={pathname}
+              onNavigate={onClose}
+            />
           </nav>
         </div>
       </aside>
 
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 hidden overflow-hidden border-r border-app-border bg-app-panel px-2 py-3 shadow-[var(--app-shadow-panel)] transition-[width] duration-150 ease-out md:block",
-          open ? "w-64" : "w-14",
+          "fixed inset-y-0 left-0 z-50 hidden border-r border-app-border bg-app-panel px-1.5 py-2 shadow-[var(--app-shadow-panel)] transition-[width] duration-150 ease-out motion-reduce:transition-none md:block",
+          open ? "w-56" : "w-12",
         ].join(" ")}
       >
         <div className="flex h-full flex-col">
@@ -518,10 +472,10 @@ export function AppSidebar({
               tabIndex={open ? -1 : 0}
               className={[
                 buttonClassName({ variant: "ghost", size: "icon" }),
-                "group absolute left-0 top-0 h-10 w-10 bg-transparent p-0 transition-[opacity,transform] duration-100 hover:bg-app-panel-muted",
+                "group absolute left-0.5 top-1 h-8 w-8 bg-transparent p-0 transition-opacity duration-100 motion-reduce:transition-none hover:bg-app-panel-muted",
                 open
-                  ? "pointer-events-none -translate-x-1 opacity-0"
-                  : "translate-x-0 opacity-100 delay-75",
+                  ? "pointer-events-none opacity-0"
+                  : "opacity-100 delay-75",
               ].join(" ")}
             >
               <span className="absolute inset-0 flex items-center justify-center transition-opacity group-hover:opacity-0">
@@ -534,10 +488,10 @@ export function AppSidebar({
 
             <div
               className={[
-                "absolute inset-y-0 left-0 right-0 flex items-center gap-2 transition-[opacity,transform] duration-100",
+                "absolute inset-y-0 left-0 right-0 flex items-center gap-2 transition-opacity duration-100 motion-reduce:transition-none",
                 open
-                  ? "translate-x-0 opacity-100 delay-75"
-                  : "pointer-events-none -translate-x-1 opacity-0",
+                  ? "opacity-100 delay-75"
+                  : "pointer-events-none opacity-0",
               ].join(" ")}
             >
               <Link
@@ -559,7 +513,7 @@ export function AppSidebar({
                 className={buttonClassName({
                   variant: "ghost",
                   size: "icon",
-                  className: "h-7 w-7 shrink-0 bg-transparent p-0 hover:bg-app-panel-muted",
+                  className: "h-8 w-8 shrink-0 bg-transparent p-0 hover:bg-app-panel-muted",
                 })}
               >
                 <MaskedIcon src="/icons/menu/hide_sidebar.svg" />
@@ -567,7 +521,7 @@ export function AppSidebar({
             </div>
           </div>
 
-          <nav className="mt-4 flex flex-col gap-1.5" aria-label={open ? "Huvudmeny" : "Snabbmeny"}>
+          <nav className="mt-2 flex flex-col gap-0.5" aria-label={open ? "Huvudmeny" : "Snabbmeny"}>
             {open ? (
               <SidebarNavigation
                 pathname={pathname}
@@ -587,15 +541,9 @@ export function AppSidebar({
             )}
           </nav>
 
-          <nav className="mt-auto flex flex-col gap-1.5 pt-4" aria-label="Administration och inställningar">
-            {orderedUtilityItems.map((item) => (
-              <SidebarLink
-                key={item.href}
-                item={item}
-                pathname={pathname}
-                compact={!open}
-              />
-            ))}
+          <nav className="mt-auto flex flex-col gap-0.5 pt-3" aria-label="Profil och inställningar">
+            <SidebarLink item={profileItem} pathname={pathname} compact={!open} />
+            <SettingsMenu compact={!open} />
           </nav>
         </div>
       </aside>

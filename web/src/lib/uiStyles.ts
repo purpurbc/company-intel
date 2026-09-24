@@ -68,25 +68,26 @@ export const ui = {
    * so product code should not repeat page padding, panel padding or heading
    * typography. Change these values to update the complete application shell.
    */
-  page: "min-h-screen bg-app-bg px-4 py-5 text-app-text sm:px-6 sm:py-6",
-  pageContent: "mx-auto w-full max-w-7xl space-y-5",
-  pageContentNarrow: "mx-auto w-full max-w-4xl space-y-5",
+  page: "min-h-screen bg-app-bg px-3 py-4 text-app-text sm:px-4 sm:py-5",
+  pageContent: "mx-auto w-full max-w-7xl space-y-4",
+  pageContentNarrow: "mx-auto w-full max-w-4xl space-y-4",
+  pageContentCompact: "mx-auto w-full max-w-xl space-y-4",
   pageHeader: "[&+nav]:!mt-3",
   pageTitle: "text-2xl font-semibold text-app-text",
   pageDescription: "mt-2 max-w-3xl text-sm leading-6 text-app-text-muted",
   eyebrow: "text-xs font-medium uppercase text-app-text-subtle",
   sectionTitle: "text-base font-semibold text-app-text",
   sectionDescription: "mt-1 text-sm leading-6 text-app-text-muted",
-  sectionGrid: "grid min-w-0 gap-4 lg:grid-cols-2",
-  detailGrid: "grid min-w-0 gap-4 xl:grid-cols-2",
+  sectionGrid: "grid min-w-0 gap-3 lg:grid-cols-2",
+  detailGrid: "grid min-w-0 gap-3 xl:grid-cols-2",
 
   card: "rounded-md border border-app-border bg-app-panel shadow-[var(--app-shadow-panel)]",
   cardMuted: "rounded-md border border-app-border bg-app-panel-muted shadow-[var(--app-shadow-panel)]",
   stickyHeader:
     "sticky top-0 z-30 bg-app-panel shadow-[var(--app-shadow-sticky)]",
-  panelPadding: "p-3 sm:p-4",
-  panelPaddingCompact: "p-3",
-  inset: "rounded-md border border-app-border bg-app-panel-soft p-2.5",
+  panelPadding: "p-2.5 sm:p-3",
+  panelPaddingCompact: "p-2.5",
+  inset: "rounded-md border border-app-border bg-app-panel-soft p-2",
   modalOverlay:
     "fixed inset-0 z-[100] flex items-center justify-center bg-app-overlay p-4",
   modalPanel:

@@ -395,12 +395,13 @@ class MunicipalityOverview(ApiModel):
     by_company_state: list[CountByName]
 
 
-IngestionStatus = Literal["running", "done", "failed", "interrupted"]
+IngestionStatus = Literal["running", "done", "partial", "failed", "interrupted"]
 
 
 class AdminSummary(ApiModel):
     runs_total: int = Field(ge=0)
     done: int = Field(ge=0)
+    partial: int = Field(ge=0)
     failed: int = Field(ge=0)
     running: int = Field(ge=0)
     interrupted: int = Field(ge=0)
@@ -414,6 +415,7 @@ class AdminSourceSummary(ApiModel):
     source_name: str
     runs: int = Field(ge=0)
     done: int = Field(ge=0)
+    partial: int = Field(ge=0)
     failed: int = Field(ge=0)
     records_seen: int = Field(ge=0)
     records_new: int = Field(ge=0)

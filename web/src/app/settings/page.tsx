@@ -10,7 +10,7 @@ export const metadata = pageMetadata(
 
 export default function SettingsPage() {
   return (
-    <Page>
+    <Page width="compact">
       <PageHeader title="Inställningar" />
       <AppearanceSettings />
     </Page>

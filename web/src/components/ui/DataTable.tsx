@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 
 import { MaskedIcon } from "@/src/components/ui/MaskedIcon";
-import { DropdownMenu } from "@/src/components/ui/DropdownMenu";
+import { ActionControl } from "@/src/components/ui/Button";
 
 export type DataTableColumn = {
   key: string;
@@ -41,38 +41,17 @@ export function DataTableColumnDividerToggle({
   onChange: (mode: ColumnDividerMode) => void;
 }) {
   return (
-    <DropdownMenu
+    <ActionControl
       label="Kolumnlinjer"
-      triggerText="Kolumnlinjer"
-      triggerVariant="ghost"
-      icon={<MaskedIcon src="/icons/utility/compact_list.svg" className="h-4 w-4" />}
-      items={[
-        {
-          key: "hidden",
-          active: value === "hidden",
-          onSelect: () => onChange("hidden"),
-          label: "Utan kolumnlinjer",
-          icon: (
-            <MaskedIcon
-              src="/icons/utility/compact_list.svg"
-              className="h-4 w-4"
-            />
-          ),
-        },
-        {
-          key: "visible",
-          active: value === "visible",
-          onSelect: () => onChange("visible"),
-          label: "Med kolumnlinjer",
-          icon: (
-            <MaskedIcon
-              src="/icons/utility/four_squares.svg"
-              className="h-4 w-4"
-            />
-          ),
-        },
-      ]}
-    />
+      size="sm"
+      variant={value === "visible" ? "toggle" : "ghost"}
+      className={value === "visible" ? "border-app-accent-border bg-app-accent-bg text-app-accent-text" : ""}
+      pressed={value === "visible"}
+      onClick={() => onChange(value === "visible" ? "hidden" : "visible")}
+      icon={<MaskedIcon src="/icons/utility/four_squares.svg" className="h-4 w-4" />}
+    >
+      Kolumnlinjer
+    </ActionControl>
   );
 }
 
@@ -172,10 +151,10 @@ export function DataTable({
       ) : null}
 
       <div className="app-scrollbar overflow-x-auto">
-        <table className="w-full min-w-max border-collapse text-xs">
+        <table className="w-full min-w-max border-separate border-spacing-0 text-xs">
           <caption className="sr-only">{caption}</caption>
           <thead>
-            <tr className="border-b border-app-border text-[11px] font-medium uppercase text-app-text-subtle">
+            <tr className="text-[11px] font-medium uppercase text-app-text-subtle">
               {columns.map((column) => {
                 const activeSort = sort?.columnKey === column.key ? sort : null;
                 return (
@@ -184,7 +163,7 @@ export function DataTable({
                     scope="col"
                     aria-sort={sortable ? (activeSort?.direction ?? "none") : undefined}
                     className={[
-                      "whitespace-nowrap px-2 py-1.5 font-medium first:pl-0 last:pr-0",
+                      "whitespace-nowrap border-b border-app-border px-2 py-1.5 font-medium first:pl-0 last:pr-0",
                       activeColumnDividerMode === "visible"
                         ? "border-l border-app-border/70 first:border-l-0"
                         : "",
@@ -224,14 +203,14 @@ export function DataTable({
               })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-app-border/70">
+          <tbody>
             {sortedRows.map((row) => (
-              <tr key={row.key} className="transition-colors hover:bg-app-panel-hover-soft">
+              <tr key={row.key} className="hover:bg-app-panel-hover-soft">
                 {columns.map((column) => (
                   <td
                     key={column.key}
                     className={[
-                      "whitespace-nowrap px-2 py-1.5 first:pl-0 last:pr-0",
+                      "whitespace-nowrap border-b border-app-border/70 px-2 py-1.5 first:pl-0 last:pr-0",
                       activeColumnDividerMode === "visible"
                         ? "border-l border-app-border/70 first:border-l-0"
                         : "",

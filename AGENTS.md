@@ -181,10 +181,12 @@ source-as-of date and event effective date separate. Never infer an individual
 company fact from aggregate statistics. Preserve leading zeroes in codes and
 distinguish missing values from real zeroes.
 
-`db/migrations/` is append-only after application. Do not edit an applied
-migration; add a clearly named migration and update `db/README.md` when the
-contract changes. Avoid speculative dimensions, marts or indexes without a
-real consumer and measured benefit.
+`db/migrations/` has one current-schema baseline. Databases that reached the
+previous terminal migration adopt it without replaying DDL; partial older
+chains stop. From this baseline onward migrations are append-only after
+application. Do not edit an applied migration; add a clearly named migration
+and update `db/README.md` when the contract changes. Avoid speculative
+dimensions, marts or indexes without a real consumer and measured benefit.
 
 Early customer, offer and watch-list prototypes were deliberately removed.
 Do not reintroduce them without a newly agreed product model.
@@ -203,4 +205,3 @@ python -m db.migrate --check
 For search or database work, add a regression test and measure representative
 queries against realistic data. For UI work, verify both themes, narrow/vertical
 mode, long Swedish labels, empty/loading/error states and reduced motion.
-

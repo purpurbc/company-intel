@@ -3,7 +3,7 @@ import { ui } from "@/src/lib/uiStyles";
 
 type PageProps = {
   children: ReactNode;
-  width?: "content" | "narrow";
+  width?: "content" | "narrow" | "compact";
   className?: string;
   contentClassName?: string;
 };
@@ -19,7 +19,11 @@ export function Page({
     <main className={[ui.page, className].join(" ")}>
       <div
         className={[
-          width === "narrow" ? ui.pageContentNarrow : ui.pageContent,
+          width === "compact"
+            ? ui.pageContentCompact
+            : width === "narrow"
+              ? ui.pageContentNarrow
+              : ui.pageContent,
           contentClassName,
         ].join(" ")}
       >

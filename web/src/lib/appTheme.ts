@@ -1,14 +1,15 @@
 export type ColorMode = "dark" | "light";
-export type ColorTheme = "nordic" | "ocean" | "plum";
+export type ColorTheme = "signature" | "slate" | "sand" | "forest";
 
 export const COLOR_MODE_STORAGE_KEY = "company-intel-theme";
 export const COLOR_THEME_STORAGE_KEY = "company-intel-color-theme";
 export const APP_THEME_CHANGE_EVENT = "company-intel-theme-change";
 
 export const COLOR_THEME_OPTIONS: { value: ColorTheme; label: string }[] = [
-  { value: "nordic", label: "Nordisk" },
-  { value: "ocean", label: "Marin" },
-  { value: "plum", label: "Plommon" },
+  { value: "signature", label: "grafit och ultramarin" },
+  { value: "slate", label: "djupblå skiffer" },
+  { value: "sand", label: "varm sandsten" },
+  { value: "forest", label: "dämpad skogsgrön" },
 ];
 
 export function isColorMode(value: unknown): value is ColorMode {
@@ -16,7 +17,7 @@ export function isColorMode(value: unknown): value is ColorMode {
 }
 
 export function isColorTheme(value: unknown): value is ColorTheme {
-  return COLOR_THEME_OPTIONS.some((option) => option.value === value);
+  return value === "signature" || value === "slate" || value === "sand" || value === "forest";
 }
 
 export function currentColorMode(): ColorMode {
@@ -26,7 +27,7 @@ export function currentColorMode(): ColorMode {
 
 export function currentColorTheme(): ColorTheme {
   const value = document.documentElement.dataset.colorTheme;
-  return isColorTheme(value) ? value : "nordic";
+  return isColorTheme(value) ? value : "signature";
 }
 
 function announceThemeChange() {

@@ -166,7 +166,7 @@ export function DropdownMenu({
                 <span className="min-w-0 flex-1">{item.label}</span>
                 {item.active ? (
                   <MaskedIcon
-                    src="/icons/utility/check-circle.svg"
+                    src="/icons/utility/check.svg"
                     className="ml-auto h-4 w-4 text-app-accent-text"
                   />
                 ) : null}

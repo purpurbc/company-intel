@@ -11,6 +11,7 @@ def get_admin_data_overview():
             SELECT
                 count(*)::bigint AS runs_total,
                 count(*) FILTER (WHERE status = 'done')::bigint AS done,
+                count(*) FILTER (WHERE status = 'partial')::bigint AS partial,
                 count(*) FILTER (WHERE status = 'failed')::bigint AS failed,
                 count(*) FILTER (WHERE status = 'running')::bigint AS running,
                 count(*) FILTER (WHERE status = 'interrupted')::bigint AS interrupted,
@@ -29,6 +30,7 @@ def get_admin_data_overview():
                 source.name AS source_name,
                 count(run.id)::bigint AS runs,
                 count(run.id) FILTER (WHERE run.status = 'done')::bigint AS done,
+                count(run.id) FILTER (WHERE run.status = 'partial')::bigint AS partial,
                 count(run.id) FILTER (WHERE run.status = 'failed')::bigint AS failed,
                 coalesce(sum(run.records_seen), 0)::bigint AS records_seen,
                 coalesce(sum(run.records_new), 0)::bigint AS records_new,
